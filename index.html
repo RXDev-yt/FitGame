@@ -3,26 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>RepQuest — Arcade Fitness RPG</title>
+<title>Kliky Arena — 1v1 Push-Up Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- MediaPipe Pose Script Imports -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+<!-- PeerJS for Real-time Multiplayer -->
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
 <style>
   :root{
     --bg-dark:#0F172A;
-    --bg-deep:#0B1222;
-    --card-dark:rgba(30,41,59,0.82);
-    --card-solid:#1E293B;
+    --card-dark:rgba(30,41,59,0.85);
     --card-2:#273449;
     --purple:#8B5CF6;
-    --purple-deep:#6D28D9;
     --gold:#F59E0B;
     --red:#EF4444;
     --green:#10B981;
     --text:#F1F5F9;
     --dim:#94A3B8;
-    --line:rgba(241,245,249,0.10);
+    --line:rgba(241,245,249,0.12);
     --grad-purple:linear-gradient(135deg,#8B5CF6,#6D28D9);
     --grad-cta:linear-gradient(135deg,#8B5CF6 10%,#F59E0B 120%);
   }
@@ -30,154 +32,98 @@
   html,body{ height:100%; }
   body{
     background:#070B14; color:var(--text);
-    font-family:'Nunito',system-ui,sans-serif; line-height:1.5;
+    font-family:'Nunito',system-ui,sans-serif;
     display:flex; justify-content:center; overflow:hidden;
   }
-  button{ font-family:inherit; color:inherit; background:none; border:none; cursor:pointer; }
-  svg{ display:block; }
-  h1,h2,h3,.hdr{ font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,0.45); letter-spacing:0.01em; }
+  button, input{ font-family:inherit; color:inherit; }
+  button{ background:none; border:none; cursor:pointer; }
 
   #app{ position:relative; width:100%; max-width:430px; height:100dvh; background:var(--bg-dark); overflow:hidden; box-shadow:0 0 90px rgba(139,92,246,0.22); }
-  .screen{ position:absolute; inset:0; overflow-y:auto; padding:18px 16px 108px; display:none; scrollbar-width:none; }
-  .screen::-webkit-scrollbar{ display:none; }
+  .screen{ position:absolute; inset:0; overflow-y:auto; padding:18px 16px 80px; display:none; scrollbar-width:none; }
   .screen.active{ display:block; animation:si .2s ease; }
   @keyframes si{ from{opacity:0; transform:translateY(8px);} to{opacity:1;} }
 
   .card{ background:var(--card-dark); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:20px; padding:16px; margin-bottom:13px; }
-  .row{ display:flex; align-items:center; }
-  .grow{ flex:1; }
   .dim{ color:var(--dim); }
   .gold{ color:var(--gold); }
   .green{ color:var(--green); }
   .red{ color:var(--red); }
 
-  .pbar{ height:9px; border-radius:99px; background:rgba(0,0,0,0.4); overflow:hidden; }
-  .pbar i{ display:block; height:100%; border-radius:99px; transition:width .45s cubic-bezier(.2,.9,.3,1.15); }
-  .fill-p i{ background:var(--grad-purple); }
-  .fill-g i{ background:linear-gradient(90deg,#FCD34D,var(--gold)); }
-  .fill-r i{ background:linear-gradient(90deg,#F87171,var(--red)); }
-
-  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; font-weight:900; font-size:15px; padding:15px; border-radius:16px; width:100%; transition:transform .1s, filter .15s; text-shadow:0 2px 0 rgba(0,0,0,0.3); }
+  .btn{ display:flex; align-items:center; justify-content:center; gap:8px; font-weight:900; font-size:15px; padding:15px; border-radius:16px; width:100%; text-shadow:0 2px 0 rgba(0,0,0,0.3); transition:transform .1s; }
   .btn:active{ transform:scale(.97); }
   .b-purple{ background:var(--grad-purple); color:#fff; box-shadow:0 6px 18px rgba(139,92,246,.45); }
   .b-gold{ background:linear-gradient(135deg,#FCD34D,var(--gold)); color:#3A2503; text-shadow:none; box-shadow:0 6px 18px rgba(245,158,11,.4); }
-  .b-ghost{ background:var(--card-2); border:1px solid var(--line); }
-  .b-cta{ background:var(--grad-cta); color:#fff; box-shadow:0 0 26px rgba(245,158,11,.5),0 8px 22px rgba(139,92,246,.5); animation:glowP 2.2s infinite; }
-  @keyframes glowP{ 50%{ box-shadow:0 0 40px rgba(245,158,11,.75),0 8px 22px rgba(139,92,246,.6);} }
+  .b-cta{ background:var(--grad-cta); color:#fff; box-shadow:0 0 26px rgba(245,158,11,.5); }
 
-  /* ---- TOP STATUS BAR ---- */
-  .statusbar{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
-  .av-wrap{ position:relative; flex:none; }
-  .avatar{ width:46px; height:46px; border-radius:50%; background:var(--grad-purple); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px; }
-  .av-frame-gold .avatar{ box-shadow:0 0 0 3px var(--gold),0 0 16px rgba(245,158,11,.6); }
-  .lvl-badge{ position:absolute; left:-6px; top:-6px; background:var(--gold); color:#3A2503; font-size:9.5px; font-weight:900; padding:2px 6px; border-radius:99px; }
-  .xp-mini{ flex:1; }
-  .xp-mini .t{ display:flex; justify-content:space-between; font-size:10.5px; font-weight:900; color:var(--dim); margin-bottom:4px; }
-  .pillstat{ display:flex; align-items:center; gap:4px; font-weight:900; font-size:12.5px; background:var(--card-dark); border:1px solid var(--line); padding:7px 10px; border-radius:99px; flex:none; }
-
-  /* ---- ARENA SELECTION ---- */
-  .mode-card{ position:relative; overflow:hidden; }
-  .mode-card .em{ font-size:30px; }
-  .mode-card b{ font-size:16px; display:block; }
-  .mode-card p{ font-size:12px; color:var(--dim); font-weight:700; margin-top:2px; }
   .target-pills{ display:flex; gap:8px; margin-top:11px; }
-  .tpill{ flex:1; text-align:center; font-weight:900; font-size:12.5px; padding:8px; border-radius:11px; background:var(--card-2); border:1.5px solid transparent; color:var(--dim); cursor:pointer; }
+  .tpill{ flex:1; text-align:center; font-weight:900; font-size:12.5px; padding:10px; border-radius:11px; background:var(--card-2); border:1.5px solid transparent; color:var(--dim); cursor:pointer; }
   .tpill.sel{ border-color:var(--gold); color:var(--gold); background:rgba(245,158,11,.1); }
 
-  /* ---- DUEL (1v1 SPLIT) ---- */
-  #scr-duel{ padding:12px 12px calc(88px + env(safe-area-inset-bottom)); display:none; flex-direction:column; height:100dvh; }
+  .inp-box{ width:100%; padding:12px; border-radius:12px; background:var(--card-2); border:1px solid var(--line); margin-bottom:10px; text-align:center; font-weight:800; text-transform:uppercase; letter-spacing:2px; }
+
+  /* DUEL SCREEN */
+  #scr-duel{ padding:12px 12px 20px; display:none; flex-direction:column; height:100dvh; }
   #scr-duel.active{ display:flex; }
   .duel-half{ flex:1; position:relative; border-radius:18px; overflow:hidden; border:2px solid var(--line); background:#000; min-height:0; }
   .duel-half.opp{ border-color:rgba(239,68,68,.6); }
-  .duel-half.me{ border-color:rgba(139,92,246,.7); margin-top:10px; }
+  .duel-half.me{ border-color:rgba(139,92,246,.7); margin-top:8px; }
   .duel-half video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
-  .feed-fake{ position:absolute; inset:0; background:linear-gradient(120deg,#131C30 30%,#1C2A47 50%,#131C30 70%); background-size:220% 100%; animation:shimmer 2.1s linear infinite; display:flex; align-items:center; justify-content:center; }
-  @keyframes shimmer{ to{ background-position:-220% 0;} }
-  .pose-canvas{ position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; transform:scaleX(-1); }
+  .pose-canvas{ position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; }
   .duel-ov{ position:absolute; inset:0; padding:10px; display:flex; flex-direction:column; justify-content:space-between; z-index:3; pointer-events:none; }
   .duel-top{ display:flex; align-items:center; gap:8px; }
   .live-b{ font-size:9px; font-weight:900; background:var(--red); padding:3px 8px; border-radius:99px; letter-spacing:.1em; }
-  .duel-nm{ font-weight:900; font-size:13px; text-shadow:0 2px 4px rgba(0,0,0,.8); }
   .duel-reps{ align-self:flex-end; text-align:right; }
-  .duel-reps .n{ font-size:38px; font-weight:900; line-height:1; text-shadow:0 3px 0 rgba(0,0,0,.5); }
-  .duel-reps .l{ font-size:9px; font-weight:900; letter-spacing:.14em; color:rgba(255,255,255,.75); }
-  .duel-mid{ display:flex; align-items:center; justify-content:center; gap:12px; padding:9px 0 0; }
-  .lead-tag{ font-weight:900; font-size:13px; padding:7px 15px; border-radius:99px; background:var(--card-2); border:1px solid var(--line); }
+  .duel-reps .n{ font-size:38px; font-weight:900; line-height:1; }
+  .duel-mid{ display:flex; align-items:center; justify-content:center; gap:12px; padding:6px 0; }
+  .lead-tag{ font-weight:900; font-size:13px; padding:5px 14px; border-radius:99px; background:var(--card-2); border:1px solid var(--line); }
   .lead-tag.ahead{ color:var(--green); border-color:rgba(16,185,129,.5); }
   .lead-tag.behind{ color:var(--red); border-color:rgba(239,68,68,.5); }
-  .duel-timer{ font-weight:900; font-size:17px; }
-  .duel-tapzone{ position:absolute; inset:0; z-index:4; cursor:pointer; }
-
-  /* ---- VICTORY ---- */
-  #scr-victory{ text-align:center; }
-  .vic-stars{ font-size:38px; letter-spacing:6px; margin-top:16px; }
-  .vic-h{ font-size:34px; color:var(--gold); margin:4px 0 18px; }
-  .vic-h.lose{ color:var(--red); }
-
-  /* ---- NAV ---- */
-  #nav{ position:absolute; left:0; right:0; bottom:0; z-index:40; display:flex; padding:9px 6px calc(10px + env(safe-area-inset-bottom)); background:rgba(11,18,34,.94); backdrop-filter:blur(12px); border-top:1px solid var(--line); }
-  .nv{ flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:9.5px; font-weight:900; color:var(--dim); cursor:pointer; }
-  .nv.on{ color:#C4B5FD; }
 </style>
 </head>
 <body>
 
 <div id="app">
-  <!-- HOME -->
-  <div id="scr-home" class="screen active">
-    <div class="statusbar">
-      <div class="av-wrap av-frame-gold"><div class="avatar">⚡</div><div class="lvl-badge">LVL 4</div></div>
-      <div class="xp-mini">
-        <div class="t"><span>HERO</span><span>1,240 / 2,000 XP</span></div>
-        <div class="pbar fill-p"><i style="width: 62%;"></i></div>
-      </div>
-      <div class="pillstat"><span>🪙</span> <span class="gold">450</span></div>
-    </div>
-    <h2>KLIKY (PUSH-UPS) 1v1</h2>
-    <p class="dim" style="margin-bottom:20px;">Pose tracking detects elbow joint angles to auto-count push-ups.</p>
-    <button class="btn b-cta" onclick="switchTab('scr-arena')">⚔️ CHOOSE SPRINT MODE</button>
-  </div>
+  <!-- ARENA & ROOM SETUP -->
+  <div id="scr-arena" class="screen active">
+    <h2 style="margin-bottom:4px;">KLIKY (PUSH-UP) DUEL</h2>
+    <p class="dim" style="margin-bottom:16px;">Tracks your shoulder-elbow angle to auto-count reps.</p>
 
-  <!-- ARENA SELECTION -->
-  <div id="scr-arena" class="screen">
-    <div style="font-weight:900; font-size:12px; letter-spacing:1px; color:var(--dim); margin-bottom:12px;">SELECT MATCH DURATION</div>
-    
-    <div class="card mode-card">
-      <div class="row">
-        <span class="em">⏱️</span>
-        <div style="margin-left:12px;">
-          <b>Kliky (Push-Up) Duel Mode</b>
-          <p>Arms extended (160°) to low depth (90°) count 1 rep.</p>
-        </div>
-      </div>
+    <div class="card">
+      <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">1. SELECT DURATION</div>
       <div class="target-pills">
         <div class="tpill sel" id="t-10" onclick="selectTime(10)">10 sec</div>
         <div class="tpill" id="t-30" onclick="selectTime(30)">30 sec</div>
         <div class="tpill" id="t-90" onclick="selectTime(90)">1m 30s</div>
       </div>
-      <button class="btn b-gold" style="margin-top:14px;" onclick="startPushupMatch()">START MATCH</button>
     </div>
+
+    <div class="card">
+      <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">2. MULTIPLAYER ROOM</div>
+      <div style="font-size:12px; margin-bottom:8px;" id="my-peer-id">My Room Code: <span class="gold">Generating...</span></div>
+      <input type="text" id="friend-id-input" class="inp-box" placeholder="ENTER FRIEND'S CODE">
+      <button class="btn b-purple" onclick="connectToFriend()">CONNECT TO FRIEND</button>
+    </div>
+
+    <button class="btn b-gold" style="margin-top:10px;" onclick="startPushupMatch()">START MATCH</button>
   </div>
 
   <!-- 1v1 DUEL SCREEN -->
   <div id="scr-duel" class="screen">
     <div class="duel-half opp">
-      <div class="feed-fake">👺</div>
+      <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:40px;">🤼</div>
       <div class="duel-ov">
         <div class="duel-top">
-          <span class="live-b">RIVAL</span>
-          <div class="duel-nm">OPPONENT</div>
+          <span class="live-b">FRIEND</span>
         </div>
         <div class="duel-reps">
           <div class="n" id="opp-reps">0</div>
-          <div class="l">REPS</div>
         </div>
       </div>
     </div>
 
     <div class="duel-mid">
       <div class="lead-tag" id="lead-indicator">TIED</div>
-      <div class="duel-timer" id="duel-time">00:10</div>
+      <div style="font-weight:900; font-size:18px;" id="duel-time">00:10</div>
     </div>
 
     <div class="duel-half me">
@@ -186,32 +132,23 @@
       <div class="duel-ov">
         <div class="duel-top">
           <span class="live-b" style="background:var(--purple);">YOU</span>
-          <div class="duel-nm">HERO</div>
         </div>
         <div class="duel-reps">
           <div class="n" id="my-reps">0</div>
-          <div class="l">REPS</div>
         </div>
       </div>
-      <div class="duel-tapzone" onclick="triggerManualRep()"></div>
     </div>
   </div>
 
   <!-- VICTORY SCREEN -->
-  <div id="scr-victory" class="screen">
-    <div class="vic-stars">⭐⭐⭐</div>
-    <div class="vic-h" id="vic-title">VICTORY!</div>
-    <div class="card" style="margin-bottom:16px;">
-      <div class="dim" style="font-size:12px; font-weight:900;">TOTAL REPS</div>
-      <div style="font-size:32px; font-weight:900;" id="vic-reps">0</div>
+  <div id="scr-victory" class="screen" style="text-align:center;">
+    <h1 style="font-size:36px; color:var(--gold); margin-top:40px;" id="vic-title">VICTORY!</h1>
+    <div class="card" style="margin:20px 0;">
+      <div class="dim" style="font-size:12px; font-weight:900;">YOUR PUSH-UPS</div>
+      <div style="font-size:48px; font-weight:900;" id="vic-reps">0</div>
     </div>
-    <button class="btn b-purple" onclick="switchTab('scr-home')">CONTINUE</button>
+    <button class="btn b-purple" onclick="switchTab('scr-arena')">PLAY AGAIN</button>
   </div>
-
-  <nav id="nav">
-    <div class="nv on" onclick="switchTab('scr-home')">Home</div>
-    <div class="nv" onclick="switchTab('scr-arena')">Arena</div>
-  </nav>
 </div>
 
 <script>
@@ -219,19 +156,50 @@
   let myReps = 0;
   let oppReps = 0;
   let timerInterval = null;
-  let animFrameId = null;
+  
+  // PeerJS Connections
+  let peer = null;
+  let conn = null;
 
   // Pose Tracking State
-  let pushupState = "TOP"; // "TOP" or "BOTTOM"
-  const ANGLE_TOP = 160;   // Arms straight
-  const ANGLE_BOTTOM = 90; // Arms bent
+  let pushupState = "TOP";
+  const ANGLE_TOP = 150;
+  const ANGLE_BOTTOM = 95;
+
+  // Initialize Peer Connection
+  peer = new Peer();
+  peer.on('open', (id) => {
+    document.getElementById('my-peer-id').innerHTML = `My Room Code: <span class="gold">${id}</span>`;
+  });
+
+  peer.on('connection', (c) => {
+    conn = c;
+    setupPeerListeners();
+  });
+
+  function connectToFriend() {
+    const friendId = document.getElementById('friend-id-input').value.trim();
+    if (friendId) {
+      conn = peer.connect(friendId);
+      setupPeerListeners();
+    }
+  }
+
+  function setupPeerListeners() {
+    conn.on('data', (data) => {
+      if (data.type === 'REP_UPDATE') {
+        oppReps = data.reps;
+        document.getElementById('opp-reps').innerText = oppReps;
+        updateLead();
+      } else if (data.type === 'START_MATCH') {
+        runMatchTimer(data.duration);
+      }
+    });
+  }
 
   function switchTab(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
-    if (id !== 'scr-duel' && animFrameId) {
-      cancelAnimationFrame(animFrameId);
-    }
   }
 
   function selectTime(sec) {
@@ -243,6 +211,13 @@
   }
 
   function startPushupMatch() {
+    if (conn && conn.open) {
+      conn.send({ type: 'START_MATCH', duration: selectedDuration });
+    }
+    runMatchTimer(selectedDuration);
+  }
+
+  function runMatchTimer(duration) {
     myReps = 0;
     oppReps = 0;
     pushupState = "TOP";
@@ -250,22 +225,15 @@
     document.getElementById('opp-reps').innerText = '0';
     
     switchTab('scr-duel');
-    initCamera();
+    initMediaPipePose();
 
-    let timeRem = selectedDuration;
+    let timeRem = duration;
     updateTimerDisplay(timeRem);
 
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = setInterval(() => {
       timeRem--;
       updateTimerDisplay(timeRem);
-
-      // Simulate opponent push-up progress
-      if (Math.random() > 0.5) {
-        oppReps++;
-        document.getElementById('opp-reps').innerText = oppReps;
-        updateLead();
-      }
 
       if (timeRem <= 0) {
         clearInterval(timerInterval);
@@ -280,9 +248,12 @@
     document.getElementById('duel-time').innerText = `${m < 10 ? '0':''}${m}:${s < 10 ? '0':''}${s}`;
   }
 
-  function triggerManualRep() {
+  function countPushupRep() {
     myReps++;
     document.getElementById('my-reps').innerText = myReps;
+    if (conn && conn.open) {
+      conn.send({ type: 'REP_UPDATE', reps: myReps });
+    }
     updateLead();
   }
 
@@ -305,75 +276,82 @@
     const title = document.getElementById('vic-title');
     if (myReps >= oppReps) {
       title.innerText = "VICTORY!";
-      title.className = "vic-h";
+      title.className = "vic-h green";
     } else {
       title.innerText = "DEFEAT";
-      title.className = "vic-h lose";
+      title.className = "vic-h red";
     }
     switchTab('scr-victory');
   }
 
-  // --- SKELETON POSE TRACKER & CANVAS ANIMATION ---
-  async function initCamera() {
-    const video = document.getElementById('duel-webcam');
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-      video.srcObject = stream;
-      renderSkeletonLoop();
-    } catch (e) {
-      console.warn("Camera fallback active", e);
-    }
+  // --- MEDIAPIPE REAL POSE TRACKING ---
+  function calculateAngle(A, B, C) {
+    const radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
+    let angle = Math.abs((radians * 180.0) / Math.PI);
+    if (angle > 180.0) angle = 360.0 - angle;
+    return angle;
   }
 
-  function renderSkeletonLoop() {
-    const canvas = document.getElementById('poseCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+  function initMediaPipePose() {
+    const videoElement = document.getElementById('duel-webcam');
+    const canvasElement = document.getElementById('poseCanvas');
+    const canvasCtx = canvasElement.getContext('2d');
 
-    const t = Date.now() * 0.003;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Simulated skeleton keypoints for shoulders, elbows, wrists
-    const shoulder = { x: canvas.width * 0.5, y: canvas.height * 0.35 };
-    const armAngle = Math.sin(t) * 35 + 125; // Cycles between 90 and 160 deg
-
-    const elbow = {
-      x: shoulder.x + 60 * Math.cos(armAngle * Math.PI / 180),
-      y: shoulder.y + 60 * Math.sin(armAngle * Math.PI / 180)
-    };
-    const wrist = {
-      x: elbow.x + 50,
-      y: elbow.y + 50
-    };
-
-    // Rep detection state machine based on simulated joint angle
-    if (armAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
-      pushupState = "BOTTOM";
-    } else if (armAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
-      pushupState = "TOP";
-      triggerManualRep();
-    }
-
-    // Draw Skeleton Bones
-    ctx.strokeStyle = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
-    ctx.lineWidth = 6;
-    ctx.beginPath();
-    ctx.moveTo(shoulder.x, shoulder.y);
-    ctx.lineTo(elbow.x, elbow.y);
-    ctx.lineTo(wrist.x, wrist.y);
-    ctx.stroke();
-
-    // Draw Joint Dots
-    [shoulder, elbow, wrist].forEach(pt => {
-      ctx.fillStyle = "#F59E0B";
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
-      ctx.fill();
+    const pose = new Pose({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
     });
 
-    animFrameId = requestAnimationFrame(renderSkeletonLoop);
+    pose.setOptions({
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    pose.onResults((results) => {
+      canvasElement.width = videoElement.videoWidth;
+      canvasElement.height = videoElement.videoHeight;
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+      if (results.poseLandmarks) {
+        // Retrieve key joints (Right arm index: 12=Shoulder, 14=Elbow, 16=Wrist)
+        const shoulder = results.poseLandmarks[12];
+        const elbow = results.poseLandmarks[14];
+        const wrist = results.poseLandmarks[16];
+
+        if (shoulder && elbow && wrist) {
+          const elbowAngle = calculateAngle(shoulder, elbow, wrist);
+
+          // State Machine Rep Count
+          if (elbowAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
+            pushupState = "BOTTOM";
+          } else if (elbowAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
+            pushupState = "TOP";
+            countPushupRep();
+          }
+
+          // Draw skeleton overlay
+          canvasCtx.strokeStyle = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
+          canvasCtx.lineWidth = 6;
+          canvasCtx.beginPath();
+          canvasCtx.moveTo(shoulder.x * canvasElement.width, shoulder.y * canvasElement.height);
+          canvasCtx.lineTo(elbow.x * canvasElement.width, elbow.y * canvasElement.height);
+          canvasCtx.lineTo(wrist.x * canvasElement.width, wrist.y * canvasElement.height);
+          canvasCtx.stroke();
+        }
+      }
+      canvasCtx.restore();
+    });
+
+    const camera = new Camera(videoElement, {
+      onFrame: async () => {
+        await pose.send({ image: videoElement });
+      },
+      width: 640,
+      height: 480
+    });
+    camera.start();
   }
 </script>
 </body>
