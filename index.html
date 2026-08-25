@@ -165,6 +165,9 @@
   .track-pill.ai{ color:var(--green); }
   .track-pill.load{ color:var(--gold); }
   .track-pill.tap{ color:#C4B5FD; }
+  .stage-tag.ai{ color:var(--green); }
+  .stage-tag.load{ color:var(--gold); }
+  .stage-tag.tap{ color:#C4B5FD; pointer-events:auto; cursor:pointer; text-decoration:underline; text-underline-offset:2px; }
   .vp-fallback{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 35%,#1C2A47,#0B1222); }
   .skel{ position:absolute; inset:0; pointer-events:none; }
   .skel line{ stroke:var(--gold); stroke-width:3; stroke-linecap:round; opacity:.9; filter:drop-shadow(0 0 6px rgba(245,158,11,.8)); }
@@ -2147,7 +2150,8 @@ function loseBattle(){
 function setTrackPill(pillId,calibId,type,msg){
   const p=$(pillId); if(!p) return;
   if(!p.dataset.devbound){ p.dataset.devbound=1; p.onclick=()=>{ if(p.classList.contains('tap')) openDevModal(); }; }
-  p.className='track-pill '+(type==='ai'?'ai':(type==='load'||type==='warn')?'load':'tap');
+  p.classList.remove('ai','load','tap','warn');
+  p.classList.add(type==='ai'?'ai':(type==='load'||type==='warn')?'load':'tap');
   p.textContent=msg;
   const c=$(calibId);
   if(c){
@@ -3223,11 +3227,25 @@ const PoseEngine={
     this.cam=new Camera(video,{ onFrame:async()=>{ if(this.target) await this.pose.send({image:video}); },
       width:1280, height:720 });
     this.cam.start();
+    this.target._firstResult=false;
+    clearTimeout(this._resultWatchdog);
+    this._resultWatchdog=setTimeout(()=>{
+      if(this.target && !this.target._firstResult){
+        console.warn('[RepQuest] pose model produced no results in time — falling back to tap mode');
+        const vId=video.id, fbId=vId==='d-video'?'d-fb':'b-fb';
+        onStatus('tap','Tap mode — AI unavailable');
+        try{ this.stop(); }catch(e){}
+        initCam(vId, fbId);
+        if(vId==='d-video' && S.duel){ S.duel.tracking=false; $('d-hint').textContent='Tap anywhere = 1 rep'; $('d-tapzone').style.pointerEvents='auto'; }
+        if(vId==='b-video' && S.B){ S.B.tracking=false; $('rep-mode-lbl').textContent='TAP = 1 REP'; $('b-auto').style.display='flex'; $('b-fb').style.display='none'; }
+      }
+    }, 6000);
     onStatus('ai','AI tracking ON');
     return true;
   },
   onResults(res){
     const t=this.target; if(!t) return;
+    t._firstResult=true;
     this.drawPose(res.poseLandmarks,t);
     if(res.poseLandmarks) this.checkRep(res.poseLandmarks,t);
     else this.lowVis(t);
