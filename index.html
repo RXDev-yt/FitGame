@@ -43,223 +43,230 @@
   .screen.active{ display:block; animation:si .2s ease; }
   @keyframes si{ from{opacity:0; transform:translateY(8px);} to{opacity:1;} }
 
+  .card{ background:var(--card-dark); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:20px; padding:16px; margin-bottom:13px; }
+  .row{ display:flex; align-items:center; }
+  .grow{ flex:1; }
+  .dim{ color:var(--dim); }
+  .gold{ color:var(--gold); }
+  .green{ color:var(--green); }
+  .red{ color:var(--red); }
+
+  .pbar{ height:9px; border-radius:99px; background:rgba(0,0,0,0.4); overflow:hidden; }
+  .pbar i{ display:block; height:100%; border-radius:99px; transition:width .45s cubic-bezier(.2,.9,.3,1.15); }
+  .fill-p i{ background:var(--grad-purple); }
+  .fill-g i{ background:linear-gradient(90deg,#FCD34D,var(--gold)); }
+  .fill-r i{ background:linear-gradient(90deg,#F87171,var(--red)); }
+
   .btn{ display:flex; align-items:center; justify-content:center; gap:8px; font-weight:900; font-size:15px; padding:15px; border-radius:16px; width:100%; transition:transform .1s, filter .15s; text-shadow:0 2px 0 rgba(0,0,0,0.3); }
   .btn:active{ transform:scale(.97); }
   .b-purple{ background:var(--grad-purple); color:#fff; box-shadow:0 6px 18px rgba(139,92,246,.45); }
-  .b-ghost{ background:var(--card-2); border:1px solid var(--line); }
+  .b-cta{ background:var(--grad-cta); color:#fff; box-shadow:0 0 26px rgba(245,158,11,.5),0 8px 22px rgba(139,92,246,.5); animation:glowP 2.2s infinite; }
+  @keyframes glowP{ 50%{ box-shadow:0 0 40px rgba(245,158,11,.75),0 8px 22px rgba(139,92,246,.6);} }
 
-  /* ---- DUEL (1v1 SPLIT SCREEN) ---- */
-  #scr-duel{ padding:12px 12px calc(88px + env(safe-area-inset-bottom)); display:none; flex-direction:column; height:100%; }
-  #scr-duel.active{ display:flex; }
-  .duel-half{ flex:1; position:relative; border-radius:18px; overflow:hidden; border:2px solid var(--line); background:#000; min-height:0; }
-  .duel-half.opp{ border-color:rgba(239,68,68,.6); }
-  .duel-half.me{ border-color:rgba(139,92,246,.7); margin-top:10px; }
-  .duel-half video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+  /* TOP STATUS BAR */
+  .statusbar{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .av-wrap{ position:relative; flex:none; }
+  .avatar{ width:46px; height:46px; border-radius:50%; background:var(--grad-purple); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:15px; }
+  .av-frame-gold .avatar{ box-shadow:0 0 0 3px var(--gold),0 0 16px rgba(245,158,11,.6); }
+  .lvl-badge{ position:absolute; left:-6px; top:-6px; background:var(--gold); color:#3A2503; font-size:9.5px; font-weight:900; padding:2px 6px; border-radius:99px; box-shadow:0 2px 5px rgba(0,0,0,.5); }
+  .xp-mini{ flex:1; }
+  .xp-mini .t{ display:flex; justify-content:space-between; font-size:10.5px; font-weight:900; color:var(--dim); margin-bottom:4px; }
+  .pillstat{ display:flex; align-items:center; gap:4px; font-weight:900; font-size:12.5px; background:var(--card-dark); border:1px solid var(--line); padding:7px 10px; border-radius:99px; flex:none; }
+
+  /* HOME */
+  .boss-banner{ background:linear-gradient(135deg,#3B1D6E,#1E293B); border:1px solid rgba(139,92,246,.5); position:relative; overflow:hidden; }
+  .boss-sprite{ font-size:52px; filter:drop-shadow(0 6px 8px rgba(0,0,0,.6)); animation:bob 2.4s ease-in-out infinite; }
+  @keyframes bob{ 50%{ transform:translateY(-6px);} }
+  .boss-tag{ font-size:10px; font-weight:900; letter-spacing:.12em; color:var(--gold); }
+  .boss-nm{ font-size:19px; font-weight:900; }
+  .reward-chips{ display:flex; gap:7px; margin-top:12px; flex-wrap:wrap; }
+  .rchip{ font-size:11px; font-weight:900; padding:4px 10px; border-radius:99px; background:rgba(0,0,0,.35); }
+
+  .quest-card .row{ gap:12px; margin-bottom:9px; }
+  .q-ico{ width:42px; height:42px; border-radius:13px; background:var(--card-2); display:flex; align-items:center; justify-content:center; font-size:19px; flex:none; }
+  .quest-card b{ font-size:14px; }
+  .quest-card .sub{ font-size:11.5px; color:var(--dim); font-weight:700; }
+  .q-foot{ display:flex; justify-content:space-between; align-items:center; margin-top:9px; font-size:12px; font-weight:900; }
+  .claim{ background:var(--gold); color:#3A2503; padding:7px 14px; border-radius:99px; font-weight:900; font-size:12px; }
+  .claim:disabled{ background:var(--card-2); color:var(--dim); }
+
+  .qstats{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
+  .qstat{ background:var(--card-dark); border:1px solid var(--line); border-radius:16px; padding:12px 8px; text-align:center; }
+  .qstat .n{ font-size:19px; font-weight:900; }
+  .qstat .l{ font-size:9.5px; font-weight:900; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; }
+
+  .seclbl{ font-size:11px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin:18px 0 9px; }
+
+  /* BATTLE */
+  .combat-hud{ background:var(--card-dark); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:18px; padding:12px 14px; margin-bottom:12px; }
+  .enemy-line{ display:flex; align-items:center; gap:12px; }
+  .enemy-sprite{ font-size:40px; animation:bob 2s infinite; filter:drop-shadow(0 4px 6px rgba(0,0,0,.6)); }
+  .e-name{ font-weight:900; font-size:15px; }
+  .e-meta{ font-size:10.5px; font-weight:900; color:var(--dim); }
+  .hud-timer{ margin-left:auto; text-align:right; }
+  .hud-timer .t{ font-size:17px; font-weight:900; }
+  .hud-timer .l{ font-size:9px; font-weight:900; color:var(--dim); letter-spacing:.1em; }
+  .hp-line{ margin-top:9px; }
+
+  .viewport{ position:relative; border-radius:20px; overflow:hidden; background:#000; aspect-ratio:3/4.1; border:1px solid var(--line); margin-bottom:12px; }
+  .viewport video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
   .pose-canvas{ position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; transform:scaleX(-1); }
-  
-  .feed-fake{ position:absolute; inset:0; background:linear-gradient(120deg,#131C30 30%,#1C2A47 50%,#131C30 70%); background-size:220% 100%; animation:shimmer 2.1s linear infinite; display:flex; align-items:center; justify-content:center; }
-  @keyframes shimmer{ to{ background-position:-220% 0;} }
-  
-  .duel-ov{ position:absolute; inset:0; padding:10px; display:flex; flex-direction:column; justify-content:space-between; z-index:3; pointer-events:none; }
-  .duel-top{ display:flex; align-items:center; gap:8px; }
-  .live-b{ font-size:9px; font-weight:900; background:var(--red); padding:3px 8px; border-radius:99px; letter-spacing:.1em; }
-  .duel-nm{ font-weight:900; font-size:13px; text-shadow:0 2px 4px rgba(0,0,0,.8); }
-  .duel-lvl{ font-size:10px; font-weight:900; color:var(--gold); text-shadow:0 2px 4px rgba(0,0,0,.8); }
-  .duel-reps{ align-self:flex-end; text-align:right; }
-  .duel-reps .n{ font-size:38px; font-weight:900; line-height:1; text-shadow:0 3px 0 rgba(0,0,0,.5); }
-  .duel-reps .l{ font-size:9px; font-weight:900; letter-spacing:.14em; color:rgba(255,255,255,.75); }
-  
-  .track-pill{ position:absolute; top:10px; right:10px; z-index:4; font-size:10.5px; font-weight:900; padding:6px 12px; border-radius:99px; background:rgba(0,0,0,.55); backdrop-filter:blur(4px); }
+  .track-pill{ position:absolute; top:10px; left:10px; z-index:4; font-size:10.5px; font-weight:900; padding:6px 12px; border-radius:99px; background:rgba(0,0,0,.55); backdrop-filter:blur(4px); }
   .track-pill.ai{ color:var(--green); }
-  .track-pill.load{ color:var(--gold); }
-  .track-pill.tap{ color:#C4B5FD; cursor:pointer; pointer-events:auto; }
 
-  .duel-mid{ display:flex; align-items:center; justify-content:center; gap:12px; padding:9px 0 0; }
-  .lead-tag{ font-weight:900; font-size:13px; padding:7px 15px; border-radius:99px; background:var(--card-2); border:1px solid var(--line); }
-  .lead-tag.ahead{ color:var(--green); border-color:rgba(16,185,129,.5); }
-  .lead-tag.behind{ color:var(--red); border-color:rgba(239,68,68,.5); }
+  .bottom-hud{ display:flex; gap:10px; align-items:center; }
+  .rep-pill{ flex:1; background:var(--card-dark); border:2px solid var(--purple); border-radius:99px; text-align:center; padding:12px; box-shadow:0 0 20px rgba(139,92,246,.4); }
+  .rep-pill .n{ font-size:26px; font-weight:900; line-height:1; }
+  .rep-pill .l{ font-size:9.5px; font-weight:900; color:var(--dim); letter-spacing:.12em; }
+  .rep-pill.bump{ animation:bmp .16s; }
+  @keyframes bmp{ 50%{ transform:scale(1.07); box-shadow:0 0 34px rgba(139,92,246,.8);} }
+  .round-btn{ width:52px; height:52px; border-radius:50%; background:var(--card-2); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:19px; flex:none; }
 
-  #nav{ position:absolute; left:0; right:0; bottom:0; z-index:40; display:flex; padding:9px 6px; background:rgba(11,18,34,.94); border-top:1px solid var(--line); }
-  .nv{ flex:1; text-align:center; font-size:11px; font-weight:900; color:var(--dim); }
+  /* NAV */
+  #nav{ position:absolute; left:0; right:0; bottom:0; z-index:40; display:flex; padding:9px 6px calc(10px + env(safe-area-inset-bottom)); background:rgba(11,18,34,.94); backdrop-filter:blur(12px); border-top:1px solid var(--line); }
+  .nv{ flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:9px; font-weight:900; color:var(--dim); padding-top:3px; }
+  .nv svg{ width:20px; height:20px; }
+  .nv.on{ color:#C4B5FD; }
 </style>
 </head>
 <body>
 
 <div id="app">
-  <!-- 1v1 DUEL SCREEN -->
-  <div id="scr-duel" class="screen active">
+  <!-- HOME SCREEN -->
+  <div id="scr-home" class="screen active">
+    <div class="statusbar">
+      <div class="av-wrap av-frame-gold">
+        <div class="avatar">⚡</div>
+        <div class="lvl-badge">LVL 4</div>
+      </div>
+      <div class="xp-mini">
+        <div class="t"><span>HERO</span><span>1,240 / 2,000 XP</span></div>
+        <div class="pbar fill-p"><i style="width: 62%;"></i></div>
+      </div>
+      <div class="pillstat"><span>🪙</span> <span class="gold">450</span></div>
+    </div>
+
+    <div class="card boss-banner">
+      <div class="row">
+        <div class="grow">
+          <div class="boss-tag">CURRENT BOSS</div>
+          <div class="boss-nm">IRON GOLEM</div>
+          <div class="reward-chips">
+            <span class="rchip gold">🪙 +150</span>
+            <span class="rchip">⚡ +300 XP</span>
+          </div>
+        </div>
+        <div class="boss-sprite">🗿</div>
+      </div>
+    </div>
+
+    <div class="qstats">
+      <div class="qstat"><div class="n gold">12</div><div class="l">STREAK</div></div>
+      <div class="qstat"><div class="n green">1,420</div><div class="l">TOTAL REPS</div></div>
+      <div class="qstat"><div class="n">#4</div><div class="l">RANK</div></div>
+    </div>
+
+    <div class="seclbl">DAILY QUESTS</div>
     
-    <!-- OPPONENT FRAME -->
-    <div class="duel-half opp">
-      <div class="feed-fake">
-        <span style="font-size:12px; font-weight:900; color:var(--dim);">OPPONENT CAMERA FEED</span>
+    <div class="card quest-card">
+      <div class="row">
+        <div class="q-ico">🏋️</div>
+        <div class="grow">
+          <b>Complete 50 Squats</b>
+          <div class="sub">Progress: 35 / 50</div>
+        </div>
       </div>
-      <div class="duel-ov">
-        <div class="duel-top">
-          <span class="live-b">LIVE</span>
-          <div>
-            <div class="duel-nm">Rival_Flex</div>
-            <div class="duel-lvl">LVL 14</div>
-          </div>
-        </div>
-        <div class="duel-reps">
-          <div class="n" id="opp-rep-count">0</div>
-          <div class="l">REPS</div>
-        </div>
+      <div class="pbar fill-g"><i style="width: 70%;"></i></div>
+      <div class="qfoot" style="margin-top:8px;">
+        <button class="claim" disabled>IN PROGRESS</button>
       </div>
     </div>
 
-    <!-- MIDDLE SCORE TRACKER -->
-    <div class="duel-mid">
-      <div class="lead-tag" id="lead-status">TIED MATCH</div>
-    </div>
+    <button class="btn b-cta" onclick="switchTab('scr-battle')">⚔️ ENTER ARENA</button>
+  </div>
 
-    <!-- PLAYER FRAME (ME) -->
-    <div class="duel-half me">
-      <video id="my-video" autoplay playsinline muted></video>
-      <canvas id="my-canvas" class="pose-canvas"></canvas>
-      
-      <div class="track-pill load" id="ai-status-pill">AI IS LOADING...</div>
-
-      <div class="duel-ov">
-        <div class="duel-top">
-          <span class="live-b" style="background:var(--purple);">YOU</span>
-          <div>
-            <div class="duel-nm">Hero_Fitness</div>
-            <div class="duel-lvl">LVL 12</div>
-          </div>
+  <!-- BATTLE SCREEN -->
+  <div id="scr-battle" class="screen">
+    <div class="combat-hud">
+      <div class="enemy-line">
+        <div class="enemy-sprite">👹</div>
+        <div>
+          <div class="e-name">GOBBLER</div>
+          <div class="e-meta">HP 100/100</div>
         </div>
-        <div class="duel-reps">
-          <div class="n" id="my-rep-count">0</div>
-          <div class="l">REPS</div>
+        <div class="hud-timer">
+          <div class="t">00:45</div>
+          <div class="l">TIME</div>
         </div>
+      </div>
+      <div class="hp-line">
+        <div class="pbar fill-r"><i style="width: 100%;"></i></div>
       </div>
     </div>
 
-    <!-- CONTROLS FOR TESTING -->
-    <div style="display:flex; gap:8px; margin-top:8px;">
-      <button class="btn b-purple" onclick="doRep()">+1 MY REP</button>
-      <button class="btn b-ghost" onclick="doOppRep()">+1 RIVAL REP</button>
+    <div class="viewport">
+      <div class="track-pill ai">● CAMERA ACTIVE</div>
+      <video id="webcam" autoplay playsinline muted></video>
+      <canvas class="pose-canvas" id="poseCanvas"></canvas>
+    </div>
+
+    <div class="bottom-hud">
+      <div class="rep-pill">
+        <div class="n">0</div>
+        <div class="l">REPS</div>
+      </div>
+      <button class="round-btn" onclick="triggerRep()">💥</button>
     </div>
   </div>
 
-  <div id="nav">
-    <div class="nv">1V1 ARENA MODE</div>
-  </div>
+  <!-- NAVIGATION -->
+  <nav id="nav">
+    <button class="nv on" id="nav-home" onclick="switchTab('scr-home')">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      Home
+    </button>
+    <button class="nv" id="nav-battle" onclick="switchTab('scr-battle')">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.51L20.5 19H3.5L12 5.51z"/></svg>
+      Arena
+    </button>
+  </nav>
 </div>
 
 <script>
-  let myReps = 0;
-  let oppReps = 0;
-  let cameraStream = null;
-  let isAiReady = false;
+  function switchTab(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nv').forEach(n => n.classList.remove('on'));
+    
+    document.getElementById(screenId).classList.add('active');
+    
+    if (screenId === 'scr-home') {
+      document.getElementById('nav-home').classList.add('on');
+    } else if (screenId === 'scr-battle') {
+      document.getElementById('nav-battle').classList.add('on');
+    }
+  }
 
-  const myVideo = document.getElementById('my-video');
-  const myCanvas = document.getElementById('my-canvas');
-  const aiPill = document.getElementById('ai-status-pill');
-  const ctx = myCanvas.getContext('2d');
+  function triggerRep() {
+    const pill = document.querySelector('.rep-pill');
+    const countEl = pill.querySelector('.n');
+    let count = parseInt(countEl.innerText);
+    countEl.innerText = count + 1;
+    pill.classList.add('bump');
+    setTimeout(() => pill.classList.remove('bump'), 160);
+  }
 
-  async function initDuelCamera() {
+  async function initCamera() {
+    const video = document.getElementById('webcam');
+    if (!video) return;
     try {
-      // 1. Get user camera video stream
-      cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
-        audio: false
-      });
-      
-      myVideo.srcObject = cameraStream;
-
-      // 2. Wait until video metadata loads and playback actually begins
-      myVideo.onloadedmetadata = () => {
-        myVideo.play();
-        resizeCanvas();
-        startPoseTracking();
-      };
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      video.srcObject = stream;
     } catch (err) {
-      console.warn("Camera access denied or unavailable. Fallback to Tap Mode:", err);
-      setAiStatus('tap', 'TAP MODE ACTIVE');
+      console.warn("Camera access unavailable.", err);
     }
   }
 
-  function resizeCanvas() {
-    myCanvas.width = myVideo.clientWidth || 300;
-    myCanvas.height = myVideo.clientHeight || 200;
-  }
-
-  function setAiStatus(state, text) {
-    aiPill.className = `track-pill ${state}`;
-    aiPill.textContent = text;
-  }
-
-  function startPoseTracking() {
-    // 3. Update UI pill state to remove "AI IS LOADING..."
-    setAiStatus('ai', 'AI ACTIVE');
-    isAiReady = true;
-
-    // 4. Render skeleton overlays onto the player's stream
-    requestAnimationFrame(renderPoseLoop);
-  }
-
-  function renderPoseLoop() {
-    if (!isAiReady) return;
-
-    ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-
-    // Draw mock skeletal tracking nodes
-    const cx = myCanvas.width / 2;
-    const cy = myCanvas.height / 2;
-    const t = Date.now() * 0.003;
-    const offsetY = Math.sin(t) * 8;
-
-    ctx.strokeStyle = '#F59E0B';
-    ctx.lineWidth = 3;
-    ctx.fillStyle = '#FCD34D';
-
-    // Mock Head & Spine
-    ctx.beginPath();
-    ctx.arc(cx, cy - 30 + offsetY, 12, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - 18 + offsetY);
-    ctx.lineTo(cx, cy + 40 + offsetY);
-    // Arms
-    ctx.lineTo(cx - 30, cy + 10 + offsetY);
-    ctx.moveTo(cx, cy + 40 + offsetY);
-    ctx.lineTo(cx + 30, cy + 10 + offsetY);
-    ctx.stroke();
-
-    requestAnimationFrame(renderPoseLoop);
-  }
-
-  function doRep() {
-    myReps++;
-    document.getElementById('my-rep-count').textContent = myReps;
-    updateLead();
-  }
-
-  function doOppRep() {
-    oppReps++;
-    document.getElementById('opp-rep-count').textContent = oppReps;
-    updateLead();
-  }
-
-  function updateLead() {
-    const status = document.getElementById('lead-status');
-    if (myReps > oppReps) {
-      status.textContent = `AHEAD BY ${myReps - oppReps}`;
-      status.className = 'lead-tag ahead';
-    } else if (oppReps > myReps) {
-      status.textContent = `BEHIND BY ${oppReps - myReps}`;
-      status.className = 'lead-tag behind';
-    } else {
-      status.textContent = 'TIED MATCH';
-      status.className = 'lead-tag';
-    }
-  }
-
-  window.addEventListener('resize', resizeCanvas);
-  window.addEventListener('DOMContentLoaded', initDuelCamera);
+  window.addEventListener('DOMContentLoaded', initCamera);
 </script>
 </body>
 </html>
