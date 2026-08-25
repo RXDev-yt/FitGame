@@ -86,7 +86,7 @@
 <div id="app">
   <!-- ARENA & ROOM SETUP -->
   <div id="scr-arena" class="screen active">
-    <h2 style="margin-bottom:4px;">KLIKY DUEL (FAST & STRICT)</h2>
+    <h2 style="margin-bottom:4px;">KLIKY DUEL (EASY TRACKING)</h2>
     <p class="dim" style="margin-bottom:16px;">Plank check + Live video streaming.</p>
 
     <div class="card">
@@ -166,12 +166,13 @@
   let conn = null;
   let localStream = null;
   let shortCode = "";
-  const ROOM_PREFIX = "kliky-v6-";
+  const ROOM_PREFIX = "kliky-v7-";
 
   let pushupState = "TOP";
-  // Eased thresholds: easier push-up completion at top position
-  const ANGLE_TOP = 125;     
-  const ANGLE_BOTTOM = 110;   
+  // Highly sensitive threshold settings:
+  // Requires only a slight bend down (105°) and slight push up (115°)
+  const ANGLE_TOP = 115;     
+  const ANGLE_BOTTOM = 105;   
 
   function generate4DigitCode() {
     return Math.floor(1000 + Math.random() * 9000).toString();
@@ -379,10 +380,10 @@
     });
 
     pose.setOptions({
-      modelComplexity: 1,
+      modelComplexity: 0,
       smoothLandmarks: true,
-      minDetectionConfidence: 0.4,
-      minTrackingConfidence: 0.4
+      minDetectionConfidence: 0.3,
+      minTrackingConfidence: 0.3
     });
 
     pose.onResults((results) => {
@@ -403,9 +404,8 @@
         const lHip = results.poseLandmarks[23];
         const rHip = results.poseLandmarks[24];
 
-        // Evaluate best-visible arm (uses threshold visibility)
-        const leftArmVisible = lShoulder && lElbow && lWrist && lShoulder.visibility > 0.3 && lElbow.visibility > 0.3;
-        const rightArmVisible = rShoulder && rElbow && rWrist && rShoulder.visibility > 0.3 && rElbow.visibility > 0.3;
+        const leftArmVisible = lShoulder && lElbow && lWrist;
+        const rightArmVisible = rShoulder && rElbow && rWrist;
 
         if (leftArmVisible || rightArmVisible) {
           let avgElbowAngle = 180;
@@ -417,7 +417,7 @@
             avgElbowAngle = calculateAngle(rShoulder, rElbow, rWrist);
           }
 
-          // Check posture to avoid counting while standing/sitting
+          // Relaxed standing/upright warning logic
           let isUpright = false;
           if (lHip && rHip && lShoulder && rShoulder) {
             const avgShoulder = { x: (lShoulder.x + rShoulder.x)/2, y: (lShoulder.y + rShoulder.y)/2 };
@@ -425,7 +425,7 @@
             const dx = Math.abs(avgShoulder.x - avgHip.x);
             const dy = Math.abs(avgShoulder.y - avgHip.y);
             const torsoAngleDegrees = Math.atan2(dy, dx) * (180 / Math.PI);
-            isUpright = torsoAngleDegrees > 65;
+            isUpright = torsoAngleDegrees > 75;
           }
 
           if (isUpright) {
@@ -434,7 +434,7 @@
           } else {
             warnEl.style.display = "none";
 
-            // Rep State Machine
+            // State Transition logic
             if (avgElbowAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
               pushupState = "BOTTOM";
             } else if (avgElbowAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
@@ -443,7 +443,7 @@
             }
           }
 
-          // Draw Skeleton Overlay
+          // Draw Overlay
           const lineCol = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
           canvasCtx.strokeStyle = lineCol;
           canvasCtx.lineWidth = 4;
