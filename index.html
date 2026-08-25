@@ -566,6 +566,14 @@
   .php-bar.crit i{ background:linear-gradient(90deg,#F87171,var(--red)); animation:pulseLive .5s infinite; }
   .posgate{ position:absolute; inset:0; z-index:8; display:flex; flex-direction:column; align-items:center;
     justify-content:center; gap:12px; background:rgba(6,10,22,.86); backdrop-filter:blur(4px); text-align:center; padding:26px; }
+  .posgate{ gap:10px; }
+  .pose-guide{ position:absolute; inset:0; z-index:7; pointer-events:none; display:none;
+    align-items:center; justify-content:center; }
+  .pose-guide.on{ display:flex; }
+  .pose-guide svg{ width:78%; max-width:280px; opacity:.30; animation:guidePulse 2.4s ease-in-out infinite; }
+  @keyframes guidePulse{ 50%{ opacity:.5; transform:scale(1.02);} }
+  .prep-word{ font-size:15px; font-weight:900; letter-spacing:.3em; color:var(--gold);
+    text-shadow:0 0 20px rgba(245,158,11,.7); animation:pulseLive 1.4s infinite; }
   .posgate .pg-ico{ width:80px; height:80px; border-radius:24px; background:var(--card-solid);
     border:2px solid rgba(245,158,11,.5); display:flex; align-items:center; justify-content:center; animation:bob 2.2s infinite; }
   .posgate h4{ font-size:19px; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.5); }
@@ -624,8 +632,8 @@
   video::-webkit-media-controls-panel,
   video::-webkit-media-controls-overlay-play-button{ display:none !important; -webkit-appearance:none; opacity:0; }
   video{ pointer-events:none; }
-  video.live{ opacity:1; }
-  #d-video, #b-video{ opacity:0; transition:opacity .3s; }
+  #d-video, #b-video{ opacity:0; transition:opacity .35s; }
+  #d-video.live, #b-video.live{ opacity:1; }
   /* combo popup — only visible while you're actually landing reps */
   .combo{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:7;
     display:flex; flex-direction:column; align-items:center; gap:2px; pointer-events:none;
@@ -815,7 +823,21 @@
       <div class="rest-next">Next up: <b id="rest-next">Goblin</b></div>
       <button class="hold-btn" id="skip-btn"><span class="fillbar" id="skip-fill"></span><span>HOLD TO SKIP REST</span></button>
     </div>
+    <div class="pose-guide" id="pose-guide">
+      <svg viewBox="0 0 200 120" fill="none" stroke="#F59E0B" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+        <!-- push-up silhouette guide: head, plank body line, planted arms -->
+        <circle cx="44" cy="46" r="13"/>
+        <path d="M56 52 L120 62 L168 74"/>
+        <path d="M60 54 L58 88"/>
+        <path d="M112 61 L118 92"/>
+        <path d="M58 88 L48 92 M58 88 L68 92"/>
+        <path d="M118 92 L110 96 M118 92 L128 96"/>
+        <path d="M168 74 L182 78 M168 74 L180 68"/>
+        <path d="M30 104 L190 104" stroke-dasharray="5 8" opacity=".7"/>
+      </svg>
+    </div>
     <div class="posgate" id="posgate">
+      <div class="prep-word" id="prep-word">PREPARE</div>
       <div class="pg-ico" id="pg-ico"></div>
       <h4 class="hdr" id="pg-title">Get into position</h4>
       <p id="pg-text">Prop your phone up, get on the floor facing the camera, arms extended. The fight starts when you're set.</p>
@@ -1193,12 +1215,14 @@
     <div class="ob-step" id="ob2">
       <div class="ob-hero">
         <div class="ob-sprite" id="ob-goblin-art"></div>
-        <div class="ob-title hdr glow" id="ob-greet">Here's the deal, Fighter</div>
-        <div class="ob-sub">You're not opening a fitness app. You're stepping into an arena.</div>
+        <div class="ob-title hdr glow" id="ob-greet">The Arena Calls</div>
+        <div class="ob-sub" id="ob-story">The old world had gyms. Ours has monsters.<br><br>
+          When the Hollow War ended the gates opened, and the strong were the only ones left standing.
+          You are no one yet — no rank, no name they fear. Just arms that still work.</div>
       </div>
       <div class="taste-row">
         <div class="taste-ico" id="ti1"></div>
-        <div><b>Your push-ups are your sword</b><span>Every clean rep deals 1 damage to the monster</span></div>
+        <div><b>Your reps are your weapon</b><span>Every clean rep is a strike. Combos hit harder.</span></div>
       </div>
       <div class="taste-row">
         <div class="taste-ico" id="ti2"></div>
@@ -1206,7 +1230,7 @@
       </div>
       <div class="taste-row">
         <div class="taste-ico" id="ti3"></div>
-        <div><b>54 episodes, 3 chapters</b><span>Goblin Caves → Crypt of Bones → Spiderfang Hollow</span></div>
+        <div><b>108 episodes, 6 chapters</b><span>Goblin Caves → the crown at Dragons Peak</span></div>
       </div>
       <div class="taste-row">
         <div class="taste-ico" id="ti4"></div>
@@ -1697,6 +1721,7 @@ function switchChap(dir){
 }
 function renderMap(){
   const ch=S.chapters[S.viewC], unlocked=chapUnlocked(S.viewC);
+  if(unlocked) setTimeout(()=>maybeChapterStory(S.viewC),250);
   const done=ch.eps.filter(e=>epStatus(e)==='done').length;
   $('ch-name').textContent=ch.name;
   $('ch-num').textContent='CHAPTER '+(S.viewC+1)+' / '+S.chapters.length;
@@ -1892,6 +1917,8 @@ function bindHoldSkip(){
 function showGate(on,title,text){
   const g=$('posgate'); if(!g) return;
   g.style.display=on?'flex':'none';
+  const guide=$('pose-guide');
+  if(guide) guide.classList.toggle('on', !!on && (S.B?.exercise==='Push-ups'));
   if(title) $('pg-title').textContent=title;
   if(text) $('pg-text').textContent=text;
   $('pg-cd').style.display='none';
@@ -2084,7 +2111,10 @@ function finishBattle(win){
   }
   else if(B.kind==='boss'){ stars=3; if(PROFILE) PROFILE.bosses=(PROFILE.bosses||0)+1; S.dailyBoss.done=true; S.dailyBoss.hp=0; bonusXP=S.dailyBoss.rwXP; bonusC=S.dailyBoss.rwCoins; }
   else if(B.kind==='horde'){ stars=Math.min(3,1+Math.floor(B.waveIdx/2)); headline='SURVIVED '+B.waveIdx+' WAVE'+(B.waveIdx===1?'':'S')+'!'; bonusC=B.waveIdx*12; }
-  else if(B.kind==='tutorial'){ stars=3; headline='FIRST BLOOD!'; bonusXP=50; bonusC=50; }
+  else if(B.kind==='tutorial'){
+    stars=3; headline='FIRST BLOOD!'; bonusXP=50; bonusC=50;
+    if(PROFILE){ PROFILE.tutorial_done=true; saveProfile(); }   /* never replay the tutorial */
+  }
   else if(B.kind==='max'){ stars=reps>=S.user.pr?3:reps>=S.user.pr*.7?2:1;
     if(reps>S.user.pr){ S.user.pr=reps; newPR=true; headline='NEW RECORD!'; } bonusC=20; }
   const dm=D();
@@ -2124,6 +2154,45 @@ function victoryContinue(){
   const o=vicCtx?.origin||'home'; vicCtx=null;
   if(o==='tutorial'){ showPaywall(); return; }
   nav(o==='campaign'?'scr-campaign':o==='arena'?'scr-arena':'scr-home');
+}
+
+/* ================= STORY ================= */
+const STORY={
+  intro:{
+    title:'The Arena Calls',
+    lines:[
+      'The old world had gyms. Ours has monsters.',
+      'When the Hollow War ended, the gates opened — and the strong were the only ones left standing.',
+      'You are no one yet. No rank, no name they fear. Just arms that still work.',
+      'Every rep you complete is a strike. Every set, a battle. The arena does not care how you feel.',
+      'Cut through the caves. Take the crown at Dragons Peak.',
+    ],
+  },
+  chapters:[
+    { t:'Chapter I — Goblin Caves',      s:'They breed in the dark under the old training grounds. Small, fast, endless. Everyone starts here. Most never leave.' },
+    { t:'Chapter II — Crypt of Bones',   s:'The dead here trained too, once. Their discipline outlived their flesh. Now they test yours.' },
+    { t:'Chapter III — Spiderfang Hollow',s:'Webs thick as rope. The Broodmother has been counting your reps since you entered. She is patient.' },
+    { t:'Chapter IV — Ashfang Keep',     s:'A fortress built by warriors who lifted mountains. Its forge still burns. Its guards still remember how to break arms.' },
+    { t:'Chapter V — Frostbound Depths', s:'Cold enough to seize a muscle mid-rep. The Hollow King rules here — he was a champion once too, before he stopped moving.' },
+    { t:'Chapter VI — Dragons Peak',     s:'Above the clouds. Thin air, heavy limbs, and the Elder Dragon waiting at the summit. This is what all of it was for.' },
+  ],
+};
+function showStoryModal(title,body,btn,cb){
+  openModal('<div class="em">📜</div><h3 class="hdr">'+title+'</h3><p style="line-height:1.7">'+body+'</p>'+
+    '<button class="btn b-gold" id="story-ok">'+(btn||'CONTINUE')+'</button>');
+  $('story-ok').onclick=()=>{ closeModal(); SFX.click(); if(cb) cb(); };
+}
+/* fires once per chapter, the first time you open it */
+function maybeChapterStory(ci){
+  if(!PROFILE) return false;
+  const seen=(PROFILE.story_seen||'').split(',').filter(Boolean);
+  const key='c'+ci;
+  if(seen.includes(key)) return false;
+  seen.push(key);
+  PROFILE.story_seen=seen.join(','); saveProfile();
+  const c=STORY.chapters[ci]; if(!c) return false;
+  showStoryModal(c.t,c.s,'ENTER');
+  return true;
 }
 
 /* ================= DIFFICULTY ================= */
@@ -2808,15 +2877,22 @@ const PoseEngine={
       t.onStatus('warn','Step back — keep your body in frame');
       return;
     }
-    const side = (visL>=visR) ? c.L : c.R;
+    const useL = (visL>=visR);
+    const side = useL ? c.L : c.R;
     const angle = getAngle(lm[side[0]],lm[side[1]],lm[side[2]]);
 
     if(c.plant){
-      /* push-ups: wrist roughly level with or below shoulder */
+      /* push-ups: hands planted AND body held in a straight plank line.
+         Sitting bends the hip to ~90°, so this rules it out. */
       const shY=lm[side[0]].y, wrY=lm[side[2]].y;
-      if(!(wrY > shY - 0.12)){
+      const hipI = useL ? 23 : 24, kneeI = useL ? 25 : 26;
+      const canSeeTorso = (lm[hipI]?.visibility??0)>0.35 && (lm[kneeI]?.visibility??0)>0.35;
+      const plankAngle = canSeeTorso ? getAngle(lm[side[0]],lm[hipI],lm[kneeI]) : 180;
+      const straight = plankAngle >= 140;
+      const handsDown = wrY > shY - 0.12;
+      if(!handsDown || !straight){
         t.armed=false; t.extSince=0; t.phase='READY';
-        t.onStatus('warn','Get into push-up position');
+        t.onStatus('warn', !straight ? 'Straighten your body into a plank' : 'Get into push-up position');
         return;
       }
     }
@@ -3021,7 +3097,7 @@ async function loadProfile(){
   else {
     PROFILE={ id:ME.id, username:ME.user_metadata?.username||'Fighter', level:1, xp:0, coins:200,
       streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null,
-      elo:1000, bio:'', avatar_url:null, duel_wins:0, bosses:0, difficulty:'normal' };
+      elo:1000, bio:'', avatar_url:null, duel_wins:0, bosses:0, difficulty:'normal', story_seen:'' };
     await sb.from('profiles').upsert(PROFILE);
   }
   /* apply to game state */
@@ -3065,7 +3141,7 @@ function obNext(from){
     if(n.length<3){ $('ob-err').textContent='Pick a name with at least 3 characters.'; return; }
     $('ob-err').textContent='';
     if(PROFILE){ PROFILE.username=n; saveProfile(); }
-    $('ob-greet').textContent="Here's the deal, "+n;
+    $('ob-greet').textContent='The Arena Calls, '+n;
     obStep(2);
   } else if(from===2){ obStep(3); }
 }
@@ -3124,8 +3200,20 @@ function enterApp(){
 /* ---- Tutorial: one wave, then unskippable paywall ---- */
 function startTutorial(){
   document.body.classList.add('locked');
+  if(PROFILE && !(PROFILE.story_seen||'').includes('intro')){
+    const seen=(PROFILE.story_seen||'').split(',').filter(Boolean);
+    seen.push('intro'); PROFILE.story_seen=seen.join(','); saveProfile();
+    showStoryModal('Your first fight',
+      'A goblin blocks the cave mouth. It has five points of life.<br><br>'+
+      'Five clean push-ups will end it. Get down, get straight, and start swinging.',
+      'FIGHT', ()=>beginTutorialFight());
+    return;
+  }
+  beginTutorialFight();
+}
+function beginTutorialFight(){
+  document.body.classList.add('locked');
   S.B_origin='tutorial';
-  toast('Tutorial: defeat the goblin — 5 push-ups!');
   makeBattle({ kind:'tutorial', exercise:'Push-ups',
     waves:[{name:'Training Goblin',sprite:'goblin',hp:5}], modeName:'Tutorial' });
 }
