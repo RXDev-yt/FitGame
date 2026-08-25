@@ -292,7 +292,8 @@
   /* ---- NAV ---- */
   #nav{ position:absolute; left:0; right:0; bottom:0; z-index:40; display:flex; padding:9px 6px calc(10px + env(safe-area-inset-bottom)); background:rgba(11,18,34,.94); backdrop-filter:blur(12px); border-top:1px solid var(--line); }
   .nv{ flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; font-size:9.5px; font-weight:900; color:var(--dim); padding-top:3px; }
-  .nv svg{ width:21px; height:21px; }
+  .nv svg{ width:20px; height:20px; }
+  .nv{ font-size:9px; }
   .nv.on{ color:#C4B5FD; }
 
   /* ---- MODAL / TOAST / FX ---- */
@@ -518,6 +519,22 @@
   .plan .price{ font-size:28px; font-weight:900; color:var(--gold); line-height:1.1; margin:4px 0 2px; }
   .plan .per{ font-size:11.5px; font-weight:800; color:var(--dim); }
   .plan .save{ font-size:11px; font-weight:900; color:var(--green); margin-top:4px; }
+
+  /* ---------- EXTRA MOTION ---------- */
+  .xpbar-glow{ animation:xpGlow .8s ease-out; }
+  @keyframes xpGlow{ 0%{ filter:brightness(2.2) saturate(1.6);} 100%{ filter:none; } }
+  .nv.on svg{ animation:navPop .34s cubic-bezier(.2,.9,.3,1.6); }
+  @keyframes navPop{ 40%{ transform:translateY(-5px) scale(1.22);} }
+  .card-tap{ animation:cardTap .22s; }
+  @keyframes cardTap{ 50%{ transform:scale(.975);} }
+  .hp-drain{ animation:hpDrain .4s; }
+  @keyframes hpDrain{ 25%{ transform:translateX(-4px);} 60%{ transform:translateX(4px);} }
+  .enemy-sprite.enter{ animation:enemyEnter .5s cubic-bezier(.2,.9,.3,1.4); }
+  @keyframes enemyEnter{ from{ opacity:0; transform:translateY(-26px) scale(.5) rotate(-12deg);} }
+  .rep-pill.streak{ box-shadow:0 0 30px rgba(245,158,11,.85); border-color:var(--gold); }
+  .lvl-card.levelup{ animation:lvlFlare .9s; }
+  @keyframes lvlFlare{ 0%{ filter:brightness(2.4);} 100%{ filter:none;} }
+  .toastpop{ animation:bmp .3s; }
 
   /* ---------- COIN FLY ---------- */
   .flycoin{ position:absolute; z-index:80; pointer-events:none; width:26px; height:26px;
@@ -1596,7 +1613,9 @@
 <!-- ============ NAV ============ -->
 <nav id="nav">
   <button class="nv on" data-s="scr-home" onclick="nav('scr-home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3zM9 7v13M15 4v13"/></svg>Quests</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M5 8h14l1 12H4z"/><path d="M9 13h6"/></svg>Quests</button>
+  <button class="nv" data-s="scr-campaign" onclick="nav('scr-campaign')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3zM9 7v13M15 4v13"/></svg>Map</button>
   <button class="nv" data-s="scr-arena" onclick="nav('scr-arena')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg>Duels</button>
   <button class="nv" data-s="scr-profile" onclick="nav('scr-profile')">
@@ -1737,8 +1756,8 @@ CHAPTERS.forEach((c,ci)=>{
       c:ci, i, boss,
       name: boss?c.boss[0]:e[0],
       sprite: boss?c.boss[1]:e[1],
-      hp: boss? 14+g*2 : 6+Math.floor(g*1.2),
-      waves: boss?1:(i%3===0?2:1),
+      hp: boss? (8+Math.round(g*1.1)) : (3+Math.floor(g*0.55)),
+      waves: boss?1:(i>=6 && i%4===0 ? 2 : 1),
       stars: (ci===0&&i===0)?2:0,
       exs: [['Push-ups'],['Sit-ups'],['Push-ups'],['Squats']][i%4],
       drops: boss?'Chapter Crown · 80–120 coins':'Small HP Potion · '+(5+g)+'–'+(15+g)+' coins',
@@ -1908,13 +1927,15 @@ function renderHome(){
   if(!$('ps-flame').dataset.ico){ $('ps-flame').insertAdjacentHTML('afterbegin',ICO.flame(15)); $('ps-flame').dataset.ico=1;
     $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(15)); $('ps-coin').dataset.ico=1; }
   if(PROFILE){ $('home-uname').textContent=PROFILE.username; paintAvatars(); }
+  if($('diff-card-home')) $('diff-card-home').innerHTML=diffPickerHTML();
   const cch=S.chapters[S.cur.c];
   if($('camp-ico')){ $('camp-ico').innerHTML=mon(cch.icon,26);
     $('camp-name').textContent=cch.name;
     $('camp-sub').textContent='Chapter '+(S.cur.c+1)+' · Episode '+(S.cur.e+1)+'/18'; }
   $('h-lvl').textContent=S.user.lvl;
   $('h-xp').textContent=S.user.xp; $('h-xpn').textContent=xpNeed();
-  $('h-xpbar').style.width=(S.user.xp/xpNeed()*100)+'%';
+  const xb=$('h-xpbar'); xb.style.width=(S.user.xp/xpNeed()*100)+'%';
+  xb.classList.remove('xpbar-glow'); void xb.offsetWidth; xb.classList.add('xpbar-glow');
   $('h-streak').textContent=S.user.streak;
   $('h-coins').textContent=S.user.coins.toLocaleString('en-US');
   $('h-pet').innerHTML=S.user.pet?mon(S.user.pet,20):'';
@@ -2108,6 +2129,8 @@ function makeBattle(cfg){
     tickStamina();
   },1000);
   S.B.timers.push(t);
+  const atk=setInterval(enemyStrike, (ENEMY_ATK[curDiff()]||ENEMY_ATK.normal).ms);
+  S.B.timers.push(atk);
 }
 async function startBattleTracking(){
   const myB=S.B;
@@ -2141,6 +2164,8 @@ async function startBattleTracking(){
 }
 /* rest length scales with difficulty — easier = longer breather */
 const REST_SECS={ easy:30, normal:25, hard:20, nightmare:15 };
+/* enemy damage per strike + how often it swings (ms) */
+const ENEMY_ATK={ easy:{d:5,ms:9000}, normal:{d:8,ms:7000}, hard:{d:12,ms:5500}, nightmare:{d:18,ms:4200} };
 function startRest(nextName,nextSprite){
   const B=S.B; if(!B) return;
   B.resting=true;
@@ -2231,11 +2256,26 @@ function onInPosition(){
 }
 function syncStamina(){
   const B=S.B; if(!B) return;
+  const bw=$('php-bar'); if(bw){ bw.classList.remove('hp-drain'); void bw.offsetWidth; bw.classList.add('hp-drain'); }
   const p=Math.max(0,Math.round(B.php));
   $('php-txt').textContent=p+' / 100';
   $('php-fill').style.width=p+'%';
   const bar=$('php-bar');
   bar.className='php-bar'+(p<=25?' crit':p<=55?' warn':'');
+}
+function enemyStrike(){
+  const B=S.B; if(!B||B.gate||B.resting||B.paused||B.noHP) return;
+  const a=ENEMY_ATK[curDiff()]||ENEMY_ATK.normal;
+  B.php-=a.d;
+  syncStamina();
+  SFX.hurt(); quake();
+  const hud=$('c-hud'); if(hud){ hud.classList.remove('shake-hard'); void hud.offsetWidth; hud.classList.add('shake-hard'); }
+  const d=document.createElement('div'); d.className='dmg crit'; d.textContent='-'+a.d+' YOU';
+  d.style.left=(38+Math.random()*24)+'%'; d.style.top='58%';
+  $('b-vp').appendChild(d); setTimeout(()=>d.remove(),700);
+  const fl=document.createElement('div'); fl.className='critflash';
+  $('b-vp').appendChild(fl); setTimeout(()=>fl.remove(),400);
+  if(B.php<=0){ B.php=0; syncStamina(); loseBattle(); }
 }
 function tickStamina(){
   const B=S.B; if(!B||B.gate||B.noHP) return;
@@ -2250,9 +2290,10 @@ function tickStamina(){
 function loseBattle(){
   const B=S.B; if(!B) return;
   B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);});
-  stopCams(); SFX.lose();
+  $('restgate')?.classList.remove('on');
+  stopCams(); SFX.lose(); quake(); flashScreen();
   const reps=B.reps, sec=Math.max(1,B.sec);
-  vicCtx={ origin:S.B_origin, headline:'STAMINA DRAINED', stars:0, reps, sec, coins:reps*1, win:false };
+  vicCtx={ origin:S.B_origin, headline:'DEFEATED', stars:0, reps, sec, coins:reps*1, win:false };
   addXP(reps*10); addCoins(reps);
   S.B=null; saveProfile(); showVictory();
 }
@@ -2280,7 +2321,10 @@ function syncEnemyHUD(spawn){
   $('b-hplbl').textContent=B.noHP?'PR TARGET':'HP';
   $('b-hptxt').textContent=B.noHP?(B.reps+' / '+S.user.pr):(B.eHP+' / '+w.hp);
   $('b-hpbar').style.width=B.noHP?Math.min(100,B.reps/S.user.pr*100)+'%':(B.eHP/w.hp*100)+'%';
-  if(spawn){ const h=$('c-hud'); h.classList.remove('hit'); }
+  if(spawn){
+    const hd=$('c-hud'); hd.classList.remove('hit');
+    const sp=$('b-sprite'); if(sp){ sp.classList.remove('enter'); void sp.offsetWidth; sp.classList.add('enter'); }
+  }
 }
 function battleRep(){
   const B=S.B; if(!B||B.paused||B.gate||B.resting) return;
@@ -2292,6 +2336,8 @@ function battleRep(){
   $('b-reps').textContent=B.reps;
   const rp=$('rep-pill'); rp.classList.remove('bump'); void rp.offsetWidth; rp.classList.add('bump');
   SFX.rep(); burstAt($('rep-pill'),'#F59E0B',8);
+  const rp2=$('rep-pill');
+  if(rp2){ rp2.classList.add('streak'); clearTimeout(B._streakT); B._streakT=setTimeout(()=>rp2.classList.remove('streak'),2600); }
   if(!B.noHP){
     const crit=Math.random()<0.14, dmg=crit?3:1;
     B.eHP=Math.max(0,B.eHP-dmg);
@@ -2328,7 +2374,7 @@ function recordPace(arr){
     if(dt>0.5&&dt<6){ S.user.avgRepSec=Math.min(4,Math.max(1.2,S.user.avgRepSec*.8+dt*.2)); } }
   arr.push(now);
 }
-function nextHordeWave(i){ const p=CHAPTERS[0].pool; const e=p[i%p.length]; return { name:e[0]+' +'+i, sprite:e[1], hp:5+i*2 }; }
+function nextHordeWave(i){ const p=CHAPTERS[0].pool; const e=p[i%p.length]; return { name:e[0]+(i?' +'+i:''), sprite:e[1], hp:3+Math.round(i*1.4) }; }
 function toggleBattleAuto(){
   const B=S.B; if(!B) return;
   if(B.autoI){ clearInterval(B.autoI); B.autoI=null; $('b-auto').textContent='▶'; }
@@ -2637,7 +2683,7 @@ const DIFFS={
   nightmare: { name:'Nightmare', hp:2.0, xp:2.2, coin:2.2, drain:7.0, col:'#EF4444', desc:'Brutal. Huge XP and coins.' },
 };
 const DIFF_KEYS=['easy','normal','hard','nightmare'];
-function curDiff(){ return DIFFS[PROFILE?.difficulty] ? PROFILE.difficulty : 'normal'; }
+function curDiff(){ return DIFFS[PROFILE?.difficulty] ? PROFILE.difficulty : 'easy'; }
 function D(){ return DIFFS[curDiff()]; }
 function setDiff(k){
   if(!DIFFS[k]) return;
@@ -2744,7 +2790,7 @@ function renderAvPicker(){
 function myElo(){ return PROFILE?.elo ?? 1000; }
 function applyElo(win,live){
   if(!PROFILE) return 0;
-  const delta = live ? (win?25:-15) : (win?8:-4);
+  const delta = live ? (win?25:-15) : (win?14:-10);
   PROFILE.elo = Math.max(0,(PROFILE.elo??1000)+delta);
   saveProfile();
   return delta;
@@ -2908,9 +2954,9 @@ function findMatch(){
     if(!RT.seeking) return;
     RT.seeking=false;
     try{ lob.unsubscribe(); }catch(e){}
-    toast('Nobody online right now — training bot incoming');
+    toast('No human online — ranked bot matched to your ELO');
     queueDuel(true);
-  },12000);
+  },6000);
 }
 
 /* ================= BOT FALLBACK (only when nobody is online) ================= */
@@ -2922,7 +2968,7 @@ function queueDuel(fast){
   S.queueT=setTimeout(()=>{
     const name=BOTS[ri(0,BOTS.length-1)];
     const lvl=Math.max(1,S.user.lvl+ri(-2,2));           /* level ±2 of player */
-    S.duel={ opp:name, oppLvl:lvl, oppElo:900+ri(0,400), target:20, my:0, op:0, sec:0, running:false, timers:[],
+    S.duel={ opp:name, oppLvl:lvl, oppElo:Math.max(100, myElo()+ri(-90,90)), target:20, my:0, op:0, sec:0, running:false, timers:[],
              tBase:S.user.avgRepSec, fatigued:false, myTs:[] };
     $('q-oname').textContent=name; $('q-olvl').textContent=lvl;
     $('q-oav').textContent=name.slice(0,2).toUpperCase();
@@ -3378,7 +3424,11 @@ setTimeout(()=>PoseEngine.load(),1200);
 const SB_URL='https://yxtfhqkrhxpkaaexzvcn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dGZocWtyaHhwa2FhZXh6dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjg0ODgsImV4cCI6MjEwMzIwNDQ4OH0.y4dMu9spDHMZBNr3uAfzmNzHKxJCuujVY6QmqxNteOg';
 let sb=null, ME=null, PROFILE=null;
-try{ sb=window.supabase?.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
+try{
+  sb=window.supabase?.createClient(SB_URL,SB_KEY,{
+    auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storage:window.localStorage }
+  });
+}catch(e){ sb=null; }
 let inRecovery = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
 sb?.auth.onAuthStateChange((event)=>{
   if(event==='PASSWORD_RECOVERY'){
@@ -3545,7 +3595,7 @@ async function loadProfile(){
   const DEFAULTS={ id:ME.id, username:ME.user_metadata?.username||'Fighter', level:1, xp:0, coins:200,
     streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null,
     elo:1000, bio:'', avatar:'goblin', avatar_url:null, duel_wins:0, bosses:0,
-    difficulty:'normal', story_seen:'', offer_started:null };
+    difficulty:'easy', story_seen:'', offer_started:null };
   let data=null;
   try{ ({ data } = await sb.from('profiles').select('*').eq('id',ME.id).maybeSingle()); }
   catch(e){ console.error('[RepQuest] profile load failed:', e.message||e); }
@@ -3708,8 +3758,8 @@ function startTutorial(){
     const seen=(PROFILE.story_seen||'').split(',').filter(Boolean);
     seen.push('intro'); PROFILE.story_seen=seen.join(','); saveProfile();
     showStoryModal('Your first fight',
-      'A goblin blocks the cave mouth. It has five points of life.<br><br>'+
-      'Five clean push-ups will end it. Get down, get straight, and start swinging.',
+      'A goblin blocks the cave mouth. It has three points of life.<br><br>'+
+      'Three clean push-ups will end it. Get down, get straight, and start swinging.',
       'FIGHT', ()=>beginTutorialFight());
     return;
   }
@@ -3719,7 +3769,7 @@ function beginTutorialFight(){
   document.body.classList.add('locked');
   S.B_origin='tutorial';
   makeBattle({ kind:'tutorial', exercise:'Push-ups',
-    waves:[{name:'Training Goblin',sprite:'goblin',hp:5}], modeName:'Tutorial' });
+    waves:[{name:'Training Goblin',sprite:'goblin',hp:3}], modeName:'Tutorial' });
 }
 /* ---- Local currency paywall ---- */
 const CCY={ CZ:['Kč',499,'CZK'], SK:['€',19.99,'EUR'], DE:['€',19.99,'EUR'], AT:['€',19.99,'EUR'], FR:['€',19.99,'EUR'],
@@ -3843,6 +3893,7 @@ function openModal(html){ $('modal-box').innerHTML=html; $('modal-layer').classL
 function closeModal(){ $('modal-layer').classList.remove('open'); }
 let toastT=null;
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show');
+  t.classList.remove('toastpop'); void t.offsetWidth; t.classList.add('toastpop');
   clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2500); }
 
 /* ambient background orbs */
