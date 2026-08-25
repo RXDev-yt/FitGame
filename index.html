@@ -3092,19 +3092,47 @@ async function resendConfirm(){
 }
 async function loadProfile(){
   if(!sb||!ME) return;
-  const { data } = await sb.from('profiles').select('*').eq('id',ME.id).maybeSingle();
-  if(data){ PROFILE=data; }
-  else {
-    PROFILE={ id:ME.id, username:ME.user_metadata?.username||'Fighter', level:1, xp:0, coins:200,
-      streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null,
-      elo:1000, bio:'', avatar_url:null, duel_wins:0, bosses:0, difficulty:'normal', story_seen:'' };
-    await sb.from('profiles').upsert(PROFILE);
+  const DEFAULTS={ id:ME.id, username:ME.user_metadata?.username||'Fighter', level:1, xp:0, coins:200,
+    streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null,
+    elo:1000, bio:'', avatar:'goblin', avatar_url:null, duel_wins:0, bosses:0,
+    difficulty:'normal', story_seen:'' };
+  let data=null;
+  try{ ({ data } = await sb.from('profiles').select('*').eq('id',ME.id).maybeSingle()); }
+  catch(e){ console.error('[RepQuest] profile load failed:', e.message||e); }
+
+  const local=loadLocalProfile();
+  if(data){
+    /* DB row wins, but fill any column the DB doesn't have yet from the local backup */
+    PROFILE={ ...DEFAULTS, ...(local||{}), ...data };
+    Object.keys(DEFAULTS).forEach(k=>{
+      if(data[k]===undefined && local && local[k]!==undefined) PROFILE[k]=local[k];
+    });
+    /* a truthy local tutorial flag must never be lost to a stale/failed cloud write */
+    if(local?.tutorial_done) PROFILE.tutorial_done=true;
+    if(local?.avatar_url && !data.avatar_url) PROFILE.avatar_url=local.avatar_url;
+  } else {
+    PROFILE={ ...DEFAULTS, ...(local||{}) };
+    await pushProfile();
   }
+  cacheProfileLocally();
   /* apply to game state */
-  S.user.lvl=PROFILE.level; S.user.xp=PROFILE.xp; S.user.coins=PROFILE.coins;
-  S.user.streak=PROFILE.streak; S.user.pr=PROFILE.pr||0;
+  S.user.lvl=PROFILE.level||1; S.user.xp=PROFILE.xp||0; S.user.coins=PROFILE.coins||0;
+  S.user.streak=PROFILE.streak||1; S.user.pr=PROFILE.pr||0;
 }
 let saveT=null;
+const PROFILE_COLS=['id','username','level','xp','coins','streak','pr','total_reps','tutorial_done',
+  'membership','elo','bio','avatar','avatar_url','duel_wins','bosses','difficulty','story_seen'];
+let badCols=new Set();        /* columns the DB rejected — skipped on later saves */
+let warnedSave=false;
+
+function localKey(){ return 'rq_profile_'+(ME?.id||'anon'); }
+function cacheProfileLocally(){
+  try{ localStorage.setItem(localKey(), JSON.stringify(PROFILE)); }catch(e){}
+}
+function loadLocalProfile(){
+  try{ const raw=localStorage.getItem(localKey()); return raw?JSON.parse(raw):null; }catch(e){ return null; }
+}
+
 function saveProfile(){
   if(!sb||!ME||!PROFILE) return;
   clearTimeout(saveT);
@@ -3112,8 +3140,35 @@ function saveProfile(){
     PROFILE.level=S.user.lvl; PROFILE.xp=S.user.xp; PROFILE.coins=S.user.coins;
     PROFILE.streak=S.user.streak; PROFILE.pr=S.user.pr;
     PROFILE.total_reps=(PROFILE.total_reps||0);
-    try{ await sb.from('profiles').upsert(PROFILE); }catch(e){}
+    cacheProfileLocally();                       /* always keep a local copy */
+    await pushProfile();
   },800);
+}
+async function pushProfile(attempt){
+  attempt=attempt||0;
+  /* only send columns we know about, minus any the DB has already rejected */
+  const payload={};
+  PROFILE_COLS.forEach(k=>{ if(k in PROFILE && !badCols.has(k)) payload[k]=PROFILE[k]; });
+  payload.id=PROFILE.id;
+  try{
+    const { error } = await sb.from('profiles').upsert(payload);
+    if(error) throw error;
+  }catch(e){
+    const msg=(e.message||e.details||'')+'';
+    /* Postgres/PostgREST tells us exactly which column is missing — drop it and retry */
+    const m=msg.match(/'([a-z_]+)' column|column "?([a-z_]+)"?/i);
+    const col=m && (m[1]||m[2]);
+    if(col && PROFILE_COLS.includes(col) && !badCols.has(col) && attempt<PROFILE_COLS.length){
+      badCols.add(col);
+      console.warn('[RepQuest] DB is missing column "'+col+'" — saving without it. Run the latest SQL migration.');
+      return pushProfile(attempt+1);
+    }
+    console.error('[RepQuest] profile save failed:', msg);
+    if(!warnedSave){
+      warnedSave=true;
+      toast('Cloud save issue — progress kept on this device');
+    }
+  }
 }
 function confirmLogout(){
   SFX.click();
