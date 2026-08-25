@@ -330,6 +330,13 @@
   .splash p{ color:var(--dim); font-weight:800; font-size:13px; letter-spacing:.14em; text-transform:uppercase; }
   .authbox{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:26px 24px 40px;
     background:radial-gradient(circle at 50% 0%,#1D1145,var(--bg-dark)); }
+  .fp-link{ text-align:center; margin-top:2px; font-size:12.5px; font-weight:800; color:var(--violet-light); }
+  .resetbox{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:26px 24px 40px;
+    background:radial-gradient(circle at 50% 0%,#1D1145,var(--bg-dark)); }
+  .reset-ico{ width:70px; height:70px; border-radius:20px; background:var(--card-solid); border:1.5px solid rgba(139,92,246,.5);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 34px rgba(139,92,246,.4); }
+  .pw-strength{ display:flex; gap:5px; margin-top:8px; }
+  .pw-strength i{ flex:1; height:4px; border-radius:99px; background:var(--card-2); }
   .authbox .logo-big{ width:64px; height:64px; border-radius:18px; background:var(--grad-purple);
     display:flex; align-items:center; justify-content:center; margin:0 auto 14px; box-shadow:0 0 34px rgba(139,92,246,.55); }
   .checkmail{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
@@ -970,7 +977,64 @@
     </div>
     <div class="auth-err" id="auth-err"></div>
     <button class="btn b-purple" id="auth-go" onclick="doAuth()">LOG IN</button>
-    <p class="dim" style="text-align:center;font-size:11px;font-weight:800;margin-top:16px">Free account · No card needed</p>
+    <p class="fp-link" id="fp-link" onclick="goForgot()">Forgot your password?</p>
+    <p class="dim" style="text-align:center;font-size:11px;font-weight:800;margin-top:10px">Free account · No card needed</p>
+  </div>
+</section>
+
+<!-- ============ FORGOT PASSWORD ============ -->
+<section class="screen fullflow" id="scr-forgot">
+  <div class="resetbox">
+    <div class="reset-ico">
+      <svg viewBox="0 0 24 24" style="width:32px;height:32px" fill="none" stroke="#8B5CF6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2.5"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div class="hdr" style="font-size:22px;text-align:center">Reset your password</div>
+    <p class="dim" style="text-align:center;font-weight:800;font-size:12.5px;margin-top:6px">We'll email you a link to set a new one</p>
+    <div class="field" style="margin-top:20px">
+      <label>Email</label>
+      <input id="fp-email" type="email" placeholder="you@email.com" autocomplete="email">
+    </div>
+    <div class="auth-err" id="fp-err"></div>
+    <button class="btn b-purple" id="fp-go" onclick="sendReset()">SEND RESET LINK</button>
+    <button class="btn b-ghost" style="margin-top:10px" onclick="goFlow('scr-auth')">BACK TO LOG IN</button>
+  </div>
+</section>
+
+<!-- ============ RESET SENT (check email) ============ -->
+<section class="screen fullflow" id="scr-resetsent">
+  <div class="checkmail">
+    <div class="env">
+      <svg viewBox="0 0 24 24" style="width:38px;height:38px" fill="none" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>
+    </div>
+    <div class="hdr" style="font-size:22px">Check your email</div>
+    <p class="dim" style="font-weight:800;font-size:13px;margin-top:8px">We sent a password reset link to</p>
+    <div class="em-addr" id="rs-email">you@email.com</div>
+    <p class="dim" style="font-weight:700;font-size:12.5px;margin-top:12px">Tap the link — it'll bring you back here to set a new password.</p>
+    <div class="hint">Don't see it? Check spam/junk. It can take a minute.</div>
+    <button class="btn b-ghost" style="margin-top:22px" onclick="goFlow('scr-auth')">BACK TO LOG IN</button>
+    <button class="btn b-purple" style="margin-top:10px" onclick="resendReset()" id="resend-reset-btn">RESEND LINK</button>
+  </div>
+</section>
+
+<!-- ============ SET NEW PASSWORD (arrived via email link) ============ -->
+<section class="screen fullflow" id="scr-newpass">
+  <div class="resetbox">
+    <div class="reset-ico">
+      <svg viewBox="0 0 24 24" style="width:32px;height:32px" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>
+    </div>
+    <div class="hdr" style="font-size:22px;text-align:center">Set a new password</div>
+    <p class="dim" style="text-align:center;font-weight:800;font-size:12.5px;margin-top:6px">Almost there — pick something strong</p>
+    <div class="field" style="margin-top:20px">
+      <label>New password</label>
+      <input id="np-pass1" type="password" placeholder="••••••••" oninput="pwStrength()">
+      <div class="pw-strength"><i id="ps1"></i><i id="ps2"></i><i id="ps3"></i><i id="ps4"></i></div>
+    </div>
+    <div class="field">
+      <label>Confirm password</label>
+      <input id="np-pass2" type="password" placeholder="••••••••">
+    </div>
+    <div class="auth-err" id="np-err"></div>
+    <button class="btn b-gold" id="np-go" onclick="setNewPassword()">UPDATE PASSWORD</button>
   </div>
 </section>
 
@@ -2562,6 +2626,13 @@ const SB_URL='https://yxtfhqkrhxpkaaexzvcn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dGZocWtyaHhwa2FhZXh6dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjg0ODgsImV4cCI6MjEwMzIwNDQ4OH0.y4dMu9spDHMZBNr3uAfzmNzHKxJCuujVY6QmqxNteOg';
 let sb=null, ME=null, PROFILE=null;
 try{ sb=window.supabase?.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
+sb?.auth.onAuthStateChange((event)=>{
+  if(event==='PASSWORD_RECOVERY'){
+    ldDone();
+    document.body.classList.add('locked');
+    goFlow('scr-newpass');
+  }
+});
 
 let authMode='login';
 function authTab(m){
@@ -2609,6 +2680,73 @@ async function doAuth(){
     }
   }
   finally{ $('auth-go').textContent=authMode==='signup'?'CREATE ACCOUNT':'LOG IN'; }
+}
+let pendingResetEmail=null;
+function goForgot(){
+  SFX.click();
+  $('fp-email').value=$('in-email').value.trim();
+  $('fp-err').textContent='';
+  goFlow('scr-forgot');
+}
+async function sendReset(){
+  if(!sb){ $('fp-err').textContent='Connection error — try again.'; return; }
+  const email=$('fp-email').value.trim();
+  if(!email){ $('fp-err').textContent='Enter your email.'; return; }
+  $('fp-go').textContent='…'; $('fp-err').textContent='';
+  try{
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin+'/reset' });
+    if(error) throw error;
+    pendingResetEmail=email;
+    $('rs-email').textContent=email;
+    goFlow('scr-resetsent');
+    SFX.ready();
+  }catch(e){
+    const msg=(e.message||'').toLowerCase();
+    $('fp-err').textContent = msg.includes('rate limit')
+      ? 'Too many attempts — wait a bit and try again.'
+      : 'Could not send reset email — check the address and try again.';
+    SFX.err();
+  } finally{ $('fp-go').textContent='SEND RESET LINK'; }
+}
+async function resendReset(){
+  if(!pendingResetEmail) return;
+  const b=$('resend-reset-btn'); b.textContent='SENDING…';
+  try{
+    const { error } = await sb.auth.resetPasswordForEmail(pendingResetEmail, { redirectTo: location.origin+'/reset' });
+    if(error) throw error;
+    toast('Reset link resent — check your inbox');
+  }catch(e){ toast('Could not resend — wait a few minutes'); }
+  finally{ b.textContent='RESEND LINK'; }
+}
+function pwStrength(){
+  const v=$('np-pass1').value;
+  let score=0;
+  if(v.length>=8) score++;
+  if(/[A-Z]/.test(v)&&/[a-z]/.test(v)) score++;
+  if(/[0-9]/.test(v)) score++;
+  if(/[^A-Za-z0-9]/.test(v)) score++;
+  const cols=['#EF4444','#F59E0B','#FCD34D','#10B981'];
+  [1,2,3,4].forEach(i=>{ $('ps'+i).style.background = i<=score ? cols[score-1] : ''; });
+}
+async function setNewPassword(){
+  const p1=$('np-pass1').value, p2=$('np-pass2').value;
+  $('np-err').textContent='';
+  if(p1.length<8){ $('np-err').textContent='Password needs at least 8 characters.'; return; }
+  if(p1!==p2){ $('np-err').textContent="Passwords don't match."; return; }
+  $('np-go').textContent='…';
+  try{
+    const { error } = await sb.auth.updateUser({ password:p1 });
+    if(error) throw error;
+    SFX.win(); confetti();
+    openModal('<div class="em">✅</div><h3 class="hdr">Password updated!</h3><p>You\'re signed in with your new password.</p><button class="btn b-purple" onclick="closeModal();afterPasswordReset()">CONTINUE</button>');
+  }catch(e){
+    $('np-err').textContent=(e.message||'Could not update password — the link may have expired. Request a new one.');
+    SFX.err();
+  } finally{ $('np-go').textContent='UPDATE PASSWORD'; }
+}
+async function afterPasswordReset(){
+  try{ const { data } = await sb.auth.getSession(); ME=data?.session?.user||ME; await loadProfile(); enterApp(); }
+  catch(e){ goFlow('scr-auth'); }
 }
 function backToLogin(){
   authTab('login');
@@ -2879,8 +3017,9 @@ function ldStart(){
 }
 function ldDone(){
   clearInterval(ldTimer); clearInterval(ldTipTimer);
+  ldVal=Math.max(ldVal,0);
   ldSet(100,'Ready.');
-  setTimeout(()=>{ $('loader').classList.add('gone'); }, 420);
+  setTimeout(()=>{ $('loader')?.classList.add('gone'); }, 420);
 }
 
 /* ================= BOOT ================= */
