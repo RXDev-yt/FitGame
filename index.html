@@ -86,8 +86,8 @@
 <div id="app">
   <!-- ARENA & ROOM SETUP -->
   <div id="scr-arena" class="screen active">
-    <h2 style="margin-bottom:4px;">KLIKY DUEL (EASY TRACKING)</h2>
-    <p class="dim" style="margin-bottom:16px;">Plank check + Live video streaming.</p>
+    <h2 style="margin-bottom:4px;">KLIKY DUEL (LOCKED IN)</h2>
+    <p class="dim" style="margin-bottom:16px;">Ultra-sensitive tracking active.</p>
 
     <div class="card">
       <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">1. MATCH DURATION</div>
@@ -133,7 +133,7 @@
     <div class="duel-half me">
       <video id="duel-webcam" autoplay playsinline muted></video>
       <canvas class="pose-canvas" id="poseCanvas"></canvas>
-      <div class="warn-banner" id="cheat-warn">GET DOWN IN A HORIZONTAL PLANK!</div>
+      <div class="warn-banner" id="cheat-warn">GET IN POSITION</div>
       <div class="duel-ov">
         <div class="duel-top">
           <span class="live-b" style="background:var(--purple);">YOU</span>
@@ -166,13 +166,11 @@
   let conn = null;
   let localStream = null;
   let shortCode = "";
-  const ROOM_PREFIX = "kliky-v7-";
+  const ROOM_PREFIX = "kliky-v8-";
 
   let pushupState = "TOP";
-  // Highly sensitive threshold settings:
-  // Requires only a slight bend down (105°) and slight push up (115°)
-  const ANGLE_TOP = 115;     
-  const ANGLE_BOTTOM = 105;   
+  let minY = 1000;
+  let maxY = -1000;
 
   function generate4DigitCode() {
     return Math.floor(1000 + Math.random() * 9000).toString();
@@ -362,13 +360,6 @@
     switchTab('scr-victory');
   }
 
-  function calculateAngle(A, B, C) {
-    const radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
-    let angle = Math.abs((radians * 180.0) / Math.PI);
-    if (angle > 180.0) angle = 360.0 - angle;
-    return angle;
-  }
-
   function initMediaPipePose() {
     const videoElement = document.getElementById('duel-webcam');
     const canvasElement = document.getElementById('poseCanvas');
@@ -382,8 +373,8 @@
     pose.setOptions({
       modelComplexity: 0,
       smoothLandmarks: true,
-      minDetectionConfidence: 0.3,
-      minTrackingConfidence: 0.3
+      minDetectionConfidence: 0.2,
+      minTrackingConfidence: 0.2
     });
 
     pose.onResults((results) => {
@@ -394,79 +385,53 @@
 
       if (results.poseLandmarks) {
         const lShoulder = results.poseLandmarks[11];
-        const lElbow = results.poseLandmarks[13];
-        const lWrist = results.poseLandmarks[15];
-
         const rShoulder = results.poseLandmarks[12];
+        const lElbow = results.poseLandmarks[13];
         const rElbow = results.poseLandmarks[14];
-        const rWrist = results.poseLandmarks[16];
 
-        const lHip = results.poseLandmarks[23];
-        const rHip = results.poseLandmarks[24];
+        if (lShoulder || rShoulder) {
+          warnEl.style.display = "none";
+          
+          // Hybrid tracker: uses relative vertical movement of shoulders
+          const currentY = lShoulder ? lShoulder.y : rShoulder.y;
 
-        const leftArmVisible = lShoulder && lElbow && lWrist;
-        const rightArmVisible = rShoulder && rElbow && rWrist;
-
-        if (leftArmVisible || rightArmVisible) {
-          let avgElbowAngle = 180;
-          if (leftArmVisible && rightArmVisible) {
-            avgElbowAngle = (calculateAngle(lShoulder, lElbow, lWrist) + calculateAngle(rShoulder, rElbow, rWrist)) / 2;
-          } else if (leftArmVisible) {
-            avgElbowAngle = calculateAngle(lShoulder, lElbow, lWrist);
-          } else {
-            avgElbowAngle = calculateAngle(rShoulder, rElbow, rWrist);
-          }
-
-          // Relaxed standing/upright warning logic
-          let isUpright = false;
-          if (lHip && rHip && lShoulder && rShoulder) {
-            const avgShoulder = { x: (lShoulder.x + rShoulder.x)/2, y: (lShoulder.y + rShoulder.y)/2 };
-            const avgHip = { x: (lHip.x + rHip.x)/2, y: (lHip.y + rHip.y)/2 };
-            const dx = Math.abs(avgShoulder.x - avgHip.x);
-            const dy = Math.abs(avgShoulder.y - avgHip.y);
-            const torsoAngleDegrees = Math.atan2(dy, dx) * (180 / Math.PI);
-            isUpright = torsoAngleDegrees > 75;
-          }
-
-          if (isUpright) {
-            warnEl.style.display = "block";
-            warnEl.innerText = "GET DOWN IN PUSH-UP POSITION";
-          } else {
-            warnEl.style.display = "none";
-
-            // State Transition logic
-            if (avgElbowAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
+          if (pushupState === "TOP") {
+            if (currentY > minY + 0.04) {
               pushupState = "BOTTOM";
-            } else if (avgElbowAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
+              maxY = currentY;
+            } else if (currentY < minY) {
+              minY = currentY;
+            }
+          } else if (pushupState === "BOTTOM") {
+            if (currentY < maxY - 0.03) {
               pushupState = "TOP";
+              minY = currentY;
               countPushupRep();
+            } else if (currentY > maxY) {
+              maxY = currentY;
             }
           }
 
-          // Draw Overlay
-          const lineCol = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
-          canvasCtx.strokeStyle = lineCol;
-          canvasCtx.lineWidth = 4;
+          // Draw Visual Skeleton
+          canvasCtx.strokeStyle = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
+          canvasCtx.lineWidth = 5;
 
-          if (leftArmVisible) {
+          if (lShoulder && lElbow) {
             canvasCtx.beginPath();
             canvasCtx.moveTo(lShoulder.x * canvasElement.width, lShoulder.y * canvasElement.height);
             canvasCtx.lineTo(lElbow.x * canvasElement.width, lElbow.y * canvasElement.height);
-            canvasCtx.lineTo(lWrist.x * canvasElement.width, lWrist.y * canvasElement.height);
             canvasCtx.stroke();
           }
 
-          if (rightArmVisible) {
+          if (rShoulder && rElbow) {
             canvasCtx.beginPath();
             canvasCtx.moveTo(rShoulder.x * canvasElement.width, rShoulder.y * canvasElement.height);
             canvasCtx.lineTo(rElbow.x * canvasElement.width, rElbow.y * canvasElement.height);
-            canvasCtx.lineTo(rWrist.x * canvasElement.width, rWrist.y * canvasElement.height);
             canvasCtx.stroke();
           }
-
         } else {
           warnEl.style.display = "block";
-          warnEl.innerText = "POSITION CAMERA TO SHOW YOUR UPPER BODY";
+          warnEl.innerText = "MOVE INTO CAMERA VIEW";
         }
       } else {
         warnEl.style.display = "block";
