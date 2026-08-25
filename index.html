@@ -78,7 +78,7 @@
   .lead-tag.behind{ color:var(--red); border-color:rgba(239,68,68,.5); }
   .status-pill{ font-size:11px; font-weight:800; padding:4px 8px; border-radius:8px; background:var(--card-2); text-align:center; margin-top:6px; }
   
-  .warn-banner{ position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); background:rgba(239,68,68,0.9); color:#fff; font-weight:900; font-size:13px; padding:8px 16px; border-radius:99px; z-index:10; display:none; pointer-events:none; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+  .warn-banner{ position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); background:rgba(239,68,68,0.92); color:#fff; font-weight:900; font-size:13px; padding:8px 16px; border-radius:99px; z-index:10; display:none; pointer-events:none; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
 </style>
 </head>
 <body>
@@ -87,7 +87,7 @@
   <!-- ARENA & ROOM SETUP -->
   <div id="scr-arena" class="screen active">
     <h2 style="margin-bottom:4px;">KLIKY DUEL (FAST & STRICT)</h2>
-    <p class="dim" style="margin-bottom:16px;">Dual-arm pose verification + Ultra-fast WebRTC pairing.</p>
+    <p class="dim" style="margin-bottom:16px;">Plank position check + Live video streaming.</p>
 
     <div class="card">
       <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">1. MATCH DURATION</div>
@@ -114,7 +114,7 @@
   <!-- 1v1 DUEL SCREEN -->
   <div id="scr-duel" class="screen">
     <div class="duel-half opp">
-      <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:40px;">🤼</div>
+      <video id="opp-webcam" autoplay playsinline></video>
       <div class="duel-ov">
         <div class="duel-top">
           <span class="live-b">FRIEND</span>
@@ -133,7 +133,7 @@
     <div class="duel-half me">
       <video id="duel-webcam" autoplay playsinline muted></video>
       <canvas class="pose-canvas" id="poseCanvas"></canvas>
-      <div class="warn-banner" id="cheat-warn">GET INTO PUSH-UP POSITION</div>
+      <div class="warn-banner" id="cheat-warn">LIE DOWN IN PUSH-UP POSITION</div>
       <div class="duel-ov">
         <div class="duel-top">
           <span class="live-b" style="background:var(--purple);">YOU</span>
@@ -164,13 +164,14 @@
   
   let peer = null;
   let conn = null;
+  let mediaCall = null;
+  let localStream = null;
   let shortCode = "";
   const ROOM_PREFIX = "kliky-v4-";
 
-  // Dual-Arm Pushup Detection Logic
   let pushupState = "TOP";
-  const ANGLE_TOP = 150;     // Extended arms
-  const ANGLE_BOTTOM = 100;   // Chest dropped down
+  const ANGLE_TOP = 150;     
+  const ANGLE_BOTTOM = 100;   
 
   function generate4DigitCode() {
     return Math.floor(1000 + Math.random() * 9000).toString();
@@ -180,7 +181,6 @@
     shortCode = generate4DigitCode();
     document.getElementById('my-short-code').innerText = shortCode;
 
-    // Fast-path configuration using multiple low-latency STUN nodes
     peer = new Peer(ROOM_PREFIX + shortCode, {
       debug: 0,
       config: {
@@ -203,6 +203,15 @@
       setupPeerListeners();
     });
 
+    peer.on('call', (call) => {
+      if (localStream) {
+        call.answer(localStream);
+        call.on('stream', (remoteStream) => {
+          document.getElementById('opp-webcam').srcObject = remoteStream;
+        });
+      }
+    });
+
     peer.on('error', (err) => {
       if (err.type === 'unavailable-id') initPeer();
       else updateStatus("Retry connection", "var(--red)");
@@ -219,7 +228,6 @@
     const inputCode = document.getElementById('friend-id-input').value.trim();
     if (inputCode.length === 4) {
       updateStatus("Connecting...", "var(--gold)");
-      // Disable WebRTC ordered buffer overhead for zero-delay synchronization
       conn = peer.connect(ROOM_PREFIX + inputCode, { 
         reliable: false, 
         serialization: 'json' 
@@ -231,6 +239,12 @@
   function setupPeerListeners() {
     conn.on('open', () => {
       updateStatus("Connected!", "var(--green)");
+      if (localStream && conn.peer) {
+        mediaCall = peer.call(conn.peer, localStream);
+        mediaCall.on('stream', (remoteStream) => {
+          document.getElementById('opp-webcam').srcObject = remoteStream;
+        });
+      }
     });
 
     conn.on('data', (data) => {
@@ -366,49 +380,49 @@
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
       if (results.poseLandmarks) {
-        // Left arm joints
         const lShoulder = results.poseLandmarks[11];
         const lElbow = results.poseLandmarks[13];
         const lWrist = results.poseLandmarks[15];
 
-        // Right arm joints
         const rShoulder = results.poseLandmarks[12];
         const rElbow = results.poseLandmarks[14];
         const rWrist = results.poseLandmarks[16];
 
-        // Hips (for posture checking)
         const lHip = results.poseLandmarks[23];
         const rHip = results.poseLandmarks[24];
+        const lAnkle = results.poseLandmarks[27];
+        const rAnkle = results.poseLandmarks[28];
 
         const hasLeftArm = lShoulder && lElbow && lWrist && lShoulder.visibility > 0.5 && lElbow.visibility > 0.5;
         const hasRightArm = rShoulder && rElbow && rWrist && rShoulder.visibility > 0.5 && rElbow.visibility > 0.5;
-        const hasHips = lHip && rHip && lHip.visibility > 0.4;
+        const hasBody = lHip && rHip && (lHip.visibility > 0.4 || rHip.visibility > 0.4);
 
-        if (hasLeftArm && hasRightArm) {
+        if (hasLeftArm && hasRightArm && hasBody) {
           const leftAngle = calculateAngle(lShoulder, lElbow, lWrist);
           const rightAngle = calculateAngle(rShoulder, rElbow, rWrist);
           const avgAngle = (leftAngle + rightAngle) / 2;
 
-          // FAILSAFE 1: Wrist vs Hip/Shoulder posture check
-          let isValidPosture = true;
-          if (hasHips) {
-            const avgWristY = (lWrist.y + rWrist.y) / 2;
-            const avgShoulderY = (lShoulder.y + rShoulder.y) / 2;
-            const avgHipY = (lHip.y + rHip.y) / 2;
-            
-            // Rejects standing upright with hands above shoulders
-            if (avgWristY < avgShoulderY && avgShoulderY < avgHipY) {
-              isValidPosture = false;
-            }
-          }
+          const avgShoulderY = (lShoulder.y + rShoulder.y) / 2;
+          const avgHipY = (lHip.y + rHip.y) / 2;
+          const avgWristY = (lWrist.y + rWrist.y) / 2;
 
-          // FAILSAFE 2: Arm symmetry check (prevents single-arm flailing)
+          // BODY ORIENTATION CHECK: Torso & hips must be roughly horizontal/level with shoulders
+          const torsoVerticalDiff = Math.abs(avgShoulderY - avgHipY);
+          const isUprightStanding = torsoVerticalDiff > 0.35 && avgHipY > avgShoulderY;
+          
+          // Rejects waving hands upright or standing arm bends
+          const isHandsAboveHead = avgWristY < avgShoulderY;
+
+          // Arm symmetry check (prevents single-arm flailing)
           const armDifference = Math.abs(leftAngle - rightAngle);
           const isBalanced = armDifference < 45;
 
-          if (!isValidPosture || !isBalanced) {
+          if (isUprightStanding || isHandsAboveHead) {
             warnEl.style.display = "block";
-            warnEl.innerText = !isValidPosture ? "GET ON THE FLOOR!" : "USE BOTH ARMS!";
+            warnEl.innerText = "GET DOWN ON THE FLOOR!";
+          } else if (!isBalanced) {
+            warnEl.style.display = "block";
+            warnEl.innerText = "USE BOTH ARMS EVENLY!";
           } else {
             warnEl.style.display = "none";
 
@@ -421,10 +435,16 @@
             }
           }
 
-          // Render active skeletal structure
+          // Render active skeleton
           const lineCol = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
           canvasCtx.strokeStyle = lineCol;
-          canvasCtx.lineWidth = 6;
+          canvasCtx.lineWidth = 5;
+
+          // Torso Line
+          canvasCtx.beginPath();
+          canvasCtx.moveTo(lShoulder.x * canvasElement.width, lShoulder.y * canvasElement.height);
+          canvasCtx.lineTo(lHip.x * canvasElement.width, lHip.y * canvasElement.height);
+          canvasCtx.stroke();
 
           // Left Arm
           canvasCtx.beginPath();
@@ -441,7 +461,7 @@
           canvasCtx.stroke();
         } else {
           warnEl.style.display = "block";
-          warnEl.innerText = "STEP BACK — SHOW BOTH ARMS";
+          warnEl.innerText = "SHOW ENTIRE BODY & BOTH ARMS";
         }
       } else {
         warnEl.style.display = "block";
@@ -457,7 +477,18 @@
       width: 640,
       height: 480
     });
-    camera.start();
+    
+    camera.start().then(() => {
+      if (videoElement.srcObject) {
+        localStream = videoElement.srcObject;
+        if (conn && conn.open && peer) {
+          mediaCall = peer.call(conn.peer, localStream);
+          mediaCall.on('stream', (remoteStream) => {
+            document.getElementById('opp-webcam').srcObject = remoteStream;
+          });
+        }
+      }
+    });
   }
 
   initPeer();
