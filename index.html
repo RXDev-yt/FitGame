@@ -87,7 +87,7 @@
   <!-- ARENA & ROOM SETUP -->
   <div id="scr-arena" class="screen active">
     <h2 style="margin-bottom:4px;">KLIKY DUEL (FAST & STRICT)</h2>
-    <p class="dim" style="margin-bottom:16px;">Strict plank position check + Live video streaming.</p>
+    <p class="dim" style="margin-bottom:16px;">Plank check + Live video streaming.</p>
 
     <div class="card">
       <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">1. MATCH DURATION</div>
@@ -164,14 +164,13 @@
   
   let peer = null;
   let conn = null;
-  let mediaCall = null;
   let localStream = null;
   let shortCode = "";
-  const ROOM_PREFIX = "kliky-v4-";
+  const ROOM_PREFIX = "kliky-v5-";
 
   let pushupState = "TOP";
-  const ANGLE_TOP = 150;     
-  const ANGLE_BOTTOM = 100;   
+  const ANGLE_TOP = 140;     
+  const ANGLE_BOTTOM = 110;   
 
   function generate4DigitCode() {
     return Math.floor(1000 + Math.random() * 9000).toString();
@@ -204,18 +203,27 @@
     });
 
     peer.on('call', (call) => {
-      if (localStream) {
-        call.answer(localStream);
-        call.on('stream', (remoteStream) => {
-          document.getElementById('opp-webcam').srcObject = remoteStream;
-        });
-      }
+      call.answer(localStream);
+      call.on('stream', (remoteStream) => {
+        document.getElementById('opp-webcam').srcObject = remoteStream;
+      });
     });
 
     peer.on('error', (err) => {
       if (err.type === 'unavailable-id') initPeer();
       else updateStatus("Retry connection", "var(--red)");
     });
+  }
+
+  function callPeer() {
+    if (conn && conn.peer && localStream) {
+      const call = peer.call(conn.peer, localStream);
+      if (call) {
+        call.on('stream', (remoteStream) => {
+          document.getElementById('opp-webcam').srcObject = remoteStream;
+        });
+      }
+    }
   }
 
   function updateStatus(msg, color) {
@@ -239,12 +247,7 @@
   function setupPeerListeners() {
     conn.on('open', () => {
       updateStatus("Connected!", "var(--green)");
-      if (localStream && conn.peer) {
-        mediaCall = peer.call(conn.peer, localStream);
-        mediaCall.on('stream', (remoteStream) => {
-          document.getElementById('opp-webcam').srcObject = remoteStream;
-        });
-      }
+      callPeer();
     });
 
     conn.on('data', (data) => {
@@ -254,6 +257,8 @@
         updateLead();
       } else if (data.type === 'START_MATCH') {
         runMatchTimer(data.duration);
+      } else if (data.type === 'REQUEST_STREAM') {
+        callPeer();
       }
     });
 
@@ -290,6 +295,12 @@
     document.getElementById('opp-reps').innerText = '0';
     
     switchTab('scr-duel');
+    
+    if (conn && conn.open) {
+      conn.send({ type: 'REQUEST_STREAM' });
+      callPeer();
+    }
+
     initMediaPipePose();
 
     let timeRem = duration;
@@ -369,8 +380,8 @@
     pose.setOptions({
       modelComplexity: 1,
       smoothLandmarks: true,
-      minDetectionConfidence: 0.65,
-      minTrackingConfidence: 0.65
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
     });
 
     pose.onResults((results) => {
@@ -390,54 +401,38 @@
 
         const lHip = results.poseLandmarks[23];
         const rHip = results.poseLandmarks[24];
-        const lKnee = results.poseLandmarks[25];
-        const rKnee = results.poseLandmarks[26];
 
-        const hasArms = lShoulder && lElbow && lWrist && rShoulder && rElbow && rWrist &&
-                         lShoulder.visibility > 0.5 && rShoulder.visibility > 0.5;
-        const hasLowerBody = lHip && rHip && (lHip.visibility > 0.4 || rHip.visibility > 0.4);
+        // Evaluate best-visible arm
+        const leftArmVisible = lShoulder && lElbow && lWrist && lShoulder.visibility > 0.4 && lElbow.visibility > 0.4;
+        const rightArmVisible = rShoulder && rElbow && rWrist && rShoulder.visibility > 0.4 && rElbow.visibility > 0.4;
 
-        if (hasArms && hasLowerBody) {
-          // 1. Arm Angles
-          const leftAngle = calculateAngle(lShoulder, lElbow, lWrist);
-          const rightAngle = calculateAngle(rShoulder, rElbow, rWrist);
-          const avgElbowAngle = (leftAngle + rightAngle) / 2;
+        if ((leftArmVisible || rightArmVisible) && lHip && rHip) {
+          let avgElbowAngle = 180;
+          if (leftArmVisible && rightArmVisible) {
+            avgElbowAngle = (calculateAngle(lShoulder, lElbow, lWrist) + calculateAngle(rShoulder, rElbow, rWrist)) / 2;
+          } else if (leftArmVisible) {
+            avgElbowAngle = calculateAngle(lShoulder, lElbow, lWrist);
+          } else {
+            avgElbowAngle = calculateAngle(rShoulder, rElbow, rWrist);
+          }
 
-          // 2. Torso Tilt Angle (Relative to horizontal)
+          // Torso Tilt Angle (Flat horizontal = ~0-35°, Sitting/Standing = >60°)
           const avgShoulder = { x: (lShoulder.x + rShoulder.x)/2, y: (lShoulder.y + rShoulder.y)/2 };
           const avgHip = { x: (lHip.x + rHip.x)/2, y: (lHip.y + rHip.y)/2 };
           
           const dx = Math.abs(avgShoulder.x - avgHip.x);
           const dy = Math.abs(avgShoulder.y - avgHip.y);
-          // Angle from horizontal (0° is flat horizontal plank, 90° is sitting upright)
           const torsoAngleDegrees = Math.atan2(dy, dx) * (180 / Math.PI);
 
-          // 3. Body Straightness Check (Shoulder-Hip-Knee angle to catch sitting/hunching)
-          let bodyLineAngle = 180;
-          if (lKnee && lKnee.visibility > 0.4) {
-            bodyLineAngle = calculateAngle(lShoulder, lHip, lKnee);
-          } else if (rKnee && rKnee.visibility > 0.4) {
-            bodyLineAngle = calculateAngle(rShoulder, rHip, rKnee);
-          }
+          const isUpright = torsoAngleDegrees > 60; 
 
-          // Strict Form Checks
-          const isSittingUpright = torsoAngleDegrees > 45; // Torso tilted up > 45 deg
-          const isBentAtWaist = bodyLineAngle < 140;       // Hips bent like sitting in a chair
-          const isArmImbalance = Math.abs(leftAngle - rightAngle) > 40;
-
-          if (isSittingUpright) {
+          if (isUpright) {
             warnEl.style.display = "block";
-            warnEl.innerText = "GET DOWN IN A HORIZONTAL PLANK!";
-          } else if (isBentAtWaist) {
-            warnEl.style.display = "block";
-            warnEl.innerText = "STRAIGHTEN YOUR HIPS (NO SITTING)";
-          } else if (isArmImbalance) {
-            warnEl.style.display = "block";
-            warnEl.innerText = "USE BOTH ARMS EQUALLY";
+            warnEl.innerText = "GET DOWN IN PUSH-UP POSITION";
           } else {
             warnEl.style.display = "none";
 
-            // Rep State Machine (Only advances when body position passes all tests)
+            // Rep State Machine
             if (avgElbowAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
               pushupState = "BOTTOM";
             } else if (avgElbowAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
@@ -451,14 +446,21 @@
           canvasCtx.strokeStyle = lineCol;
           canvasCtx.lineWidth = 4;
 
-          // Draw Arms
-          [ [lShoulder, lElbow, lWrist], [rShoulder, rElbow, rWrist] ].forEach(arm => {
+          if (leftArmVisible) {
             canvasCtx.beginPath();
-            canvasCtx.moveTo(arm[0].x * canvasElement.width, arm[0].y * canvasElement.height);
-            canvasCtx.lineTo(arm[1].x * canvasElement.width, arm[1].y * canvasElement.height);
-            canvasCtx.lineTo(arm[2].x * canvasElement.width, arm[2].y * canvasElement.height);
+            canvasCtx.moveTo(lShoulder.x * canvasElement.width, lShoulder.y * canvasElement.height);
+            canvasCtx.lineTo(lElbow.x * canvasElement.width, lElbow.y * canvasElement.height);
+            canvasCtx.lineTo(lWrist.x * canvasElement.width, lWrist.y * canvasElement.height);
             canvasCtx.stroke();
-          });
+          }
+
+          if (rightArmVisible) {
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(rShoulder.x * canvasElement.width, rShoulder.y * canvasElement.height);
+            canvasCtx.lineTo(rElbow.x * canvasElement.width, rElbow.y * canvasElement.height);
+            canvasCtx.lineTo(rWrist.x * canvasElement.width, rWrist.y * canvasElement.height);
+            canvasCtx.stroke();
+          }
 
           // Draw Torso
           canvasCtx.beginPath();
@@ -468,7 +470,7 @@
 
         } else {
           warnEl.style.display = "block";
-          warnEl.innerText = "STEP BACK: SHOW SHOULDERS, HIPS & KNEES";
+          warnEl.innerText = "POSITION CAMERA TO SHOW UPPER BODY & HIPS";
         }
       } else {
         warnEl.style.display = "block";
@@ -477,28 +479,41 @@
       canvasCtx.restore();
     });
 
-    const camera = new Camera(videoElement, {
-      onFrame: async () => {
-        await pose.send({ image: videoElement });
-      },
-      width: 640,
-      height: 480
-    });
-    
-    camera.start().then(() => {
-      if (videoElement.srcObject) {
-        localStream = videoElement.srcObject;
-        if (conn && conn.open && peer) {
-          mediaCall = peer.call(conn.peer, localStream);
-          mediaCall.on('stream', (remoteStream) => {
-            document.getElementById('opp-webcam').srcObject = remoteStream;
-          });
+    if (!localStream) {
+      const camera = new Camera(videoElement, {
+        onFrame: async () => {
+          await pose.send({ image: videoElement });
+        },
+        width: 640,
+        height: 480
+      });
+      
+      camera.start().then(() => {
+        if (videoElement.srcObject) {
+          localStream = videoElement.srcObject;
+          callPeer();
         }
-      }
-    });
+      });
+    } else {
+      const camera = new Camera(videoElement, {
+        onFrame: async () => {
+          await pose.send({ image: videoElement });
+        },
+        width: 640,
+        height: 480
+      });
+      camera.start();
+    }
   }
 
-  initPeer();
+  // Pre-fetch camera on page load for faster connection
+  navigator.mediaDevices?.getUserMedia({ video: true, audio: false }).then((stream) => {
+    localStream = stream;
+    document.getElementById('duel-webcam').srcObject = stream;
+    initPeer();
+  }).catch(() => {
+    initPeer();
+  });
 </script>
 </body>
 </html>
