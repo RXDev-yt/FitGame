@@ -1072,7 +1072,17 @@
         <label>Your fighter name</label>
         <input id="ob-name" type="text" maxlength="20" placeholder="IronPusher_CZ">
       </div>
-      <label style="display:block;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:14px 0 8px">Pick your icon</label>
+      <label style="display:block;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:14px 0 8px">Pick your icon or upload a photo</label>
+      <div class="row" style="gap:12px;align-items:center;margin-bottom:12px">
+        <div class="pfp-wrap" style="width:64px;height:64px;margin:0">
+          <div class="pfp" id="ob-pfp-view" style="width:64px;height:64px"></div>
+          <button class="pfp-edit" style="width:26px;height:26px" onclick="$('ob-pfp-file').click()" aria-label="Upload photo">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px" fill="none" stroke="#26190A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h2L9 4h6l1.5 2h2A2.5 2.5 0 0 1 21 8.5v9A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>
+          </button>
+          <input type="file" id="ob-pfp-file" accept="image/*" style="display:none" onchange="uploadPfp(event,true)">
+        </div>
+        <span class="dim" style="font-size:11.5px;font-weight:800">Tap the gold pin to use your own photo instead</span>
+      </div>
       <div class="av-grid" id="av-grid-ob"></div>
       <div class="auth-err" id="ob-err"></div>
       <button class="btn b-purple" onclick="obNext(1)">CONTINUE</button>
@@ -1972,7 +1982,7 @@ function diffPickerHTML(){
 }
 
 /* ================= PROFILE PHOTO UPLOAD ================= */
-function uploadPfp(ev){
+function uploadPfp(ev, isOnboarding){
   const file=ev.target.files?.[0]; if(!file) return;
   if(file.size>8*1024*1024){ toast('Image too big — pick one under 8MB'); SFX.err(); return; }
   const rd=new FileReader();
@@ -1986,7 +1996,12 @@ function uploadPfp(ev){
       ctx.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,S2,S2);
       const url=c.toDataURL('image/jpeg',0.82);
       if(PROFILE){ PROFILE.avatar_url=url; saveProfile(); }
-      paintAvatars(); SFX.ready(); toast('Profile photo updated');
+      paintAvatars();
+      if(isOnboarding){
+        const ob=$('ob-pfp-view'); if(ob) ob.innerHTML='<img src="'+url+'">';
+        document.querySelectorAll('#av-grid-ob .av-pick').forEach(x=>x.classList.remove('on'));
+      }
+      SFX.ready(); toast('Photo set!');
     };
     img.src=rd.result;
   };
@@ -2626,8 +2641,10 @@ const SB_URL='https://yxtfhqkrhxpkaaexzvcn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dGZocWtyaHhwa2FhZXh6dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjg0ODgsImV4cCI6MjEwMzIwNDQ4OH0.y4dMu9spDHMZBNr3uAfzmNzHKxJCuujVY6QmqxNteOg';
 let sb=null, ME=null, PROFILE=null;
 try{ sb=window.supabase?.createClient(SB_URL,SB_KEY); }catch(e){ sb=null; }
+let inRecovery = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
 sb?.auth.onAuthStateChange((event)=>{
   if(event==='PASSWORD_RECOVERY'){
+    inRecovery=true;
     ldDone();
     document.body.classList.add('locked');
     goFlow('scr-newpass');
@@ -2745,6 +2762,8 @@ async function setNewPassword(){
   } finally{ $('np-go').textContent='UPDATE PASSWORD'; }
 }
 async function afterPasswordReset(){
+  inRecovery=false;
+  try{ history.replaceState(null,'',location.pathname); }catch(e){}
   try{ const { data } = await sb.auth.getSession(); ME=data?.session?.user||ME; await loadProfile(); enterApp(); }
   catch(e){ goFlow('scr-auth'); }
 }
@@ -2846,11 +2865,18 @@ function startOnboarding(){
   $('ti3').innerHTML=mon('spider',26); $('ti4').innerHTML=ICO.swords(22);
   $('ob-name').value=PROFILE?.username||'';
   const g=$('av-grid-ob'); g.innerHTML='';
+  const obpv=$('ob-pfp-view');
+  if(obpv) obpv.innerHTML = PROFILE?.avatar_url ? '<img src="'+PROFILE.avatar_url+'">' : mon(myAv(),44);
   AVATARS.forEach(k=>{
     const b=document.createElement('button');
-    b.className='av-pick'+(myAv()===k?' on':'');
+    b.className='av-pick'+(!PROFILE?.avatar_url && myAv()===k?' on':'');
     b.innerHTML=mon(k,38);
-    b.onclick=()=>{ if(PROFILE){ PROFILE.avatar=k; } g.querySelectorAll('.av-pick').forEach(x=>x.classList.remove('on')); b.classList.add('on'); beep(660,.08); };
+    b.onclick=()=>{
+      if(PROFILE){ PROFILE.avatar=k; PROFILE.avatar_url=null; }
+      g.querySelectorAll('.av-pick').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+      if(obpv) obpv.innerHTML=mon(k,44);
+      beep(660,.08);
+    };
     g.appendChild(b);
   });
   obStep(1);
@@ -3033,6 +3059,13 @@ async function boot(){
   try{ session=(await sb?.auth.getSession())?.data?.session||null; }catch(e){}
   ldSet(55,'Checking your account…');
   await minSplash;
+  if(inRecovery){
+    ME = session?.user || ME;
+    ldDone();
+    document.body.classList.add('locked');
+    goFlow('scr-newpass');
+    return;
+  }
   if(session){
     ME=session.user;
     ldSet(75,'Loading your fighter…');
