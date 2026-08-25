@@ -367,6 +367,7 @@
   .founder-badge{ display:inline-block; font-size:10.5px; font-weight:900; letter-spacing:.14em; background:rgba(245,158,11,.15);
     color:var(--gold); padding:6px 14px; border-radius:99px; margin-bottom:14px; }
   body.locked #nav{ display:none; }
+  body.in-match #nav{ display:none; }
 
   /* ---------- AMBIENT / POLISH ---------- */
   #app::before{ content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
@@ -1008,6 +1009,7 @@
     <div class="vp-fallback" id="d-fb" style="display:none"><span style="font-size:54px;opacity:.4">🧍</span></div>
     <button class="duel-tapzone" id="d-tapzone" onclick="duelTap()" aria-label="Tap to count rep"></button>
     <span class="stage-tag" id="d-track">Loading AI…</span>
+    <button class="stage-tag" id="d-skip-ai" style="right:12px;left:auto;top:44px;bottom:auto;display:none;background:rgba(239,68,68,.75)" onclick="forceDuelTapMode()">SKIP — TAP MODE</button>
     <span class="rt-badge" id="rt-badge" style="display:none">● LIVE OPPONENT</span>
     <span class="lead-float" id="d-lead">EVEN</span>
     <div class="combo" id="d-combo">
@@ -1692,6 +1694,7 @@ const FLOW_SCREENS=new Set(['scr-splash','scr-auth','scr-checkmail','scr-forgot'
 function nav(id, opts){
   cleanupFlows(id);
   if(!FLOW_SCREENS.has(id)) document.body.classList.remove('locked');
+  document.body.classList.remove('in-match');
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
   ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
@@ -1714,6 +1717,7 @@ window.addEventListener('popstate', e=>{
   if(!id) return;
   routing=true;
   if(!FLOW_SCREENS.has(id)) document.body.classList.remove('locked');
+  document.body.classList.remove('in-match');
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
   ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
@@ -1724,7 +1728,9 @@ function routeFromUrl(){
   const slug=location.pathname.replace(/^\/+/,'').split('/')[0];
   return ROUTES.hasOwnProperty(slug) ? ROUTES[slug] : null;
 }
+const MATCH_SCREENS=new Set(['scr-battle','scr-duel']);
 function goFlow(id){ /* flow screens without nav highlight */
+  document.body.classList.toggle('in-match', MATCH_SCREENS.has(id));
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.remove('on'));
 }
@@ -2867,9 +2873,14 @@ function beginDuel(){
   scheduleBotRep();
 }
 async function startDuelTracking(d){
+  const skipBtn=$('d-skip-ai');
+  if(skipBtn){ skipBtn.style.display='none'; clearTimeout(window._duelSkipT);
+    window._duelSkipT=setTimeout(()=>{ if(S.duel===d && !d.tracking && d.running) skipBtn.style.display='block'; },4000); }
   const ok=await PoseEngine.start('d-video','d-canvas','Push-ups',
     ()=>{ if(S.duel===d && S.duel.running) duelRep(); },
     (type,msg)=>setTrackPill('d-track',null,type,msg));
+  clearTimeout(window._duelSkipT);
+  if(skipBtn) skipBtn.style.display='none';
   if(S.duel!==d){ if(ok) PoseEngine.stop(); return; }
   if(ok){
     d.tracking=true;
@@ -2878,6 +2889,18 @@ async function startDuelTracking(d){
   } else {
     initCam('d-video','d-fb');
   }
+}
+function forceDuelTapMode(){
+  const d=S.duel; if(!d) return;
+  clearTimeout(window._duelSkipT);
+  try{ PoseEngine.stop(); }catch(e){}
+  d.tracking=false;
+  $('d-skip-ai').style.display='none';
+  $('d-hint').textContent='Tap anywhere = 1 rep';
+  $('d-tapzone').style.pointerEvents='auto';
+  setTrackPill('d-track',null,'tap','Tap mode');
+  initCam('d-video','d-fb');
+  SFX.click();
 }
 function duelTap(){
   const d=S.duel; if(!d||!d.running||d.tracking) return;
@@ -3161,12 +3184,35 @@ const PoseEngine={
   async start(videoId,canvasId,exercise,onRep,onStatus){
     const video=$(videoId), canvas=$(canvasId);
     onStatus('load','Loading AI model…');
-    const ok=await this.load();
+    try{
+      return await this._startInner(video,canvas,exercise,onRep,onStatus);
+    }catch(e){
+      console.error('[RepQuest] PoseEngine.start failed', e);
+      onStatus('tap','Tap mode — AI unavailable');
+      return false;
+    }
+  },
+  async _startInner(video,canvas,exercise,onRep,onStatus){
+    const withTimeout=(p,ms,label)=>Promise.race([
+      p, new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout: '+label)),ms))
+    ]);
+    /* a previous load stuck mid-flight (e.g. tab backgrounded, stale promise) must never
+       block a fresh attempt forever — if it's been "loading" too long, reset and retry clean */
+    if(this.state==='loading'){
+      if(!this._loadStartedAt) this._loadStartedAt=Date.now();
+      if(Date.now()-this._loadStartedAt>10000){ this.state='idle'; this._loadP=null; }
+    }
+    if(this.state==='idle') this._loadStartedAt=Date.now();
+    let ok=false;
+    try{ ok = await withTimeout(this.load(), 11000, 'model load'); }
+    catch(e){ this.state='failed'; ok=false; }
     if(!ok){ onStatus('tap','Tap mode — AI unavailable'); return false; }
     if(!navigator.mediaDevices?.getUserMedia){ onStatus('tap','Tap mode — no camera'); return false; }
     try{
-      this.stream=await navigator.mediaDevices.getUserMedia({
-        video:{ facingMode:'user', width:1280, height:720 } });
+      this.stream=await withTimeout(
+        navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user', width:1280, height:720 } }),
+        12000, 'camera permission'
+      );
     }catch(e){ onStatus('tap','Tap mode — camera blocked'); return false; }
     video.srcObject=this.stream;
     video.play().catch(()=>{});
