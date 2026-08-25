@@ -194,7 +194,7 @@
   .found-card{ animation:si .3s ease; }
 
   /* ---- DUEL (split) ---- */
-  #scr-duel{ padding:14px 14px 16px; display:none; flex-direction:column; }
+  #scr-duel{ padding:12px 12px 14px; display:none; flex-direction:column; }
   #scr-duel.active{ display:flex; }
   .duel-half{ flex:1; position:relative; border-radius:18px; overflow:hidden; border:2px solid var(--line); background:#000; min-height:0; }
   .duel-half.opp{ border-color:rgba(239,68,68,.6); }
@@ -416,6 +416,64 @@
   .cam-state.ok{ border-color:rgba(16,185,129,.55); color:var(--green); }
   .cam-state.bad{ border-color:rgba(239,68,68,.55); color:var(--red); }
 
+  /* ---------- RANKED DUEL HUD ---------- */
+  .rank-hud{ background:linear-gradient(180deg,#16213F,#101A33); border:1px solid rgba(255,255,255,.10);
+    border-radius:20px; padding:12px 14px 14px; margin-bottom:10px; position:relative; box-shadow:0 8px 26px rgba(0,0,0,.45); }
+  .rank-label{ text-align:center; font-size:10px; font-weight:900; letter-spacing:.24em; color:var(--gold);
+    text-shadow:0 0 14px rgba(245,158,11,.5); margin-bottom:8px; }
+  .rank-top{ display:grid; grid-template-columns:1fr auto 1fr; gap:8px; align-items:start; }
+  .rank-side{ text-align:center; min-width:0; }
+  .rank-side.r{ text-align:center; }
+  .hexwrap{ position:relative; width:66px; height:74px; margin:0 auto 4px; }
+  .hex{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; overflow:hidden;
+    clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
+  .hex.frame{ background:var(--green); }
+  .hex.frame.enemy{ background:var(--red); }
+  .hex.inner{ inset:3px; background:#0C1428; }
+  .hex.inner svg{ width:46px; height:46px; }
+  .rank-name{ font-weight:900; font-size:15px; text-shadow:0 2px 0 rgba(0,0,0,.5); white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis; }
+  .rank-elo{ font-size:11.5px; font-weight:900; color:#8FA3C8; letter-spacing:.02em; }
+  .rank-mid{ text-align:center; padding-top:6px; }
+  .rank-mid .tl{ font-size:9.5px; font-weight:900; letter-spacing:.2em; color:#8FA3C8; }
+  .rank-mid .tv{ font-size:30px; font-weight:900; line-height:1; text-shadow:0 3px 0 rgba(0,0,0,.5); }
+  .rank-mid .tv.low{ color:var(--red); animation:pulseLive .7s infinite; }
+
+  .tug-row{ display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; margin-top:12px; }
+  .tug-num{ font-size:30px; font-weight:900; line-height:1; text-shadow:0 3px 0 rgba(0,0,0,.5); min-width:38px; }
+  .tug-num.me{ color:var(--green); text-align:left; }
+  .tug-num.op{ color:var(--red); text-align:right; }
+  .tug-bar{ position:relative; height:20px; border-radius:99px; overflow:hidden; background:var(--red);
+    box-shadow:inset 0 2px 6px rgba(0,0,0,.5); }
+  .tug-bar i{ display:block; height:100%; background:linear-gradient(90deg,#34D399,var(--green)); width:50%;
+    transition:width .35s cubic-bezier(.2,.9,.3,1.1); }
+  .tug-knob{ position:absolute; top:50%; width:14px; height:14px; margin:-7px 0 0 -7px; border-radius:3px;
+    background:#EAF6FF; transform:rotate(45deg); box-shadow:0 0 12px rgba(255,255,255,.9);
+    transition:left .35s cubic-bezier(.2,.9,.3,1.1); }
+
+  .duel-stage{ flex:1; position:relative; border-radius:20px; overflow:hidden; background:#000;
+    border:1px solid var(--line); min-height:0; }
+  .duel-stage video{ width:100%; height:100%; object-fit:cover; }
+  .bigrep{ position:absolute; left:50%; bottom:16px; transform:translateX(-50%); z-index:6;
+    width:112px; height:112px; border-radius:50%; background:rgba(245,158,11,.92);
+    border:5px solid #FFE7A8; display:flex; align-items:center; justify-content:center;
+    font-size:44px; font-weight:900; color:#26190A; box-shadow:0 0 34px rgba(245,158,11,.75); }
+  .bigrep.bump{ animation:bmp .18s; }
+  .stage-tag{ position:absolute; top:10px; left:10px; z-index:6; font-size:10px; font-weight:900;
+    letter-spacing:.1em; padding:6px 11px; border-radius:99px; background:rgba(0,0,0,.55); backdrop-filter:blur(4px); }
+  .lead-float{ position:absolute; top:10px; right:10px; z-index:6; font-size:11.5px; font-weight:900;
+    padding:6px 12px; border-radius:99px; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); }
+  .lead-float.ahead{ color:var(--green); } .lead-float.behind{ color:var(--red); }
+  .lead-float.flash{ animation:bmp .3s; }
+
+  /* avatar picker */
+  .av-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .av-pick{ aspect-ratio:1; border-radius:16px; background:var(--card-dark); border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center; transition:transform .1s, border-color .2s; }
+  .av-pick:active{ transform:scale(.94); }
+  .av-pick.on{ border-color:var(--gold); background:rgba(245,158,11,.12); box-shadow:0 0 18px rgba(245,158,11,.35); }
+  .av-pick svg{ width:38px; height:38px; }
+
   /* ---------- DUEL LOBBY ---------- */
   .code-box{ font-family:ui-monospace,Menlo,monospace; font-size:38px; font-weight:900; letter-spacing:10px;
     color:var(--gold); background:var(--card-solid); border:1.5px dashed rgba(245,158,11,.55); border-radius:18px;
@@ -607,32 +665,51 @@
 
 <!-- ============ 5. DUEL SPLIT SCREEN ============ -->
 <section class="screen" id="scr-duel">
-  <div class="duel-half opp"><span class="rt-badge" id="rt-badge" style="display:none">● LIVE OPPONENT</span>
-    <div class="feed-fake"><span style="font-size:44px" id="d-oav-big">💪</span></div>
-    <div class="duel-ov">
-      <div class="duel-top"><span class="live-b">LIVE</span><span class="duel-nm" id="d-oname">IronPusher99</span><span class="duel-lvl" id="d-olvl">LVL 5</span></div>
-      <div class="duel-reps"><div class="n red" id="d-oreps">0</div><div class="l">REPS</div></div>
-      <div class="duel-hp pbar fill-r"><i id="d-ohp" style="width:100%"></i></div>
+  <div class="rank-hud">
+    <div class="rank-label">RANKED MATCH</div>
+    <div class="rank-top">
+      <div class="rank-side">
+        <div class="hexwrap">
+          <div class="hex frame"></div>
+          <div class="hex inner" id="d-me-av"></div>
+        </div>
+        <div class="rank-name" id="d-me-name">You</div>
+        <div class="rank-elo"><span id="d-me-elo">1000</span> ELO</div>
+      </div>
+      <div class="rank-mid">
+        <div class="tl">TIME</div>
+        <div class="tv" id="d-timer">0:00</div>
+      </div>
+      <div class="rank-side r">
+        <div class="hexwrap">
+          <div class="hex frame enemy"></div>
+          <div class="hex inner" id="d-oav-big"></div>
+        </div>
+        <div class="rank-name" id="d-oname">Opponent</div>
+        <div class="rank-elo"><span id="d-oelo">1000</span> ELO</div>
+      </div>
+    </div>
+    <div class="tug-row">
+      <div class="tug-num me" id="d-myreps">0</div>
+      <div class="tug-bar"><i id="d-tug"></i><span class="tug-knob" id="d-knob" style="left:50%"></span></div>
+      <div class="tug-num op" id="d-oreps">0</div>
     </div>
   </div>
 
-  <div class="duel-mid">
-    <span class="duel-timer" id="d-timer">0:00</span>
-    <span class="lead-tag" id="d-lead">EVEN</span>
-    <button class="b-ghost b-sm btn" style="width:auto" onclick="abortDuel()">Quit</button>
-  </div>
-
-  <div class="duel-half me">
+  <div class="duel-stage">
     <video id="d-video" autoplay playsinline muted></video>
     <canvas class="pose-canvas" id="d-canvas"></canvas>
     <div class="vp-fallback" id="d-fb" style="display:none"><span style="font-size:54px;opacity:.4">🧍</span></div>
     <button class="duel-tapzone" id="d-tapzone" onclick="duelTap()" aria-label="Tap to count rep"></button>
-    <div class="track-pill load" id="d-track">⏳ Loading AI…</div>
-    <div class="duel-ov">
-      <div class="duel-top"><span class="live-b" style="background:var(--purple)">YOU</span><span class="duel-nm" id="d-hint">Tap anywhere = 1 rep</span></div>
-      <div class="duel-reps"><div class="n" style="color:#C4B5FD" id="d-myreps">0</div><div class="l">REPS</div></div>
-      <div class="duel-hp pbar fill-p"><i id="d-myhp" style="width:100%"></i></div>
-    </div>
+    <span class="stage-tag" id="d-track">Loading AI…</span>
+    <span class="rt-badge" id="rt-badge" style="display:none">● LIVE OPPONENT</span>
+    <span class="lead-float" id="d-lead">EVEN</span>
+    <div class="bigrep" id="d-bigrep">0</div>
+  </div>
+
+  <div class="row" style="gap:10px;margin-top:10px">
+    <button class="btn b-ghost" style="flex:1" onclick="abortDuel()">QUIT</button>
+    <span class="chip" style="flex:none" id="d-hint">First to 20 reps wins</span>
   </div>
 </section>
 
@@ -685,7 +762,10 @@
       </div>
       <div class="hdr" style="font-size:20px;margin-top:10px">Fighter</div>
       <span class="prof-title" id="p-title">ROOKIE</span>
+      <div class="rank-elo" style="margin-top:8px;font-size:13px"><span id="p-elo">1000</span> ELO</div>
     </div>
+    <div class="seclbl">Profile Icon</div>
+    <div class="av-grid" id="av-grid"></div>
     <div class="seclbl">Frames</div>
     <div id="shop-frames"></div>
     <div class="seclbl">Titles</div>
@@ -795,6 +875,8 @@
         <label>Your fighter name</label>
         <input id="ob-name" type="text" maxlength="20" placeholder="IronPusher_CZ">
       </div>
+      <label style="display:block;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:14px 0 8px">Pick your icon</label>
+      <div class="av-grid" id="av-grid-ob"></div>
       <div class="auth-err" id="ob-err"></div>
       <button class="btn b-purple" onclick="obNext(1)">CONTINUE</button>
     </div>
@@ -1071,12 +1153,47 @@ function beep(f,d,type){
 }
 
 /* ================= NAV / SHELL ================= */
-function nav(id){
+/* ================= ROUTING (History API) ================= */
+const ROUTES={
+  '':'scr-home', home:'scr-home', workout:'scr-workout', campaign:'scr-campaign',
+  arena:'scr-arena', ranks:'scr-ranks', profile:'scr-profile', stats:'scr-stats',
+  achievements:'scr-achievements', friends:'scr-friends',
+};
+const SLUG_OF={}; Object.entries(ROUTES).forEach(([k,v])=>{ if(k) SLUG_OF[v]=k; });
+let routing=false;   /* guards against pushState loops while popping state */
+
+function nav(id, opts){
   cleanupFlows(id);
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
   ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
      'scr-ranks':renderLB,'scr-profile':renderProfile })[id]?.();
+  updateUrl(id, opts);
+}
+function updateUrl(id, opts){
+  if(routing) return;                       /* don't re-push while handling a popstate */
+  const slug=SLUG_OF[id]; if(slug===undefined) return;   /* only real nav-tab screens get URLs */
+  const path='/'+(slug||'');
+  const replace = opts && opts.replace;
+  const state={ scr:id };
+  try{
+    if(replace) history.replaceState(state,'',path);
+    else if(location.pathname!==path) history.pushState(state,'',path);
+  }catch(e){ /* file:// or sandboxed preview — routing silently no-ops */ }
+}
+window.addEventListener('popstate', e=>{
+  const id=e.state?.scr;
+  if(!id) return;
+  routing=true;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
+  document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
+  ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
+     'scr-ranks':renderLB,'scr-profile':renderProfile })[id]?.();
+  routing=false;
+});
+function routeFromUrl(){
+  const slug=location.pathname.replace(/^\/+/,'').split('/')[0];
+  return ROUTES.hasOwnProperty(slug) ? ROUTES[slug] : null;
 }
 function goFlow(id){ /* flow screens without nav highlight */
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
@@ -1121,7 +1238,7 @@ function confetti(){
 function renderHome(){
   if(!$('ps-flame').dataset.ico){ $('ps-flame').insertAdjacentHTML('afterbegin',ICO.flame(15)); $('ps-flame').dataset.ico=1;
     $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(15)); $('ps-coin').dataset.ico=1; }
-  if(PROFILE) $('home-uname').textContent=PROFILE.username;
+  if(PROFILE){ $('home-uname').textContent=PROFILE.username; paintAvatars(); }
   $('h-lvl').textContent=S.user.lvl;
   $('h-xp').textContent=S.user.xp; $('h-xpn').textContent=xpNeed();
   $('h-xpbar').style.width=(S.user.xp/xpNeed()*100)+'%';
@@ -1457,6 +1574,48 @@ function victoryContinue(){
   nav(o==='campaign'?'scr-campaign':o==='arena'?'scr-arena':'scr-home');
 }
 
+/* ================= AVATARS + ELO ================= */
+const AVATARS=['goblin','warlord','chief','skelking','brood','troll','ghoul','wraith','bone','spider','dragonet','slime'];
+const myAv=()=> PROFILE?.avatar || 'goblin';
+function avHTML(key,size){ return mon(key||'goblin',size); }
+function paintAvatars(){
+  const k=myAv();
+  const set=(id,s)=>{ const el=$(id); if(el) el.innerHTML=avHTML(k,s); };
+  document.querySelectorAll('.statusbar .avatar').forEach(el=>{ el.innerHTML=avHTML(k,30); });
+  document.querySelectorAll('.prof-hero .avatar').forEach(el=>{ el.innerHTML=avHTML(k,56); });
+  set('lp-me-av',34); set('d-me-av',46);
+}
+function renderAvPicker(){
+  const w=$('av-grid'); if(!w) return;
+  w.innerHTML='';
+  AVATARS.forEach(k=>{
+    const b=document.createElement('button');
+    b.className='av-pick'+(myAv()===k?' on':'');
+    b.innerHTML=mon(k,38);
+    b.onclick=()=>{ if(PROFILE){ PROFILE.avatar=k; saveProfile(); } paintAvatars(); renderAvPicker(); beep(660,.08); };
+    w.appendChild(b);
+  });
+}
+function myElo(){ return PROFILE?.elo ?? 1000; }
+function applyElo(win,live){
+  if(!PROFILE) return 0;
+  const delta = live ? (win?25:-15) : (win?8:-4);
+  PROFILE.elo = Math.max(0,(PROFILE.elo??1000)+delta);
+  saveProfile();
+  return delta;
+}
+function resetDuelHud(){
+  const d=S.duel; if(!d) return;
+  $('d-me-name').textContent=PROFILE?.username||'You';
+  $('d-me-elo').textContent=myElo();
+  $('d-me-av').innerHTML=avHTML(myAv(),46);
+  $('d-oname').textContent=d.opp;
+  $('d-oelo').textContent=d.oppElo||1000;
+  $('d-timer').textContent='0:00'; $('d-timer').classList.remove('low');
+  d.my=d.my||0; d.op=d.op||0;
+  syncDuelUI(); setLead();
+}
+
 /* ================= REALTIME 1v1 (Supabase channels) ================= */
 const RT={ ch:null, code:null, host:false, opp:null, started:false, seeking:false, seekT:null };
 const myUid=()=> ME?.id || ('guest-'+Math.random().toString(36).slice(2,9));
@@ -1483,7 +1642,7 @@ function bindRoom(code,isHost){
         RT.opp=others[0];
         $('lp-opp').classList.add('in');
         $('lp-opp-name').textContent=RT.opp.name||'Fighter';
-        $('lp-opp-av').textContent=(RT.opp.name||'OP').slice(0,2).toUpperCase();
+        $('lp-opp-av').innerHTML=avHTML(RT.opp.av,34);
         $('lp-opp-state').innerHTML='<span class="live-dot"></span> Ready · LVL '+(RT.opp.lvl||1);
         if(RT.host){ $('room-start').style.display='flex'; $('room-hint').textContent='Your opponent is in. Start when you are both ready.'; }
         beep(700,.1);
@@ -1496,7 +1655,7 @@ function bindRoom(code,isHost){
    .on('broadcast',{event:'start'},({payload})=>{ beginRealDuel(payload.at); })
    .on('broadcast',{event:'rep'},({payload})=>{ onOppRep(payload.reps); })
    .on('broadcast',{event:'done'},()=>{ if(S.duel&&S.duel.running) endDuel(false); })
-   .subscribe(async s=>{ if(s==='SUBSCRIBED') await ch.track({ name:PROFILE?.username||'Fighter', lvl:S.user.lvl, t:Date.now() }); });
+   .subscribe(async s=>{ if(s==='SUBSCRIBED') await ch.track({ name:PROFILE?.username||'Fighter', lvl:S.user.lvl, av:myAv(), elo:myElo(), t:Date.now() }); });
   RT.ch=ch;
 }
 function hostRoom(){ if(!sb){ toast('Connection error'); return; } bindRoom(makeCode(),true); }
@@ -1520,15 +1679,14 @@ function hostStart(){
 function beginRealDuel(at){
   if(RT.started) return; RT.started=true;
   S.B_origin='arena';
-  S.duel={ opp:RT.opp?.name||'Fighter', oppLvl:RT.opp?.lvl||1, target:20, my:0, op:0, sec:0,
+  S.duel={ opp:RT.opp?.name||'Fighter', oppLvl:RT.opp?.lvl||1, oppElo:RT.opp?.elo||1000, target:20, my:0, op:0, sec:0,
            running:false, timers:[], live:true, myTs:[] };
   goFlow('scr-duel');
   $('rt-badge').style.display='block';
   $('d-oname').textContent=S.duel.opp; $('d-olvl').textContent='LVL '+S.duel.oppLvl;
-  $('d-oav-big').innerHTML=mon('goblin',56);
-  $('d-myreps').textContent='0'; $('d-oreps').textContent='0';
-  $('d-myhp').style.width='100%'; $('d-ohp').style.width='100%';
-  $('d-timer').textContent='0:00'; setLead();
+  $('d-oav-big').innerHTML=mon(RT.opp?.av||'goblin',46);
+  $('d-oelo').textContent=RT.opp?.elo||1000;
+  resetDuelHud();
   d_countdown(at);
 }
 function d_countdown(at){
@@ -1549,8 +1707,7 @@ function d_countdown(at){
 }
 function onOppRep(n){
   const d=S.duel; if(!d||!d.running) return;
-  d.op=n; $('d-oreps').textContent=n;
-  $('d-ohp').style.width=Math.max(0,(d.target-n)/d.target*100)+'%';
+  d.op=n; syncDuelUI();
   setLead(); beep(300,.05,'sine');
   if(d.op>=d.target) endDuel(false);
 }
@@ -1604,7 +1761,7 @@ function queueDuel(fast){
   S.queueT=setTimeout(()=>{
     const name=BOTS[ri(0,BOTS.length-1)];
     const lvl=Math.max(1,S.user.lvl+ri(-2,2));           /* level ±2 of player */
-    S.duel={ opp:name, oppLvl:lvl, target:20, my:0, op:0, sec:0, running:false, timers:[],
+    S.duel={ opp:name, oppLvl:lvl, oppElo:900+ri(0,400), target:20, my:0, op:0, sec:0, running:false, timers:[],
              tBase:S.user.avgRepSec, fatigued:false, myTs:[] };
     $('q-oname').textContent=name; $('q-olvl').textContent=lvl;
     $('q-oav').textContent=name.slice(0,2).toUpperCase();
@@ -1618,9 +1775,7 @@ function beginDuel(){
   goFlow('scr-duel');
   $('d-oname').textContent=d.opp; $('d-olvl').textContent='LVL '+d.oppLvl;
   $('d-oav-big').innerHTML=mon(['goblin','troll','bone','ghoul'][ri(0,3)],56);
-  $('d-myreps').textContent='0'; $('d-oreps').textContent='0';
-  $('d-myhp').style.width='100%'; $('d-ohp').style.width='100%';
-  $('d-timer').textContent='0:00'; setLead();
+  resetDuelHud();
   d.tracking=false;
   $('d-hint').textContent='Tap anywhere = 1 rep';
   $('d-tapzone').style.pointerEvents='auto';
@@ -1657,8 +1812,7 @@ function scheduleBotRep(){
   const delay=Math.max(600,(base+rnd(-0.4,0.5))*1000);
   const t=setTimeout(()=>{
     const dd=S.duel; if(!dd||!dd.running) return;
-    dd.op++; $('d-oreps').textContent=dd.op;
-    $('d-ohp').style.width=Math.max(0,(dd.target-dd.op)/dd.target*100)+'%';
+    dd.op++; syncDuelUI();
     setLead(); beep(300,.05,'sine');
     if(dd.op>=dd.target){ endDuel(false); return; }
     scheduleBotRep();
@@ -1672,8 +1826,8 @@ function duelRep(){
   d.tBase=S.user.avgRepSec;                     /* bot keeps matching player pace */
   S.user.todayReps++; S.user.cal=Math.round(S.user.cal+0.35);
   questProgress('Push-ups');
-  $('d-myreps').textContent=d.my;
-  $('d-myhp').style.width=Math.max(0,(d.target-d.my)/d.target*100)+'%';
+  syncDuelUI();
+  const br=$('d-bigrep'); br.classList.remove('bump'); void br.offsetWidth; br.classList.add('bump');
   beep(520,.07); setLead();
   if(d.my>=d.target){ if(d.live&&RT.ch){ try{ RT.ch.send({type:'broadcast',event:'done',payload:{}}); }catch(e){} } endDuel(true); }
 }
@@ -1694,6 +1848,7 @@ function endDuel(win){
   stopCams();
   const xp=win?150:50, coins=win?60:15;
   addXP(xp); addCoins(coins);
+  const eloD=applyElo(win, !!d.live);
   vicCtx={ origin:'arena', headline:win?'VICTORY!':'DEFEAT', stars:win?3:1,
            reps:d.my, sec:d.sec, coins, win };
   S.duel=null; lastLead=0; RT.started=false;
@@ -1701,7 +1856,7 @@ function endDuel(win){
   $('rt-badge').style.display='none';
   saveProfile();
   showVictory();
-  toast(win?'⚔️ You beat '+'the opponent by pace!':'💀 So close — queue again!');
+  toast((win?'Victory! ':'Defeat. ')+(eloD>=0?'+':'')+eloD+' ELO · now '+myElo());
 }
 function abortDuel(){ killDuel(); nav('scr-arena'); }
 function killDuel(){ if(!S.duel) return; S.duel.running=false; S.duel.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.duel=null; lastLead=0; }
@@ -1768,10 +1923,12 @@ function profTab(t){
 }
 function renderProfile(){
   if(PROFILE) $('prof-uname').textContent=PROFILE.username;
+  $('p-elo').textContent=myElo();
   $('p-lvl').textContent=S.user.lvl;
   $('p-title').textContent=S.user.title;
   $('p-pet').innerHTML=S.user.pet?mon(S.user.pet,24):'';
   applyFrame($('prof-av'));
+  renderAvPicker(); paintAvatars();
   renderShop('shop-frames',S.shop.frames,'frame');
   renderShop('shop-titles',S.shop.titles,'title');
   renderShop('shop-pets',S.shop.pets,'pet');
@@ -2143,6 +2300,14 @@ function startOnboarding(){
   $('ti1').innerHTML=ICO.bolt(22); $('ti2').innerHTML=ICO.star(22);
   $('ti3').innerHTML=mon('spider',26); $('ti4').innerHTML=ICO.swords(22);
   $('ob-name').value=PROFILE?.username||'';
+  const g=$('av-grid-ob'); g.innerHTML='';
+  AVATARS.forEach(k=>{
+    const b=document.createElement('button');
+    b.className='av-pick'+(myAv()===k?' on':'');
+    b.innerHTML=mon(k,38);
+    b.onclick=()=>{ if(PROFILE){ PROFILE.avatar=k; } g.querySelectorAll('.av-pick').forEach(x=>x.classList.remove('on')); b.classList.add('on'); beep(660,.08); };
+    g.appendChild(b);
+  });
   obStep(1);
   goFlow('scr-onboard');
 }
@@ -2151,7 +2316,8 @@ function enterApp(){
   document.querySelectorAll('.hello .name, .prof-name').forEach(e=>{});
   if(!PROFILE?.tutorial_done){ startOnboarding(); return; }
   document.body.classList.remove('locked');
-  nav('scr-home');
+  const deep=routeFromUrl();
+  nav(deep||'scr-home', { replace:true });
   setTimeout(()=>toast(greetLine()+', '+(PROFILE?.username||'Fighter')+'!'),500);
 }
 /* ---- Tutorial: one wave, then unskippable paywall ---- */
