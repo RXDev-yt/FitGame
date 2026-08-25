@@ -472,6 +472,59 @@
   .oauth-sep i{ flex:1; height:1px; background:var(--line); }
   .oauth-sep span{ font-size:11px; font-weight:900; color:var(--dim); letter-spacing:.1em; }
 
+  /* ---------- RANK TIERS ---------- */
+  .rank-card{ background:linear-gradient(135deg,var(--rc1),var(--rc2)); border-radius:22px; padding:20px;
+    position:relative; overflow:hidden; text-align:center; box-shadow:0 10px 34px rgba(0,0,0,.45); }
+  .rank-card::after{ content:""; position:absolute; inset:0;
+    background:radial-gradient(circle at 80% -10%,rgba(255,255,255,.28),transparent 55%); pointer-events:none; }
+  .rank-emblem{ width:88px; height:88px; margin:0 auto 10px; position:relative; z-index:1;
+    filter:drop-shadow(0 6px 14px rgba(0,0,0,.5)); animation:bob 3.2s ease-in-out infinite; }
+  .rank-tier{ font-size:23px; font-weight:900; letter-spacing:.04em; text-shadow:0 3px 0 rgba(0,0,0,.4); position:relative; z-index:1; }
+  .rank-sub{ font-size:12px; font-weight:900; color:rgba(255,255,255,.85); position:relative; z-index:1; }
+  .rank-prog{ margin-top:14px; position:relative; z-index:1; }
+  .rank-prog .t{ display:flex; justify-content:space-between; font-size:10.5px; font-weight:900;
+    color:rgba(255,255,255,.9); margin-bottom:5px; }
+  .rank-prog .bar{ height:9px; border-radius:99px; background:rgba(0,0,0,.35); overflow:hidden; }
+  .rank-prog .bar i{ display:block; height:100%; border-radius:99px; background:#fff; box-shadow:0 0 12px rgba(255,255,255,.8);
+    transition:width .6s cubic-bezier(.2,.9,.3,1.1); }
+  .tier-row{ display:flex; gap:6px; margin-top:14px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  .tier-row::-webkit-scrollbar{ display:none; }
+  .tier-chip{ flex:none; display:flex; flex-direction:column; align-items:center; gap:4px; padding:9px 11px;
+    border-radius:13px; background:var(--card-dark); border:1.5px solid var(--line); min-width:64px; opacity:.45; }
+  .tier-chip.on{ opacity:1; border-color:var(--gold); box-shadow:0 0 16px rgba(245,158,11,.3); }
+  .tier-chip.done{ opacity:.85; }
+  .tier-chip b{ font-size:9.5px; letter-spacing:.04em; }
+  .tier-chip span{ font-size:8.5px; font-weight:900; color:var(--dim); }
+
+  /* ---------- MEMBERSHIP ---------- */
+  .offer-banner{ background:linear-gradient(135deg,#EF4444,#F59E0B); border-radius:20px; padding:16px;
+    text-align:center; margin-bottom:14px; position:relative; overflow:hidden;
+    box-shadow:0 8px 30px rgba(239,68,68,.4); animation:offerGlow 2.4s ease-in-out infinite; }
+  @keyframes offerGlow{ 50%{ box-shadow:0 8px 44px rgba(245,158,11,.65);} }
+  .offer-banner .tag{ font-size:10px; font-weight:900; letter-spacing:.2em; color:rgba(255,255,255,.9); }
+  .offer-banner .big{ font-size:26px; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.35); }
+  .offer-banner .was{ text-decoration:line-through; opacity:.75; font-size:14px; font-weight:900; }
+  .offer-cd{ display:inline-flex; gap:5px; margin-top:8px; }
+  .offer-cd b{ background:rgba(0,0,0,.32); padding:5px 9px; border-radius:8px; font-size:15px; font-weight:900;
+    min-width:38px; display:inline-block; }
+  .offer-cd span{ font-size:9px; font-weight:900; opacity:.8; display:block; }
+  .plan{ background:var(--card-dark); border:1.5px solid var(--line); border-radius:20px; padding:18px; margin-bottom:12px;
+    position:relative; transition:transform .12s, border-color .2s; }
+  .plan:active{ transform:scale(.985); }
+  .plan.best{ border-color:var(--gold); background:rgba(245,158,11,.07); box-shadow:0 0 24px rgba(245,158,11,.18); }
+  .plan .pbadge{ position:absolute; top:-9px; right:16px; font-size:9.5px; font-weight:900; letter-spacing:.12em;
+    background:var(--gold); color:#26190A; padding:4px 11px; border-radius:99px; }
+  .plan h4{ font-size:16px; font-weight:900; }
+  .plan .price{ font-size:28px; font-weight:900; color:var(--gold); line-height:1.1; margin:4px 0 2px; }
+  .plan .per{ font-size:11.5px; font-weight:800; color:var(--dim); }
+  .plan .save{ font-size:11px; font-weight:900; color:var(--green); margin-top:4px; }
+
+  /* ---------- COIN FLY ---------- */
+  .flycoin{ position:absolute; z-index:80; pointer-events:none; width:26px; height:26px;
+    filter:drop-shadow(0 0 8px rgba(245,158,11,.9)); }
+  .coin-pop{ animation:coinPop .4s cubic-bezier(.2,.9,.3,1.7); }
+  @keyframes coinPop{ 50%{ transform:scale(1.45); } }
+
   /* ---------- DIFFICULTY PICKER ---------- */
   .diff-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:10px 0 8px; }
   .diff-pick{ padding:10px 4px; border-radius:13px; background:var(--card-2); border:2px solid transparent;
@@ -763,7 +816,18 @@
 <section class="screen" id="scr-arena">
   <div class="topline"><div class="screen-title hdr">Duels</div><span class="chip hot" id="duel-elo">1000 ELO</span></div>
 
-  <div class="card mode-card" style="border-color:rgba(245,158,11,.45)">
+  <div class="rank-card" id="rankcard" style="--rc1:#8C5A2B;--rc2:#5B3617;margin-bottom:14px">
+    <div class="rank-emblem" id="rank-emblem"></div>
+    <div class="rank-tier" id="rank-tier">BRONZE</div>
+    <div class="rank-sub"><span id="rank-elo-n">1000</span> ELO</div>
+    <div class="rank-prog">
+      <div class="t"><span id="rank-cur">BRONZE</span><span id="rank-nxt">SILVER 900</span></div>
+      <div class="bar"><i id="rank-fill" style="width:0%"></i></div>
+    </div>
+  </div>
+  <div class="tier-row" id="tier-row"></div>
+
+  <div class="card mode-card" style="border-color:rgba(245,158,11,.45);margin-top:14px">
     <div class="row" style="gap:13px">
       <svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg>
       <div class="grow"><b>Ranked 1v1</b><p>Live rep race. Win to climb the ELO ladder.</p></div>
@@ -1317,6 +1381,196 @@
 <!-- ============ PAYWALL (unskippable) ============ -->
 <section class="screen fullflow" id="scr-paywall">
   <div class="paywrap">
+    <div style="text-align:center;margin-bottom:16px">
+      <div class="hdr" style="font-size:25px">Unlock the full arena</div>
+      <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">108 episodes · ranked duels · AI tracking</p>
+    </div>
+
+    <div class="offer-banner" id="offer-banner">
+      <div class="tag">⚡ 24-HOUR LAUNCH OFFER</div>
+      <div class="big"><span class="was" id="off-was">1799</span> &nbsp;<span id="off-now">899 Kč</span></div>
+      <div class="tag" style="letter-spacing:.14em">LIFETIME — PAY ONCE, KEEP FOREVER</div>
+      <div class="offer-cd">
+        <div><b id="oc-h">23</b><span>HRS</span></div>
+        <div><b id="oc-m">59</b><span>MIN</span></div>
+        <div><b id="oc-s">59</b><span>SEC</span></div>
+      </div>
+    </div>
+
+    <div class="plan best" onclick="choosePlan('lifetime')">
+      <span class="pbadge">BEST VALUE</span>
+      <h4>Lifetime</h4>
+      <div class="price" id="pl-life">899 Kč</div>
+      <div class="per">One payment · yours forever</div>
+      <div class="save" id="pl-life-save">Save 50% during launch</div>
+    </div>
+
+    <div class="plan" onclick="choosePlan('yearly')">
+      <h4>Yearly</h4>
+      <div class="price" id="pl-year">999 Kč</div>
+      <div class="per" id="pl-year-per">per year</div>
+      <div class="save" id="pl-year-save">Cheaper than monthly</div>
+    </div>
+
+    <div class="plan" onclick="choosePlan('monthly')">
+      <h4>Monthly</h4>
+      <div class="price" id="pl-month">149 Kč</div>
+      <div class="per">per month · cancel anytime</div>
+    </div>
+
+    <div class="pay-feat" style="margin-top:18px">
+      <div><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#10B981" stroke-width="2.6" stroke-linecap="round"><path d="M4 12l5 5 11-11"/></svg> All 6 chapters, 108 episodes</div>
+      <div><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#10B981" stroke-width="2.6" stroke-linecap="round"><path d="M4 12l5 5 11-11"/></svg> AI camera rep tracking, unlimited</div>
+      <div><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#10B981" stroke-width="2.6" stroke-linecap="round"><path d="M4 12l5 5 11-11"/></svg> Ranked duels + ELO ladder</div>
+      <div><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#10B981" stroke-width="2.6" stroke-linecap="round"><path d="M4 12l5 5 11-11"/></svg> Founder badge on your profile</div>
+    </div>
+
+    <button class="btn b-gold" style="font-size:16px;padding:17px;margin-top:6px" onclick="claimFounder()">
+      START FREE — FOUNDER BETA
+    </button>
+    <p class="dim" style="font-size:10.5px;font-weight:800;margin-top:12px;text-align:center">
+      Beta testers get everything free. Prices apply after launch.</p>
+  </div>
+</section>
+
+<!-- ============ ONBOARDING ============ -->
+<section class="screen fullflow" id="scr-onboard">
+  <div class="obwrap">
+    <div class="ob-dots"><i id="od1" class="on"></i><i id="od2"></i><i id="od3"></i></div>
+
+    <!-- step 1: name -->
+    <div class="ob-step on" id="ob1">
+      <div class="ob-hero">
+        <div class="ob-sprite" id="ob-hero-art"></div>
+        <div class="ob-title hdr">Every hero needs a name</div>
+        <div class="ob-sub">This is the name other fighters see on the leaderboard and in duels.</div>
+      </div>
+      <div class="field">
+        <label>Your fighter name</label>
+        <input id="ob-name" type="text" maxlength="20" placeholder="IronPusher_CZ">
+      </div>
+      <label style="display:block;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:14px 0 8px">Pick your icon or upload a photo</label>
+      <div class="row" style="gap:12px;align-items:center;margin-bottom:12px">
+        <div class="pfp-wrap" style="width:64px;height:64px;margin:0">
+          <div class="pfp" id="ob-pfp-view" style="width:64px;height:64px"></div>
+          <button class="pfp-edit" style="width:26px;height:26px" onclick="$('ob-pfp-file').click()" aria-label="Upload photo">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px" fill="none" stroke="#26190A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h2L9 4h6l1.5 2h2A2.5 2.5 0 0 1 21 8.5v9A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>
+          </button>
+          <input type="file" id="ob-pfp-file" accept="image/*" style="display:none" onchange="uploadPfp(event,true)">
+        </div>
+        <span class="dim" style="font-size:11.5px;font-weight:800">Tap the gold pin to use your own photo instead</span>
+      </div>
+      <div class="av-grid" id="av-grid-ob"></div>
+      <div class="auth-err" id="ob-err"></div>
+      <button class="btn b-purple" onclick="obNext(1)">CONTINUE</button>
+    </div>
+
+    <!-- step 2: the taste -->
+    <div class="ob-step" id="ob2">
+      <div class="ob-hero">
+        <div class="ob-sprite" id="ob-goblin-art"></div>
+        <div class="ob-title hdr glow" id="ob-greet">The Arena Calls</div>
+        <div class="ob-sub" id="ob-story">The old world had gyms. Ours has monsters.<br><br>
+          When the Hollow War ended the gates opened, and the strong were the only ones left standing.
+          You are no one yet — no rank, no name they fear. Just arms that still work.</div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-ico" id="ti1"></div>
+        <div><b>Your reps are your weapon</b><span>Every clean rep is a strike. Combos hit harder.</span></div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-ico" id="ti2"></div>
+        <div><b>The camera is the referee</b><span>AI watches your form — sloppy reps don't count</span></div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-ico" id="ti3"></div>
+        <div><b>108 episodes, 6 chapters</b><span>Goblin Caves → the crown at Dragons Peak</span></div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-ico" id="ti4"></div>
+        <div><b>Real fighters, real duels</b><span>Race a friend live, 20 reps, first to finish wins</span></div>
+      </div>
+      <button class="btn b-purple" style="margin-top:16px" onclick="obNext(2)">I'M READY</button>
+    </div>
+
+    <!-- step 3: camera gate -->
+    <div class="ob-step" id="ob3">
+      <div class="ob-hero">
+        <div class="ob-sprite" id="ob-cam-art"></div>
+        <div class="ob-title hdr">One thing before you fight</div>
+        <div class="ob-sub">RepQuest counts your reps with the camera. Nothing is recorded, uploaded, or saved — the video never leaves your phone.</div>
+      </div>
+      <div class="cam-state" id="cam-state">Camera permission required to play</div>
+      <button class="btn b-gold" id="cam-btn" onclick="requestCamOnce()">ALLOW CAMERA</button>
+      <p class="dim" style="text-align:center;font-size:11.5px;font-weight:800;margin-top:14px">
+        Without camera access the arena stays locked — there's no way to count reps.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DUEL LOBBY ============ -->
+<section class="screen" id="scr-lobby">
+  <div class="topline">
+    <button class="back-btn" onclick="leaveLobby()">‹ Back</button>
+    <div class="screen-title hdr">1v1 Duel</div>
+    <span style="width:44px"></span>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <div class="ob-title hdr" style="font-size:18px">Fight a friend</div>
+    <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">Create a room and send them the code</p>
+    <button class="btn b-gold" style="margin-top:14px" onclick="hostRoom()">CREATE ROOM</button>
+  </div>
+
+  <div class="card">
+    <div class="dim" style="font-size:11px;font-weight:900;letter-spacing:.12em;text-align:center">HAVE A CODE?</div>
+    <input class="code-in" id="join-code" maxlength="5" placeholder="ABCDE" style="margin:12px 0">
+    <button class="btn b-purple" onclick="joinRoom()">JOIN ROOM</button>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <div class="dim" style="font-size:12.5px;font-weight:800">No friend around?</div>
+    <button class="btn b-ghost" style="margin-top:11px" onclick="findMatch()">FIND RANDOM OPPONENT</button>
+  </div>
+</section>
+
+<!-- ============ ROOM WAITING ============ -->
+<section class="screen" id="scr-room">
+  <div class="topline">
+    <button class="back-btn" onclick="leaveLobby()">‹ Leave</button>
+    <div class="screen-title hdr">Duel Room</div>
+    <span style="width:44px"></span>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <div class="dim" style="font-size:11.5px;font-weight:900;letter-spacing:.12em">ROOM CODE — SHARE THIS</div>
+    <div class="code-box" id="room-code">-----</div>
+    <button class="btn b-ghost b-sm" style="margin:0 auto" onclick="shareCode()">COPY CODE</button>
+  </div>
+
+  <div class="card">
+    <div class="lobby-players">
+      <div class="lobby-p in" id="lp-me">
+        <div class="avatar" id="lp-me-av">ME</div>
+        <b id="lp-me-name">You</b>
+        <span class="dim" style="font-size:10.5px;font-weight:800"><span class="live-dot"></span> Ready</span>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="lobby-p" id="lp-opp">
+        <div class="avatar" id="lp-opp-av">?</div>
+        <b id="lp-opp-name">Waiting…</b>
+        <span class="dim" style="font-size:10.5px;font-weight:800" id="lp-opp-state">Not joined</span>
+      </div>
+    </div>
+    <button class="btn b-gold" id="room-start" onclick="hostStart()" style="display:none">START DUEL</button>
+    <p class="dim" style="text-align:center;font-size:11.5px;font-weight:800;margin-top:10px" id="room-hint">
+      Send the code to your friend — the duel starts when they join.</p>
+  </div>
+</section>
+
+<!-- ============ PAYWALL (unskippable) ============ -->
+<section class="screen fullflow" id="scr-paywall">
+  <div class="paywrap">
     <div style="text-align:center;margin-bottom:18px">
       <div class="hdr" style="font-size:24px">Nice first fight! 💪</div>
       <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">Unlock the full arena to keep going</p>
@@ -1632,7 +1886,7 @@ function addXP(n){
   S.user.xp+=n; pendingLvlUps=0;
   while(S.user.xp>=xpNeed()){ S.user.xp-=xpNeed(); S.user.lvl++; pendingLvlUps++; }
 }
-function addCoins(n){ S.user.coins+=n; }
+function addCoins(n,fromEl){ S.user.coins+=n; if(n>0) flyCoins(fromEl,n); }
 function floatFX(txt,color){
   const el=document.createElement('div'); el.className='xpf'; el.textContent=txt;
   if(color) el.style.color=color;
@@ -1701,7 +1955,7 @@ function claimQuest(id){ saveProfile();
   if(!q||q.claimed||q.prog<q.target) return;
   q.claimed=true;
   if(q.rw.xp){ addXP(q.rw.xp); floatFX('+'+q.rw.xp+' XP'); }
-  if(q.rw.coins){ addCoins(q.rw.coins); floatFX('+'+q.rw.coins+' 🪙','#F59E0B'); }
+  if(q.rw.coins){ addCoins(q.rw.coins, document.querySelector('.claim')); }
   SFX.levelup(); confetti(); burstAt(null,'#FCD34D',20); renderHome();
   if(pendingLvlUps) toast('🎉 LEVEL UP! Now level '+S.user.lvl);
 }
@@ -1789,7 +2043,37 @@ function openDrawer(ci,i){
 function closeDrawer(){ $('drawer')?.classList.remove('open'); }
 
 /* ================= ARENA ================= */
+function renderTierStrip(){
+  const w=$('tier-row'); if(!w) return;
+  const e=myElo(), cur=tierOf(e);
+  w.innerHTML='';
+  TIERS.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tier-chip'+(t.n===cur.n?' on':(e>t.min?' done':''));
+    el.innerHTML='<b style="color:'+t.col+'">'+t.n+'</b><span>'+t.min+'+</span>';
+    w.appendChild(el);
+  });
+}
+function renderRankCard(){
+  const e=myElo(), t=tierOf(e), nx=nextTier(e);
+  const card=$('rankcard'); if(!card) return;
+  card.style.setProperty('--rc1',t.c1); card.style.setProperty('--rc2',t.c2);
+  $('rank-emblem').innerHTML=tierEmblem(t,88);
+  $('rank-tier').textContent=t.n;
+  $('rank-elo-n').textContent=e;
+  $('rank-cur').textContent=t.n;
+  if(nx){
+    $('rank-nxt').textContent=nx.n+' '+nx.min;
+    const span=nx.min-t.min, into=e-t.min;
+    $('rank-fill').style.width=Math.max(4,Math.min(100,into/span*100))+'%';
+  } else {
+    $('rank-nxt').textContent='MAX TIER';
+    $('rank-fill').style.width='100%';
+  }
+  renderTierStrip();
+}
 function renderArena(){
+  renderRankCard();
   const e=myElo();
   if($('duel-elo')) $('duel-elo').textContent=e+' ELO';
   if($('duel-elo2')) $('duel-elo2').textContent=e;
@@ -2119,7 +2403,7 @@ function finishBattle(win){
     if(reps>S.user.pr){ S.user.pr=reps; newPR=true; headline='NEW RECORD!'; } bonusC=20; }
   const dm=D();
   const coins=Math.round((reps*2+bonusC)*dm.coin), xp=Math.round((reps*10+bonusXP)*dm.xp);
-  addXP(xp); addCoins(coins);
+  addXP(xp); addCoins(coins, $('b-reps'));
   vicCtx={ origin:S.B_origin, headline, stars, reps, sec, coins, win:true, newPR };
   S.B=null;
   if(PROFILE){ PROFILE.total_reps=(PROFILE.total_reps||0)+reps; }
@@ -2154,6 +2438,156 @@ function victoryContinue(){
   const o=vicCtx?.origin||'home'; vicCtx=null;
   if(o==='tutorial'){ showPaywall(); return; }
   nav(o==='campaign'?'scr-campaign':o==='arena'?'scr-arena':'scr-home');
+}
+
+/* ================= REAL STATS TRACKING ================= */
+function statsKey(){ return 'rq_stats_'+(ME?.id||'anon'); }
+function loadStats(){
+  try{ return JSON.parse(localStorage.getItem(statsKey())||'{}'); }catch(e){ return {}; }
+}
+function saveStats(o){ try{ localStorage.setItem(statsKey(), JSON.stringify(o)); }catch(e){} }
+function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
+function logReps(n,exercise){
+  const s=loadStats();
+  const k=todayKey();
+  s.days=s.days||{}; s.days[k]=(s.days[k]||0)+n;
+  s.ex=s.ex||{}; if(exercise) s.ex[exercise]=(s.ex[exercise]||0)+n;
+  s.total=(s.total||0)+n;
+  saveStats(s);
+}
+function last7(){
+  const s=loadStats(), out=[], lbl=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    out.push((s.days&&s.days[k])||0);
+    lbl.push(i===0?'Today':['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]);
+  }
+  return { data:out, labels:lbl };
+}
+function heat28(){
+  const s=loadStats(), out=[];
+  for(let i=27;i>=0;i--){
+    const d=new Date(); d.setDate(d.getDate()-i);
+    const k=d.toISOString().slice(0,10);
+    const v=(s.days&&s.days[k])||0;
+    out.push(v===0?0:v<15?1:v<40?2:3);
+  }
+  return out;
+}
+
+/* ================= RANK TIERS ================= */
+const TIERS=[
+  { n:'BRONZE',   min:0,    c1:'#8C5A2B', c2:'#5B3617', ico:'medal',  col:'#CD7F32' },
+  { n:'SILVER',   min:900,  c1:'#9AA7B8', c2:'#5F6C7D', ico:'medal',  col:'#C0C0C0' },
+  { n:'GOLD',     min:1100, c1:'#E0A526', c2:'#9A6B0C', ico:'medal',  col:'#F59E0B' },
+  { n:'PLATINUM', min:1300, c1:'#4FD1C5', c2:'#1F7A70', ico:'shield', col:'#4FD1C5' },
+  { n:'DIAMOND',  min:1500, c1:'#60A5FA', c2:'#1D4ED8', ico:'star',   col:'#60A5FA' },
+  { n:'MASTER',   min:1800, c1:'#A78BFA', c2:'#6D28D9', ico:'crown',  col:'#A78BFA' },
+  { n:'CHAMPION', min:2100, c1:'#F87171', c2:'#991B1B', ico:'crown',  col:'#F87171' },
+];
+function tierOf(elo){
+  let t=TIERS[0];
+  for(const x of TIERS){ if(elo>=x.min) t=x; }
+  return t;
+}
+function nextTier(elo){ return TIERS.find(x=>x.min>elo)||null; }
+function tierEmblem(t,size){
+  const s=size||80;
+  return '<svg viewBox="0 0 100 100" style="width:'+s+'px;height:'+s+'px">'+
+    '<defs><linearGradient id="tg'+t.n+'" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="'+t.c1+'"/><stop offset="1" stop-color="'+t.c2+'"/></linearGradient></defs>'+
+    '<path d="M50 6 L88 24 V54 C88 74 70 88 50 95 C30 88 12 74 12 54 V24 Z" fill="url(#tg'+t.n+')" stroke="rgba(255,255,255,.55)" stroke-width="3"/>'+
+    '<path d="M50 18 L76 30 V54 C76 68 64 78 50 84 C36 78 24 68 24 54 V30 Z" fill="rgba(255,255,255,.14)"/>'+
+    '<path d="M50 32 l6.5 14.5 15.5 1.6 -11.7 10.4 3.4 15.3 L50 65.6 36.3 73.8 39.7 58.5 28 48.1 43.5 46.5 Z" fill="#fff" opacity=".92"/>'+
+    '</svg>';
+}
+
+/* ================= COIN FLY ================= */
+function flyCoins(fromEl,amount){
+  const app=$('app'), r=app.getBoundingClientRect();
+  const target=$('ps-coin') || $('h-coins');
+  if(!target) return;
+  const tb=target.getBoundingClientRect();
+  const tx=tb.left-r.left+tb.width/2, ty=tb.top-r.top+tb.height/2;
+  let sx=r.width/2, sy=r.height/2;
+  if(fromEl?.getBoundingClientRect){ const b=fromEl.getBoundingClientRect(); sx=b.left-r.left+b.width/2; sy=b.top-r.top+b.height/2; }
+  const n=Math.min(14, Math.max(5, Math.round((amount||10)/8)));
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div');
+    c.className='flycoin';
+    c.innerHTML=ICO.coin(26);
+    const jx=sx+(Math.random()*70-35), jy=sy+(Math.random()*50-25);
+    c.style.cssText='left:'+jx+'px;top:'+jy+'px;transform:translate(-50%,-50%) scale(.5);opacity:0;transition:none';
+    app.appendChild(c);
+    requestAnimationFrame(()=>{
+      c.style.transition='transform .62s cubic-bezier(.4,0,.25,1), opacity .2s';
+      c.style.opacity='1';
+      c.style.transform='translate(-50%,-50%) scale(1)';
+      setTimeout(()=>{
+        c.style.transform='translate('+(tx-jx-13)+'px,'+(ty-jy-13)+'px) scale(.42)';
+        c.style.opacity='.9';
+      }, 60+i*45);
+    });
+    setTimeout(()=>{
+      c.remove();
+      const t=$('ps-coin'); if(t){ t.classList.remove('coin-pop'); void t.offsetWidth; t.classList.add('coin-pop'); }
+      beep(880+Math.random()*180,.05);
+    }, 760+i*45);
+  }
+}
+
+/* ================= PRICING / MEMBERSHIPS ================= */
+const PRICES={
+  CZ:{ sym:'Kč', suf:true, m:149,  y:999,  life:1799, offer:899  },
+  SK:{ sym:'€',  m:5.99,  y:39.99, life:74.99, offer:36.99 },
+  DE:{ sym:'€',  m:5.99,  y:39.99, life:74.99, offer:36.99 },
+  AT:{ sym:'€',  m:5.99,  y:39.99, life:74.99, offer:36.99 },
+  FR:{ sym:'€',  m:5.99,  y:39.99, life:74.99, offer:36.99 },
+  ES:{ sym:'€',  m:5.99,  y:39.99, life:74.99, offer:36.99 },
+  IT:{ sym:'€',  m:5.99,  y:39.99, life:74.99, offer:36.99 },
+  NL:{ sym:'€',  m:5.99,  y:39.99, life:74.99, offer:36.99 },
+  PL:{ sym:'zł', suf:true, m:26,   y:169,  life:319,  offer:159 },
+  GB:{ sym:'£',  m:4.99,  y:34.99, life:64.99, offer:32.99 },
+  US:{ sym:'$',  m:6.99,  y:44.99, life:79.99, offer:39.99 },
+  CA:{ sym:'C$', m:8.99,  y:59.99, life:109,  offer:54.99 },
+  AU:{ sym:'A$', m:9.99,  y:64.99, life:119,  offer:59.99 },
+  CH:{ sym:'CHF',suf:true, m:6.90, y:44.90, life:84.90, offer:41.90 },
+  SE:{ sym:'kr', suf:true, m:69,   y:449,  life:849,  offer:429 },
+  NO:{ sym:'kr', suf:true, m:69,   y:449,  life:849,  offer:429 },
+  UA:{ sym:'₴',  suf:true, m:249,  y:1599, life:2999, offer:1499 },
+  JP:{ sym:'¥',  m:900,   y:5800, life:10800, offer:5400 },
+  BR:{ sym:'R$', m:24.90, y:159,  life:299,  offer:149 },
+  IN:{ sym:'₹',  m:299,   y:1899, life:3499, offer:1749 },
+  MX:{ sym:'MX$',m:119,   y:749,  life:1399, offer:699 },
+};
+function priceSet(){ return PRICES[detectRegion()] || PRICES.US; }
+function fmtPrice(v){
+  const p=priceSet();
+  const n = Number.isInteger(v) ? v : v.toFixed(2);
+  return p.suf ? (n+' '+p.sym) : (p.sym+n);
+}
+/* 24h lifetime offer — starts the first time the player sees the paywall */
+function offerEndsAt(){
+  if(!PROFILE) return Date.now()+864e5;
+  if(!PROFILE.offer_started){ PROFILE.offer_started=Date.now(); saveProfile(); }
+  return Number(PROFILE.offer_started)+864e5;
+}
+function offerLeft(){ return Math.max(0, offerEndsAt()-Date.now()); }
+let offerTimer=null;
+function startOfferCountdown(){
+  clearInterval(offerTimer);
+  const upd=()=>{
+    const ms=offerLeft();
+    const hh=String(Math.floor(ms/3600000)).padStart(2,'0');
+    const mm=String(Math.floor(ms/60000)%60).padStart(2,'0');
+    const ss=String(Math.floor(ms/1000)%60).padStart(2,'0');
+    if($('oc-h')) $('oc-h').textContent=hh;
+    if($('oc-m')) $('oc-m').textContent=mm;
+    if($('oc-s')) $('oc-s').textContent=ss;
+    if(ms<=0){ clearInterval(offerTimer); const b=$('offer-banner'); if(b) b.style.display='none'; }
+  };
+  upd(); offerTimer=setInterval(upd,1000);
 }
 
 /* ================= STORY ================= */
@@ -2602,7 +3036,7 @@ function endDuel(win){
   d.running=false; d.timers.forEach(t=>{clearInterval(t);clearTimeout(t);});
   stopCams();
   const xp=win?150:50, coins=win?60:15;
-  addXP(xp); addCoins(coins);
+  addXP(xp); addCoins(coins, $('d-myreps'));
   const eloD=applyElo(win, !!d.live);
   if(win&&PROFILE){ PROFILE.duel_wins=(PROFILE.duel_wins||0)+1; }
   vicCtx={ origin:'arena', headline:win?'VICTORY!':'DEFEAT', stars:win?3:1,
@@ -2684,6 +3118,7 @@ function renderProfile(){
   $('p-title').textContent=S.user.title;
   $('p-pet').innerHTML=S.user.pet?mon(S.user.pet,24):'';
   renderAvPicker(); paintAvatars(); renderBadges();
+  renderRankCard&&0;
   const bi=$('bio-in'); if(bi && document.activeElement!==bi){ bi.value=PROFILE?.bio||''; $('bio-count').textContent=(PROFILE?.bio||'').length; }
   $('p-total').textContent=(PROFILE?.total_reps||0).toLocaleString('en-US');
   $('p-streak').textContent=S.user.streak+'🔥';
@@ -2725,25 +3160,38 @@ function equip(slot,id,name){
   renderProfile();
 }
 function renderAnalytics(){
-  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const data=[...S.week.slice(0,6),S.user.todayReps];
-  const max=Math.max(...data,10);
-  const ch=$('ana-chart'); ch.innerHTML='';
-  data.forEach((v,i)=>{
-    const c=document.createElement('div'); c.className='c'+(i===6?' td':'');
-    c.innerHTML=`<div class="b" style="height:${Math.max(4,v/max*100)}%"></div><div class="d">${i===6?'Today':days[i]}</div>`;
-    ch.appendChild(c);
-  });
-  const di=$('ana-dist'); di.innerHTML='';
-  S.dist.forEach(([n,p])=>{
-    di.innerHTML+=`<div class="dist-row"><div class="t"><span>${n}</span><span class="dim">${p}%</span></div>
-      <div class="pbar fill-p"><i style="width:${p}%"></i></div></div>`;
-  });
-  const he=$('ana-heat'); he.innerHTML='';
-  for(let i=0;i<28;i++){
-    const lvl=i>=21?(3):(Math.random()<.6?ri(1,3):0);
-    he.innerHTML+=`<i class="${lvl?'on'+lvl:''}"></i>`;
+  const s=loadStats();
+  const w=last7();
+  const max=Math.max(...w.data,10);
+  const ch=$('ana-chart'); if(ch){
+    ch.innerHTML='';
+    w.data.forEach((v,i)=>{
+      const c=document.createElement('div'); c.className='c'+(i===6?' td':'');
+      c.innerHTML='<div class="b" style="height:'+Math.max(4,v/max*100)+'%"></div><div class="d">'+w.labels[i]+'</div>';
+      c.title=v+' reps';
+      ch.appendChild(c);
+    });
   }
+  const di=$('ana-dist'); if(di){
+    di.innerHTML='';
+    const ex=s.ex||{};
+    const tot=Object.values(ex).reduce((a,b)=>a+b,0);
+    const rows=Object.entries(ex).sort((a,b)=>b[1]-a[1]);
+    if(!rows.length){
+      di.innerHTML='<p class="dim" style="font-size:12px;font-weight:800">No sessions yet — finish a fight to see your split.</p>';
+    } else {
+      rows.forEach(([n,v])=>{
+        const p=Math.round(v/tot*100);
+        di.innerHTML+='<div class="dist-row"><div class="t"><span>'+n+'</span><span class="dim">'+v+' reps · '+p+'%</span></div>'+
+          '<div class="pbar fill-p"><i style="width:'+p+'%"></i></div></div>';
+      });
+    }
+  }
+  const he=$('ana-heat'); if(he){
+    he.innerHTML='';
+    heat28().forEach(lvl=>{ he.innerHTML+='<i class="'+(lvl?'on'+lvl:'')+'"></i>'; });
+  }
+  if($('p-total')) $('p-total').textContent=(s.total||PROFILE?.total_reps||0).toLocaleString('en-US');
 }
 function toggleSound(){ S.sound=!S.sound; $('set-sound').classList.toggle('on',S.sound); if(S.sound) beep(660,.1); }
 function setSens(n){ S.sens=n; [1,2,3].forEach(k=>$('sn'+k).classList.toggle('on',k===n)); toast('🎯 Pose sensitivity: '+n); }
@@ -2998,9 +3446,11 @@ async function oauth(provider){
     });
     if(error) throw error;
   }catch(e){
-    $('auth-err').textContent = (e.message||'').includes('provider')
-      ? provider.charAt(0).toUpperCase()+provider.slice(1)+' sign-in is not enabled yet.'
-      : 'Could not start '+provider+' sign-in.';
+    const nice=provider.charAt(0).toUpperCase()+provider.slice(1);
+    const m=(e.message||'').toLowerCase();
+    $('auth-err').textContent = (m.includes('provider')||m.includes('not enabled')||m.includes('unsupported'))
+      ? nice+' sign-in isn\'t switched on for this app yet — use email for now.'
+      : 'Could not start '+nice+' sign-in. Try email instead.';
     SFX.err();
   }
 }
@@ -3095,7 +3545,7 @@ async function loadProfile(){
   const DEFAULTS={ id:ME.id, username:ME.user_metadata?.username||'Fighter', level:1, xp:0, coins:200,
     streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null,
     elo:1000, bio:'', avatar:'goblin', avatar_url:null, duel_wins:0, bosses:0,
-    difficulty:'normal', story_seen:'' };
+    difficulty:'normal', story_seen:'', offer_started:null };
   let data=null;
   try{ ({ data } = await sb.from('profiles').select('*').eq('id',ME.id).maybeSingle()); }
   catch(e){ console.error('[RepQuest] profile load failed:', e.message||e); }
@@ -3121,7 +3571,7 @@ async function loadProfile(){
 }
 let saveT=null;
 const PROFILE_COLS=['id','username','level','xp','coins','streak','pr','total_reps','tutorial_done',
-  'membership','elo','bio','avatar','avatar_url','duel_wins','bosses','difficulty','story_seen'];
+  'membership','elo','bio','avatar','avatar_url','duel_wins','bosses','difficulty','story_seen','offer_started'];
 let badCols=new Set();        /* columns the DB rejected — skipped on later saves */
 let warnedSave=false;
 
@@ -3248,8 +3698,7 @@ function enterApp(){
   document.querySelectorAll('.hello .name, .prof-name').forEach(e=>{});
   if(!PROFILE?.tutorial_done){ startOnboarding(); return; }
   document.body.classList.remove('locked');
-  const deep=routeFromUrl();
-  nav(deep||'scr-home', { replace:true });
+  nav('scr-home', { replace:true });
   setTimeout(()=>toast(greetLine()+', '+(PROFILE?.username||'Fighter')+'!'),500);
 }
 /* ---- Tutorial: one wave, then unskippable paywall ---- */
@@ -3289,9 +3738,27 @@ function detectRegion(){
 }
 function showPaywall(){
   document.body.classList.add('locked');
-  const r=detectRegion(), c=CCY[r]||CCY.US;
-  $('pay-price').textContent = r==='CZ' ? (c[1]+' '+c[0]+' / year') : (c[0]+c[1]+' / year');
+  const p=priceSet();
+  $('off-was').textContent=fmtPrice(p.life);
+  $('off-now').textContent=fmtPrice(p.offer);
+  $('pl-life').textContent=fmtPrice(p.offer);
+  $('pl-year').textContent=fmtPrice(p.y);
+  $('pl-month').textContent=fmtPrice(p.m);
+  const perMonth=(p.y/12);
+  $('pl-year-per').textContent='per year · '+fmtPrice(Number(perMonth.toFixed(2)))+'/mo';
+  const savePct=Math.round((1-(p.y/12)/p.m)*100);
+  $('pl-year-save').textContent = savePct>0 ? ('Save '+savePct+'% vs monthly') : 'Best for regulars';
+  $('pl-life-save').textContent='Save '+Math.round((1-p.offer/p.life)*100)+'% during launch';
+  startOfferCountdown();
   goFlow('scr-paywall');
+}
+function choosePlan(kind){
+  SFX.click();
+  const p=priceSet();
+  const label = kind==='lifetime' ? 'Lifetime — '+fmtPrice(p.offer)
+    : kind==='yearly' ? 'Yearly — '+fmtPrice(p.y)
+    : 'Monthly — '+fmtPrice(p.m);
+  showStoryModal('Beta is free', label+'<br><br>Payments aren\'t live yet — every beta tester gets full access at no cost. Your founder status is locked in.', 'CLAIM FREE ACCESS', claimFounder);
 }
 async function claimFounder(){
   if(PROFILE){ PROFILE.tutorial_done=true; PROFILE.membership='founder'; saveProfile(); }
@@ -3425,29 +3892,41 @@ function ldDone(){
 document.body.classList.add('locked');
 async function boot(){
   ldStart();
-  goFlow('scr-splash');
-  const minSplash=new Promise(r=>setTimeout(r,1500));
-  ldSet(25,'Connecting to the arena…');
-  let session=null;
-  try{ session=(await sb?.auth.getSession())?.data?.session||null; }catch(e){}
-  ldSet(55,'Checking your account…');
-  await minSplash;
-  if(inRecovery){
-    ME = session?.user || ME;
+  /* hard safety net: the loader can NEVER outlive this, whatever goes wrong */
+  const failsafe=setTimeout(()=>{
+    console.warn('[RepQuest] boot failsafe fired');
     ldDone();
-    document.body.classList.add('locked');
-    goFlow('scr-newpass');
-    return;
-  }
-  if(session){
-    ME=session.user;
-    ldSet(75,'Loading your fighter…');
-    await loadProfile();
-    enterApp();
-  } else {
+    if(!document.querySelector('.screen.active') || $('scr-splash').classList.contains('active')) goFlow('scr-auth');
+  }, 9000);
+  try{
+    goFlow('scr-splash');
+    const minSplash=new Promise(r=>setTimeout(r,1400));
+    ldSet(25,'Connecting to the arena…');
+    let session=null;
+    try{ session=(await sb?.auth.getSession())?.data?.session||null; }catch(e){ console.error('[RepQuest] session error',e); }
+    ldSet(55,'Checking your account…');
+    await minSplash;
+    if(inRecovery){
+      ME = session?.user || ME;
+      document.body.classList.add('locked');
+      goFlow('scr-newpass');
+      return;
+    }
+    if(session){
+      ME=session.user;
+      ldSet(75,'Loading your fighter…');
+      try{ await loadProfile(); }catch(e){ console.error('[RepQuest] loadProfile failed',e); }
+      try{ enterApp(); }catch(e){ console.error('[RepQuest] enterApp failed',e); goFlow('scr-auth'); }
+    } else {
+      goFlow('scr-auth');
+    }
+  }catch(e){
+    console.error('[RepQuest] boot failed',e);
     goFlow('scr-auth');
+  }finally{
+    clearTimeout(failsafe);
+    ldDone();
   }
-  ldDone();
 }
 boot();
 renderHome();
