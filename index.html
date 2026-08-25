@@ -423,6 +423,55 @@
   .cam-state.ok{ border-color:rgba(16,185,129,.55); color:var(--green); }
   .cam-state.bad{ border-color:rgba(239,68,68,.55); color:var(--red); }
 
+  /* ---------- WAVE REST ---------- */
+  .restgate{ position:absolute; inset:0; z-index:9; display:none; flex-direction:column; align-items:center;
+    justify-content:center; gap:12px; background:rgba(6,10,22,.9); backdrop-filter:blur(6px); text-align:center; padding:26px; }
+  .restgate.on{ display:flex; animation:riseIn .3s; }
+  .rest-title{ font-size:13px; font-weight:900; letter-spacing:.2em; color:var(--green); }
+  .rest-cd{ font-size:66px; font-weight:900; color:#fff; text-shadow:0 4px 0 rgba(0,0,0,.5),0 0 34px rgba(16,185,129,.6);
+    line-height:1; }
+  .rest-next{ font-size:12.5px; font-weight:800; color:var(--dim); }
+  .rest-next b{ color:var(--gold); }
+  .hold-btn{ position:relative; overflow:hidden; width:100%; max-width:260px; padding:16px; border-radius:16px;
+    background:var(--card-2); border:1.5px solid var(--line); font-weight:900; font-size:14px; }
+  .hold-btn .fillbar{ position:absolute; left:0; top:0; bottom:0; width:0%; background:linear-gradient(90deg,var(--violet),var(--gold));
+    opacity:.45; transition:width .05s linear; }
+  .hold-btn span{ position:relative; z-index:2; }
+  .rest-ring{ width:96px; height:96px; border-radius:50%; border:4px solid rgba(16,185,129,.35);
+    display:flex; align-items:center; justify-content:center; animation:bob 2.4s infinite; }
+
+  /* ---------- DUEL POLISH ---------- */
+  .vs-intro{ position:absolute; inset:0; z-index:12; display:flex; align-items:center; justify-content:center;
+    background:rgba(6,10,22,.92); backdrop-filter:blur(8px); }
+  .vs-intro.gone{ display:none; }
+  .vs-card{ display:flex; align-items:center; gap:6px; }
+  .vs-fighter{ text-align:center; animation:slideL .55s cubic-bezier(.2,.9,.3,1.2) backwards; }
+  .vs-fighter.right{ animation-name:slideR; }
+  @keyframes slideL{ from{ opacity:0; transform:translateX(-70px) scale(.8);} }
+  @keyframes slideR{ from{ opacity:0; transform:translateX(70px) scale(.8);} }
+  .vs-fighter .hexwrap{ width:84px; height:94px; }
+  .vs-fighter .hex.inner svg{ width:58px; height:58px; }
+  .vs-fighter b{ display:block; font-size:14px; margin-top:6px; }
+  .vs-fighter span{ font-size:11px; font-weight:900; color:var(--gold); }
+  .vs-clash{ font-size:40px; font-weight:900; color:var(--gold); text-shadow:0 0 30px rgba(245,158,11,.9);
+    animation:clashIn .5s cubic-bezier(.2,.9,.3,1.6) .35s backwards; }
+  @keyframes clashIn{ from{ opacity:0; transform:scale(2.4) rotate(-14deg);} }
+  .tug-bar i{ position:relative; }
+  .tug-bar.lead-me{ box-shadow:inset 0 2px 6px rgba(0,0,0,.5),0 0 16px rgba(16,185,129,.5); }
+  .tug-bar.lead-op{ box-shadow:inset 0 2px 6px rgba(0,0,0,.5),0 0 16px rgba(239,68,68,.5); }
+  .rank-side.hitme{ animation:bmp .3s; }
+
+  /* ---------- OAUTH ---------- */
+  .oauth-row{ display:grid; gap:10px; margin-bottom:14px; }
+  .oauth-btn{ display:flex; align-items:center; justify-content:center; gap:10px; padding:14px; border-radius:14px;
+    font-weight:800; font-size:14.5px; border:1.5px solid var(--line); background:#fff; color:#1E293B;
+    transition:transform .1s, filter .15s; }
+  .oauth-btn:active{ transform:scale(.97); }
+  .oauth-btn.apple{ background:#000; color:#fff; border-color:#000; }
+  .oauth-sep{ display:flex; align-items:center; gap:12px; margin:4px 0 14px; }
+  .oauth-sep i{ flex:1; height:1px; background:var(--line); }
+  .oauth-sep span{ font-size:11px; font-weight:900; color:var(--dim); letter-spacing:.1em; }
+
   /* ---------- DIFFICULTY PICKER ---------- */
   .diff-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:10px 0 8px; }
   .diff-pick{ padding:10px 4px; border-radius:13px; background:var(--card-2); border:2px solid transparent;
@@ -742,6 +791,13 @@
     <svg class="skel breathe" id="b-skel" viewBox="0 0 100 130" preserveAspectRatio="xMidYMid meet" style="display:none"></svg>
     <div class="track-pill load" id="b-track">⏳ Loading AI model…</div>
     <div class="calib"><span class="ok" id="b-calib">✓ Body in frame — form looks good</span></div>
+    <div class="restgate" id="restgate">
+      <div class="rest-ring" id="rest-ring"></div>
+      <div class="rest-title">WAVE CLEARED — REST</div>
+      <div class="rest-cd" id="rest-cd">20</div>
+      <div class="rest-next">Next up: <b id="rest-next">Goblin</b></div>
+      <button class="hold-btn" id="skip-btn"><span class="fillbar" id="skip-fill"></span><span>HOLD TO SKIP REST</span></button>
+    </div>
     <div class="posgate" id="posgate">
       <div class="pg-ico" id="pg-ico"></div>
       <h4 class="hdr" id="pg-title">Get into position</h4>
@@ -814,6 +870,19 @@
   </div>
 
   <div class="duel-stage">
+    <div class="vs-intro gone" id="vs-intro">
+      <div class="vs-card">
+        <div class="vs-fighter">
+          <div class="hexwrap"><div class="hex frame"></div><div class="hex inner" id="vs-me-av"></div></div>
+          <b id="vs-me-name">You</b><span id="vs-me-elo">1000 ELO</span>
+        </div>
+        <div class="vs-clash hdr">VS</div>
+        <div class="vs-fighter right">
+          <div class="hexwrap"><div class="hex frame enemy"></div><div class="hex inner" id="vs-op-av"></div></div>
+          <b id="vs-op-name">Rival</b><span id="vs-op-elo">1000 ELO</span>
+        </div>
+      </div>
+    </div>
     <video id="d-video" autoplay playsinline muted></video>
     <canvas class="pose-canvas" id="d-canvas"></canvas>
     <div class="vp-fallback" id="d-fb" style="display:none"><span style="font-size:54px;opacity:.4">🧍</span></div>
@@ -959,6 +1028,18 @@
     </div>
     <div class="hdr" style="font-size:24px;text-align:center">Welcome, Fighter</div>
     <p class="dim" style="text-align:center;font-weight:800;font-size:12.5px;margin-top:4px">Your progress is saved to your account</p>
+    <div class="oauth-row">
+      <button class="oauth-btn" onclick="oauth('google')">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.4a5.5 5.5 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.6-5.2 3.6-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3a7.2 7.2 0 0 1-10.7-3.8H1.4v3.1A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.3 14.3a7.1 7.1 0 0 1 0-4.6V6.6H1.4a12 12 0 0 0 0 10.8l3.9-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.4.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.4 6.6l3.9 3.1A7.2 7.2 0 0 1 12 4.8z"/></svg>
+        Continue with Google
+      </button>
+      <button class="oauth-btn apple" onclick="oauth('apple')">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="#fff"><path d="M16.4 1.4c.02 1.14-.44 2.24-1.13 3.05-.75.86-1.98 1.53-2.98 1.44-.13-1.1.42-2.26 1.1-3.02.77-.87 2.08-1.5 3.01-1.47zM20.7 17.2c-.32.75-.7 1.46-1.15 2.13-.62.92-1.13 1.56-1.53 1.92-.62.6-1.28.9-2 .92-.51.02-1.13-.15-1.85-.5-.72-.35-1.38-.5-1.99-.5-.64 0-1.32.15-2.05.5-.74.35-1.33.53-1.79.55-.68.03-1.35-.28-2-.93-.43-.4-.97-1.06-1.62-2-.7-1-1.27-2.17-1.72-3.5-.48-1.44-.72-2.83-.72-4.18 0-1.55.34-2.88 1.01-4 .53-.9 1.23-1.6 2.1-2.13.87-.52 1.82-.79 2.83-.81.55-.01 1.27.17 2.16.53.89.36 1.46.54 1.72.54.19 0 .82-.21 1.87-.63 1-.4 1.85-.56 2.55-.5 1.88.15 3.3.9 4.24 2.24-1.68 1.02-2.51 2.44-2.5 4.27.02 1.42.53 2.6 1.52 3.55.45.44.96.78 1.51 1.03-.12.35-.25.7-.4 1.04z"/></svg>
+        Continue with Apple
+      </button>
+    </div>
+    <div class="oauth-sep"><i></i><span>OR</span><i></i></div>
+
     <div class="auth-tabs">
       <button class="auth-tab on" id="at-login" onclick="authTab('login')">Log in</button>
       <button class="auth-tab" id="at-signup" onclick="authTab('signup')">Sign up</button>
@@ -1271,7 +1352,7 @@ const S={
   user:{ lvl:5, xp:90, streak:7, coins:1450, todayReps:0, activeSec:0, cal:0, pr:35, avgRepSec:2.1,
          frame:'basic', title:'ROOKIE', pet:'' },
   quests:[
-    { id:'q1', icon:'bolt', name:'Do 30 Push-ups', ex:'Push-ups', target:30, prog:15, rw:{xp:50}, claimed:false },
+    { id:'q1', icon:'bolt', name:'Do 30 reps', ex:'ANY', target:30, prog:15, rw:{xp:50}, claimed:false },
     { id:'q2', icon:'bolt', name:'Complete 1 Speed Run', ex:null, target:1, prog:0, rw:{coins:100}, claimed:false },
   ],
   dailyBoss:{ name:'Goblin Chief', sprite:'chief', hp:60, max:60, done:false, rwXP:150, rwCoins:200 },
@@ -1361,7 +1442,7 @@ CHAPTERS.forEach((c,ci)=>{
       hp: boss? 14+g*2 : 6+Math.floor(g*1.2),
       waves: boss?1:(i%3===0?2:1),
       stars: (ci===0&&i===0)?2:0,
-      exs: ['Push-ups'],
+      exs: [['Push-ups'],['Sit-ups'],['Push-ups'],['Squats']][i%4],
       drops: boss?'Chapter Crown · 80–120 coins':'Small HP Potion · '+(5+g)+'–'+(15+g)+' coins',
     });
   }
@@ -1679,7 +1760,7 @@ function makeBattle(cfg){
   S.B={ ...cfg, waveIdx:0, reps:0, sec:0, paused:false, timers:[], repTs:[], eHP:cfg.waves[0].hp,
         tracking:false, live:false, php:100, lastRepAt:0, gate:true };
   goFlow('scr-battle');
-  if($('b-diff')) $('b-diff').textContent=D().name.toUpperCase();
+  if($('b-diff')) $('b-diff').textContent=D().name.toUpperCase()+' · '+cfg.exercise.toUpperCase();
   $('b-endset').style.display=cfg.endset?'block':'none';
   $('b-auto').textContent='▶'; $('b-auto').style.display='flex';
   $('b-reps').textContent='0';
@@ -1692,7 +1773,7 @@ function makeBattle(cfg){
   acquireWake();
   startBattleTracking();
   const t=setInterval(()=>{
-    if(!S.B||S.B.paused||S.B.gate) return;
+    if(!S.B||S.B.paused||S.B.gate||S.B.resting) return;
     S.B.sec++; S.user.activeSec++;
     $('b-timer').textContent=fmt(S.B.sec);
     tickStamina();
@@ -1728,6 +1809,65 @@ async function startBattleTracking(){
     $('b-skel').style.display='block';
     drawSkeleton();
   }
+}
+/* rest length scales with difficulty — easier = longer breather */
+const REST_SECS={ easy:30, normal:25, hard:20, nightmare:15 };
+function startRest(nextName,nextSprite){
+  const B=S.B; if(!B) return;
+  B.resting=true;
+  let left=REST_SECS[curDiff()] ?? 25;
+  $('rest-cd').textContent=left;
+  $('rest-next').textContent=nextName||'Next enemy';
+  $('rest-ring').innerHTML=mon(nextSprite||'goblin',52);
+  $('restgate').classList.add('on');
+  SFX.ready();
+  const t=setInterval(()=>{
+    if(!S.B||!S.B.resting){ clearInterval(t); return; }
+    left--;
+    $('rest-cd').textContent=Math.max(0,left);
+    if(left<=3 && left>0) beep(520,.07);
+    if(left<=0){ clearInterval(t); endRest(); }
+  },1000);
+  B.restTimer=t; B.timers.push(t);
+  bindHoldSkip();
+}
+function endRest(){
+  const B=S.B; if(!B) return;
+  clearInterval(B.restTimer);
+  B.resting=false;
+  B.php=Math.min(100,B.php+25);          /* rest restores some stamina */
+  B.lastRepAt=performance.now(); B._warned=false;
+  syncStamina();
+  $('restgate').classList.remove('on');
+  $('skip-fill').style.width='0%';
+  /* re-arm the pose gate so the next wave starts on your terms */
+  if(PoseEngine.target){ PoseEngine.target.armed=false; PoseEngine.target.extSince=0; PoseEngine.target.phase='READY'; }
+  B.gate=true;
+  showGate(true,'Next wave','Get back into position — the next enemy is coming.');
+  SFX.kill();
+}
+let holdTimer=null, holdStart=0;
+function bindHoldSkip(){
+  const btn=$('skip-btn'), fill=$('skip-fill');
+  if(!btn || btn.dataset.bound) { if(fill) fill.style.width='0%'; return; }
+  btn.dataset.bound=1;
+  const HOLD_MS=900;
+  const start=(e)=>{
+    e.preventDefault();
+    if(!S.B||!S.B.resting) return;
+    holdStart=performance.now();
+    clearInterval(holdTimer);
+    holdTimer=setInterval(()=>{
+      const p=Math.min(100,(performance.now()-holdStart)/HOLD_MS*100);
+      fill.style.width=p+'%';
+      if(p>=100){ clearInterval(holdTimer); fill.style.width='0%'; burstAt(btn,'#F59E0B',12); endRest(); }
+    },30);
+  };
+  const cancel=()=>{ clearInterval(holdTimer); fill.style.width='0%'; };
+  btn.addEventListener('pointerdown',start);
+  btn.addEventListener('pointerup',cancel);
+  btn.addEventListener('pointerleave',cancel);
+  btn.addEventListener('pointercancel',cancel);
 }
 function showGate(on,title,text){
   const g=$('posgate'); if(!g) return;
@@ -1812,7 +1952,7 @@ function syncEnemyHUD(spawn){
   if(spawn){ const h=$('c-hud'); h.classList.remove('hit'); }
 }
 function battleRep(){
-  const B=S.B; if(!B||B.paused||B.gate) return;
+  const B=S.B; if(!B||B.paused||B.gate||B.resting) return;
   B.reps++; recordPace(B.repTs);
   B.lastRepAt=performance.now();
   B.php=Math.min(100,B.php+2.5); B._warned=false; syncStamina();
@@ -1837,8 +1977,14 @@ function battleRep(){
     }
     if(B.eHP<=0){
       SFX.kill(); quake(); flashScreen(); shockwave($('c-hud')); burstAt($('c-hud'),null,26);
-      if(B.infinite){ B.waveIdx++; B.waves.push(nextHordeWave(B.waveIdx)); B.eHP=B.waves[B.waveIdx].hp; toast('🌊 Wave '+(B.waveIdx+1)+' incoming!'); }
-      else if(B.waveIdx<B.waves.length-1){ B.waveIdx++; B.eHP=B.waves[B.waveIdx].hp; toast('⚔️ Next enemy!'); }
+      if(B.infinite){
+        B.waveIdx++; B.waves.push(nextHordeWave(B.waveIdx)); B.eHP=B.waves[B.waveIdx].hp;
+        syncEnemyHUD(true); startRest(B.waves[B.waveIdx].name,B.waves[B.waveIdx].sprite); return;
+      }
+      else if(B.waveIdx<B.waves.length-1){
+        B.waveIdx++; B.eHP=B.waves[B.waveIdx].hp;
+        syncEnemyHUD(true); startRest(B.waves[B.waveIdx].name,B.waves[B.waveIdx].sprite); return;
+      }
       else { finishBattle(true); return; }
     }
   } else if(B.reps===S.user.pr+1){ toast('🔥 NEW RECORD TERRITORY!'); beep(900,.15); }
@@ -1866,7 +2012,7 @@ function pauseBattle(){
 }
 function resumeBattle(){ if(S.B) S.B.paused=false; closeModal(); }
 function quitBattle(){ closeModal(); killBattle(); nav(S.B_origin==='campaign'?'scr-campaign':S.B_origin==='home'?'scr-home':'scr-arena'); }
-function killBattle(){ if(!S.B) return; S.B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.B._dead=true; S.B=null; }
+function killBattle(){ if(!S.B) return; $('restgate')?.classList.remove('on'); S.B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.B._dead=true; S.B=null; }
 
 /* launchers */
 function startEpisode(ci,i){
@@ -1885,12 +2031,12 @@ function fightDailyBoss(){
 function startSpeedRun(){ S.B_origin='arena';
   makeBattle({ kind:'speed', exercise:S.speedEx, target:S.speedTarget, waves:[{name:'Training Dummy',sprite:'🎯',hp:S.speedTarget}], modeName:'Speed Run' }); }
 function startHorde(){ S.B_origin='arena';
-  makeBattle({ kind:'horde', exercise:'Push-ups', infinite:true, endset:true, waves:[nextHordeWave(0)], modeName:'Horde' }); }
+  makeBattle({ kind:'horde', exercise:S.speedEx, infinite:true, endset:true, waves:[nextHordeWave(0)], modeName:'Horde' }); }
 function startMax(){ S.B_origin='arena';
-  makeBattle({ kind:'max', exercise:'Push-ups', noHP:true, endset:true, waves:[{name:'Training Dummy',sprite:'🎯',hp:1}], modeName:'Max Reps' }); }
+  makeBattle({ kind:'max', exercise:S.speedEx, noHP:true, endset:true, waves:[{name:'Training Dummy',sprite:'🎯',hp:1}], modeName:'Max Reps' }); }
 
 function questProgress(ex){
-  S.quests.forEach(q=>{ if(!q.claimed && q.ex===ex && q.prog<q.target){ q.prog++;
+  S.quests.forEach(q=>{ if(!q.claimed && (q.ex===ex||q.ex==='ANY') && q.prog<q.target){ q.prog++;
     if(q.prog===q.target) toast('✅ Quest ready: '+q.name); } });
 }
 
@@ -1899,6 +2045,7 @@ let vicCtx=null;
 function finishBattle(win){
   const B=S.B; if(!B) return;
   B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);});
+  $('restgate')?.classList.remove('on');
   stopCams();
   const reps=B.reps, sec=Math.max(1,B.sec);
   let stars=0, headline='VICTORY!', bonusXP=0, bonusC=0, newPR=false;
@@ -2162,7 +2309,21 @@ function beginRealDuel(at){
   $('d-oav-big').innerHTML=mon(RT.opp?.av||'goblin',46);
   $('d-oelo').textContent=RT.opp?.elo||1000;
   resetDuelHud();
+  playVsIntro();
   d_countdown(at);
+}
+function playVsIntro(){
+  const d=S.duel; if(!d) return;
+  $('vs-me-av').innerHTML=avHTML(myAv(),58);
+  $('vs-me-name').textContent=PROFILE?.username||'You';
+  $('vs-me-elo').textContent=myElo()+' ELO';
+  $('vs-op-av').innerHTML=mon(RT.opp?.av||'goblin',58);
+  $('vs-op-name').textContent=d.opp;
+  $('vs-op-elo').textContent=(d.oppElo||1000)+' ELO';
+  const v=$('vs-intro'); v.classList.remove('gone');
+  SFX.ready(); quake();
+  setTimeout(()=>{ flashScreen(); burstAt(null,'#F59E0B',22); }, 380);
+  setTimeout(()=>{ v.classList.add('gone'); }, 1700);
 }
 function d_countdown(at){
   const d=S.duel;
@@ -2183,6 +2344,7 @@ function d_countdown(at){
 function onOppRep(n){
   const d=S.duel; if(!d||!d.running) return;
   d.op=n; syncDuelUI(); pump('d-oreps');
+  const os=document.querySelectorAll('.rank-side')[1]; if(os){ os.classList.remove('hitme'); void os.offsetWidth; os.classList.add('hitme'); }
   setLead(); beep(300,.05,'sine');
   if(d.op>=d.target) endDuel(false);
 }
@@ -2251,6 +2413,7 @@ function beginDuel(){
   $('d-oname').textContent=d.opp;
   $('d-oav-big').innerHTML=mon(['goblin','troll','bone','ghoul'][ri(0,3)],56);
   resetDuelHud();
+  playVsIntro();
   d.tracking=false;
   $('d-hint').textContent='Tap anywhere = 1 rep';
   $('d-tapzone').style.pointerEvents='auto';
@@ -2315,6 +2478,8 @@ function setLead(){
   if(diff>0){ tag.textContent='+'+diff+' Reps Ahead'; tag.classList.add('ahead'); }
   else if(diff<0){ tag.textContent=diff+' Reps Behind'; tag.classList.add('behind'); }
   else tag.textContent='EVEN';
+  const tb=document.querySelector('.tug-bar');
+  if(tb){ tb.classList.toggle('lead-me',diff>0); tb.classList.toggle('lead-op',diff<0); }
   const lead=Math.sign(diff);
   if(lead!==lastLead){ void tag.offsetWidth; tag.classList.add('flash'); lastLead=lead; }
 }
@@ -2472,10 +2637,10 @@ function setSens(n){ S.sens=n; [1,2,3].forEach(k=>$('sn'+k).classList.toggle('on
 /* ================= POSE ENGINE (MediaPipe) ================= */
 const POSE_CDN='https://cdn.jsdelivr.net/npm/@mediapipe/';
 const EX_CFG={
-  /* Push-ups facing the camera: elbows flare toward lens, so average BOTH arms and widen thresholds */
-  'Push-ups':{ L:[11,13,15], R:[12,14,16], both:true, enter:a=>a<=100, exit:a=>a>=150, joint:'Elbow' },
-  'Squats':  { L:[23,25,27], R:[24,26,28], both:true, enter:a=>a<=100, exit:a=>a>=160, joint:'Knee'  },
-  'Sit-ups': { L:[11,23,25], R:[12,24,26], enter:a=>a<=95,  exit:a=>a>=140, joint:'Hip'   },
+  /* enterA = "down"/contracted angle, exitA = "up"/extended angle, armA = hold-here-to-start */
+  'Push-ups':{ L:[11,13,15], R:[12,14,16], enterA:95,  exitA:145, armA:145, joint:'Elbow', plant:true  },
+  'Squats':  { L:[23,25,27], R:[24,26,28], enterA:100, exitA:155, armA:155, joint:'Knee',  plant:false },
+  'Sit-ups': { L:[11,23,25], R:[12,24,26], enterA:95,  exitA:140, armA:140, joint:'Hip',   plant:false },
 };
 function getAngle(A,B,C){
   const r=Math.atan2(C.y-B.y,C.x-B.x)-Math.atan2(A.y-B.y,A.x-B.x);
@@ -2587,41 +2752,41 @@ const PoseEngine={
   },
   checkRep(lm,t){
     const c=t.cfg;
-    /* ---- STRICT GATES: only count when actually in push-up position ---- */
-    const need=[11,12,13,14,15,16];                       /* both shoulders, elbows, wrists */
-    const minVis=Math.min(...need.map(i=>lm[i]?.visibility??0));
-    const shY=(lm[11].y+lm[12].y)/2, wrY=(lm[15].y+lm[16].y)/2;
-    const planted = wrY > shY + 0.04;                     /* hands planted BELOW shoulders in frame */
-    const aL=getAngle(lm[11],lm[13],lm[15]);
-    const aR=getAngle(lm[12],lm[14],lm[16]);
-    const symmetric = Math.abs(aL-aR) < 38;               /* both arms moving together */
-    const gates = minVis>0.55 && planted && symmetric;
+    const visL=avgVis(lm,c.L), visR=avgVis(lm,c.R);
+    const bestVis=Math.max(visL,visR);
     const now=performance.now();
 
-    if(!gates){
-      /* setup movement / walking around → disarm, never count */
-      t.armed=false; t.extSince=0; t.phase='READY';
-      t.lowVisSince=0;
-      t.onStatus('warn','Get into push-up position');
+    if(bestVis<0.4){
+      t.armed=false; t.extSince=0; t.phase='READY'; t.lowVisSince=0;
+      t.onStatus('warn','Step back — keep your body in frame');
       return;
     }
-    const angle=(aL+aR)/2;
+    const side = (visL>=visR) ? c.L : c.R;
+    const angle = getAngle(lm[side[0]],lm[side[1]],lm[side[2]]);
 
-    /* ---- ARMING: hold arms extended in position 600ms before counting starts ---- */
+    if(c.plant){
+      /* push-ups: wrist roughly level with or below shoulder */
+      const shY=lm[side[0]].y, wrY=lm[side[2]].y;
+      if(!(wrY > shY - 0.12)){
+        t.armed=false; t.extSince=0; t.phase='READY';
+        t.onStatus('warn','Get into push-up position');
+        return;
+      }
+    }
+
     if(!t.armed){
-      if(angle>=150){
+      if(angle>=c.armA){
         if(!t.extSince) t.extSince=now;
-        if(now-t.extSince>600){ t.armed=true; t.onStatus('ai','IN POSITION — GO!'); beep(700,.1); }
+        if(now-t.extSince>500){ t.armed=true; t.onStatus('ai','IN POSITION — GO!'); beep(700,.1); }
         else t.onStatus('load','Hold steady…');
-      } else { t.extSince=0; t.onStatus('load','Extend your arms to start'); }
+      } else { t.extSince=0; t.onStatus('load','Get to the start position'); }
       return;
     }
 
-    t.onStatus('ai','AI · Elbow '+Math.round(angle)+'°');
-    /* ---- REP STATE MACHINE: deep down (≤85°) then full extension (≥150°) ---- */
-    if(t.phase!=='DOWN' && angle<=85){ t.phase='DOWN'; }
-    else if(t.phase==='DOWN' && angle>=150){
-      if(now-t.lastRep>600){ t.lastRep=now; t.phase='READY'; t.onRep(); }
+    t.onStatus('ai','AI · '+c.joint+' '+Math.round(angle)+'°');
+    if(t.phase!=='DOWN' && angle<=c.enterA){ t.phase='DOWN'; }
+    else if(t.phase==='DOWN' && angle>=c.exitA){
+      if(now-t.lastRep>550){ t.lastRep=now; t.phase='READY'; t.onRep(); }
     }
   },
   stop(){
@@ -2699,6 +2864,22 @@ async function doAuth(){
     }
   }
   finally{ $('auth-go').textContent=authMode==='signup'?'CREATE ACCOUNT':'LOG IN'; }
+}
+async function oauth(provider){
+  if(!sb){ $('auth-err').textContent='Connection error — try again.'; return; }
+  SFX.click();
+  try{
+    const { error } = await sb.auth.signInWithOAuth({
+      provider,
+      options:{ redirectTo: location.origin }
+    });
+    if(error) throw error;
+  }catch(e){
+    $('auth-err').textContent = (e.message||'').includes('provider')
+      ? provider.charAt(0).toUpperCase()+provider.slice(1)+' sign-in is not enabled yet.'
+      : 'Could not start '+provider+' sign-in.';
+    SFX.err();
+  }
 }
 let pendingResetEmail=null;
 function goForgot(){
