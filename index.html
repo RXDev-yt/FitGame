@@ -78,7 +78,7 @@
   .lead-tag.behind{ color:var(--red); border-color:rgba(239,68,68,.5); }
   .status-pill{ font-size:11px; font-weight:800; padding:4px 8px; border-radius:8px; background:var(--card-2); text-align:center; margin-top:6px; }
   
-  .warn-banner{ position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); background:rgba(239,68,68,0.92); color:#fff; font-weight:900; font-size:13px; padding:8px 16px; border-radius:99px; z-index:10; display:none; pointer-events:none; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+  .warn-banner{ position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); background:rgba(239,68,68,0.92); color:#fff; font-weight:900; font-size:13px; padding:8px 16px; border-radius:99px; z-index:10; display:none; pointer-events:none; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.5); width: 85%; }
 </style>
 </head>
 <body>
@@ -87,7 +87,7 @@
   <!-- ARENA & ROOM SETUP -->
   <div id="scr-arena" class="screen active">
     <h2 style="margin-bottom:4px;">KLIKY DUEL (FAST & STRICT)</h2>
-    <p class="dim" style="margin-bottom:16px;">Plank position check + Live video streaming.</p>
+    <p class="dim" style="margin-bottom:16px;">Strict plank position check + Live video streaming.</p>
 
     <div class="card">
       <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">1. MATCH DURATION</div>
@@ -133,7 +133,7 @@
     <div class="duel-half me">
       <video id="duel-webcam" autoplay playsinline muted></video>
       <canvas class="pose-canvas" id="poseCanvas"></canvas>
-      <div class="warn-banner" id="cheat-warn">LIE DOWN IN PUSH-UP POSITION</div>
+      <div class="warn-banner" id="cheat-warn">GET DOWN IN A HORIZONTAL PLANK!</div>
       <div class="duel-ov">
         <div class="duel-top">
           <span class="live-b" style="background:var(--purple);">YOU</span>
@@ -369,8 +369,8 @@
     pose.setOptions({
       modelComplexity: 1,
       smoothLandmarks: true,
-      minDetectionConfidence: 0.6,
-      minTrackingConfidence: 0.6
+      minDetectionConfidence: 0.65,
+      minTrackingConfidence: 0.65
     });
 
     pose.onResults((results) => {
@@ -390,78 +390,85 @@
 
         const lHip = results.poseLandmarks[23];
         const rHip = results.poseLandmarks[24];
-        const lAnkle = results.poseLandmarks[27];
-        const rAnkle = results.poseLandmarks[28];
+        const lKnee = results.poseLandmarks[25];
+        const rKnee = results.poseLandmarks[26];
 
-        const hasLeftArm = lShoulder && lElbow && lWrist && lShoulder.visibility > 0.5 && lElbow.visibility > 0.5;
-        const hasRightArm = rShoulder && rElbow && rWrist && rShoulder.visibility > 0.5 && rElbow.visibility > 0.5;
-        const hasBody = lHip && rHip && (lHip.visibility > 0.4 || rHip.visibility > 0.4);
+        const hasArms = lShoulder && lElbow && lWrist && rShoulder && rElbow && rWrist &&
+                         lShoulder.visibility > 0.5 && rShoulder.visibility > 0.5;
+        const hasLowerBody = lHip && rHip && (lHip.visibility > 0.4 || rHip.visibility > 0.4);
 
-        if (hasLeftArm && hasRightArm && hasBody) {
+        if (hasArms && hasLowerBody) {
+          // 1. Arm Angles
           const leftAngle = calculateAngle(lShoulder, lElbow, lWrist);
           const rightAngle = calculateAngle(rShoulder, rElbow, rWrist);
-          const avgAngle = (leftAngle + rightAngle) / 2;
+          const avgElbowAngle = (leftAngle + rightAngle) / 2;
 
-          const avgShoulderY = (lShoulder.y + rShoulder.y) / 2;
-          const avgHipY = (lHip.y + rHip.y) / 2;
-          const avgWristY = (lWrist.y + rWrist.y) / 2;
-
-          // BODY ORIENTATION CHECK: Torso & hips must be roughly horizontal/level with shoulders
-          const torsoVerticalDiff = Math.abs(avgShoulderY - avgHipY);
-          const isUprightStanding = torsoVerticalDiff > 0.35 && avgHipY > avgShoulderY;
+          // 2. Torso Tilt Angle (Relative to horizontal)
+          const avgShoulder = { x: (lShoulder.x + rShoulder.x)/2, y: (lShoulder.y + rShoulder.y)/2 };
+          const avgHip = { x: (lHip.x + rHip.x)/2, y: (lHip.y + rHip.y)/2 };
           
-          // Rejects waving hands upright or standing arm bends
-          const isHandsAboveHead = avgWristY < avgShoulderY;
+          const dx = Math.abs(avgShoulder.x - avgHip.x);
+          const dy = Math.abs(avgShoulder.y - avgHip.y);
+          // Angle from horizontal (0° is flat horizontal plank, 90° is sitting upright)
+          const torsoAngleDegrees = Math.atan2(dy, dx) * (180 / Math.PI);
 
-          // Arm symmetry check (prevents single-arm flailing)
-          const armDifference = Math.abs(leftAngle - rightAngle);
-          const isBalanced = armDifference < 45;
+          // 3. Body Straightness Check (Shoulder-Hip-Knee angle to catch sitting/hunching)
+          let bodyLineAngle = 180;
+          if (lKnee && lKnee.visibility > 0.4) {
+            bodyLineAngle = calculateAngle(lShoulder, lHip, lKnee);
+          } else if (rKnee && rKnee.visibility > 0.4) {
+            bodyLineAngle = calculateAngle(rShoulder, rHip, rKnee);
+          }
 
-          if (isUprightStanding || isHandsAboveHead) {
+          // Strict Form Checks
+          const isSittingUpright = torsoAngleDegrees > 45; // Torso tilted up > 45 deg
+          const isBentAtWaist = bodyLineAngle < 140;       // Hips bent like sitting in a chair
+          const isArmImbalance = Math.abs(leftAngle - rightAngle) > 40;
+
+          if (isSittingUpright) {
             warnEl.style.display = "block";
-            warnEl.innerText = "GET DOWN ON THE FLOOR!";
-          } else if (!isBalanced) {
+            warnEl.innerText = "GET DOWN IN A HORIZONTAL PLANK!";
+          } else if (isBentAtWaist) {
             warnEl.style.display = "block";
-            warnEl.innerText = "USE BOTH ARMS EVENLY!";
+            warnEl.innerText = "STRAIGHTEN YOUR HIPS (NO SITTING)";
+          } else if (isArmImbalance) {
+            warnEl.style.display = "block";
+            warnEl.innerText = "USE BOTH ARMS EQUALLY";
           } else {
             warnEl.style.display = "none";
 
-            // Push-Up State Machine
-            if (avgAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
+            // Rep State Machine (Only advances when body position passes all tests)
+            if (avgElbowAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
               pushupState = "BOTTOM";
-            } else if (avgAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
+            } else if (avgElbowAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
               pushupState = "TOP";
               countPushupRep();
             }
           }
 
-          // Render active skeleton
+          // Draw Skeleton Overlay
           const lineCol = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
           canvasCtx.strokeStyle = lineCol;
-          canvasCtx.lineWidth = 5;
+          canvasCtx.lineWidth = 4;
 
-          // Torso Line
+          // Draw Arms
+          [ [lShoulder, lElbow, lWrist], [rShoulder, rElbow, rWrist] ].forEach(arm => {
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(arm[0].x * canvasElement.width, arm[0].y * canvasElement.height);
+            canvasCtx.lineTo(arm[1].x * canvasElement.width, arm[1].y * canvasElement.height);
+            canvasCtx.lineTo(arm[2].x * canvasElement.width, arm[2].y * canvasElement.height);
+            canvasCtx.stroke();
+          });
+
+          // Draw Torso
           canvasCtx.beginPath();
-          canvasCtx.moveTo(lShoulder.x * canvasElement.width, lShoulder.y * canvasElement.height);
-          canvasCtx.lineTo(lHip.x * canvasElement.width, lHip.y * canvasElement.height);
+          canvasCtx.moveTo(avgShoulder.x * canvasElement.width, avgShoulder.y * canvasElement.height);
+          canvasCtx.lineTo(avgHip.x * canvasElement.width, avgHip.y * canvasElement.height);
           canvasCtx.stroke();
 
-          // Left Arm
-          canvasCtx.beginPath();
-          canvasCtx.moveTo(lShoulder.x * canvasElement.width, lShoulder.y * canvasElement.height);
-          canvasCtx.lineTo(lElbow.x * canvasElement.width, lElbow.y * canvasElement.height);
-          canvasCtx.lineTo(lWrist.x * canvasElement.width, lWrist.y * canvasElement.height);
-          canvasCtx.stroke();
-
-          // Right Arm
-          canvasCtx.beginPath();
-          canvasCtx.moveTo(rShoulder.x * canvasElement.width, rShoulder.y * canvasElement.height);
-          canvasCtx.lineTo(rElbow.x * canvasElement.width, rElbow.y * canvasElement.height);
-          canvasCtx.lineTo(rWrist.x * canvasElement.width, rWrist.y * canvasElement.height);
-          canvasCtx.stroke();
         } else {
           warnEl.style.display = "block";
-          warnEl.innerText = "SHOW ENTIRE BODY & BOTH ARMS";
+          warnEl.innerText = "STEP BACK: SHOW SHOULDERS, HIPS & KNEES";
         }
       } else {
         warnEl.style.display = "block";
