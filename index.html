@@ -416,6 +416,113 @@
   .cam-state.ok{ border-color:rgba(16,185,129,.55); color:var(--green); }
   .cam-state.bad{ border-color:rgba(239,68,68,.55); color:var(--red); }
 
+  /* ---------- DIFFICULTY PICKER ---------- */
+  .diff-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin:10px 0 8px; }
+  .diff-pick{ padding:10px 4px; border-radius:13px; background:var(--card-2); border:2px solid transparent;
+    transition:transform .12s, border-color .2s, box-shadow .25s; }
+  .diff-pick:active{ transform:scale(.94); }
+  .diff-pick b{ display:block; font-size:11.5px; color:var(--dim); }
+  .diff-pick span{ font-size:9.5px; font-weight:900; color:var(--dim); opacity:.7; }
+  .diff-pick.on{ border-color:var(--dc); background:color-mix(in srgb, var(--dc) 14%, transparent);
+    box-shadow:0 0 18px color-mix(in srgb, var(--dc) 40%, transparent); }
+  .diff-pick.on b, .diff-pick.on span{ color:var(--dc); }
+  .diff-note{ font-size:11.5px; font-weight:800; text-align:center; }
+
+  /* ---------- LOADING SCREEN ---------- */
+  #loader{ position:absolute; inset:0; z-index:200; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:16px; background:radial-gradient(circle at 50% 35%,#241458,#07040F);
+    transition:opacity .5s ease, visibility .5s; }
+  #loader.gone{ opacity:0; visibility:hidden; }
+  .ld-logo{ width:104px; height:104px; border-radius:30px; background:var(--grad-purple);
+    display:flex; align-items:center; justify-content:center; position:relative;
+    box-shadow:0 0 60px rgba(139,92,246,.7); animation:ldPulse 1.6s ease-in-out infinite; }
+  @keyframes ldPulse{ 50%{ transform:scale(1.08) rotate(-3deg); box-shadow:0 0 90px rgba(245,158,11,.7);} }
+  .ld-ring{ position:absolute; inset:-14px; border-radius:38px; border:2px solid rgba(245,158,11,.5);
+    animation:ldRing 1.8s ease-out infinite; }
+  @keyframes ldRing{ 0%{ transform:scale(.9); opacity:.9;} 100%{ transform:scale(1.35); opacity:0;} }
+  .ld-title{ font-size:30px; font-weight:900; letter-spacing:.02em; text-shadow:0 4px 0 rgba(0,0,0,.5),0 0 30px rgba(139,92,246,.6); }
+  .ld-tip{ font-size:12px; font-weight:800; color:var(--dim); max-width:26ch; text-align:center; min-height:34px;
+    animation:tipFade .5s ease; }
+  @keyframes tipFade{ from{ opacity:0; transform:translateY(6px);} }
+  .ld-track{ width:200px; height:7px; border-radius:99px; background:rgba(255,255,255,.10); overflow:hidden; }
+  .ld-track i{ display:block; height:100%; width:0%; border-radius:99px;
+    background:linear-gradient(90deg,var(--violet-light),var(--gold)); transition:width .4s ease;
+    box-shadow:0 0 14px rgba(245,158,11,.7); }
+  .ld-pct{ font-size:11px; font-weight:900; color:var(--gold); letter-spacing:.14em; }
+
+  /* ---------- EXTREME FX ---------- */
+  .spark{ position:absolute; width:7px; height:7px; border-radius:2px; pointer-events:none; z-index:66;
+    animation:sparkFly .62s cubic-bezier(.15,.7,.3,1) forwards; }
+  @keyframes sparkFly{ to{ transform:translate(var(--sx),var(--sy)) rotate(var(--sr)) scale(.2); opacity:0; } }
+  .shockwave{ position:absolute; border-radius:50%; pointer-events:none; z-index:65; border:3px solid rgba(245,158,11,.9);
+    animation:shock .5s ease-out forwards; }
+  @keyframes shock{ from{ width:10px; height:10px; opacity:1; } to{ width:220px; height:220px; opacity:0; } }
+  #app.quake{ animation:quake .34s; }
+  @keyframes quake{ 15%{transform:translate(-6px,4px)} 35%{transform:translate(7px,-5px)}
+    55%{transform:translate(-5px,-3px)} 75%{transform:translate(4px,4px)} }
+  #flashlayer{ position:absolute; inset:0; z-index:63; pointer-events:none; opacity:0; background:#fff; }
+  #flashlayer.go{ animation:flashy .3s ease-out; }
+  @keyframes flashy{ 0%{ opacity:.55; } 100%{ opacity:0; } }
+  .screen.active{ animation:screenSlide .3s cubic-bezier(.2,.9,.3,1.05); }
+  @keyframes screenSlide{ from{ opacity:0; transform:translateY(14px) scale(.99);} }
+  .tug-num.pump{ animation:pump .22s cubic-bezier(.2,.9,.3,1.6); }
+  @keyframes pump{ 50%{ transform:scale(1.35); } }
+
+  /* ---------- ACCOUNT / BADGES / INVENTORY ---------- */
+  .gear-btn{ width:38px; height:38px; border-radius:12px; background:var(--card-dark); border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; }
+  .pfp-wrap{ position:relative; width:96px; height:96px; margin:0 auto 12px; }
+  .pfp{ width:96px; height:96px; border-radius:50%; overflow:hidden; background:var(--grad-purple);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 0 34px rgba(139,92,246,.5); }
+  .pfp img{ width:100%; height:100%; object-fit:cover; }
+  .pfp svg{ width:62px; height:62px; }
+  .pfp-edit{ position:absolute; right:-2px; bottom:-2px; width:34px; height:34px; border-radius:50%;
+    background:var(--gold); display:flex; align-items:center; justify-content:center; border:3px solid var(--bg-dark); }
+  .bio-box{ width:100%; background:var(--card-dark); border:1.5px solid var(--line); border-radius:14px;
+    padding:13px 14px; color:var(--text); font-family:inherit; font-weight:700; font-size:13.5px; outline:none; resize:none; }
+  .bio-box:focus{ border-color:var(--purple); }
+  .badge-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .badge{ background:var(--card-dark); border:1px solid var(--line); border-radius:16px; padding:14px 8px; text-align:center; }
+  .badge.got{ border-color:rgba(245,158,11,.55); background:rgba(245,158,11,.08); box-shadow:0 0 18px rgba(245,158,11,.15); }
+  .badge .bi{ height:34px; display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
+  .badge.locked .bi{ filter:grayscale(1); opacity:.3; }
+  .badge b{ font-size:10.5px; display:block; }
+  .badge span{ font-size:9px; color:var(--dim); font-weight:800; }
+  .locked-page{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:40px 26px; gap:10px; }
+  .locked-page .lk{ width:96px; height:96px; border-radius:28px; background:var(--card-solid); border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center; margin-bottom:8px; animation:bob 3s infinite; }
+  .soon-tag{ display:inline-block; font-size:10.5px; font-weight:900; letter-spacing:.16em; background:rgba(139,92,246,.18);
+    color:var(--violet-light); padding:7px 15px; border-radius:99px; margin-top:6px; }
+  .inv-preview{ display:grid; grid-template-columns:repeat(3,1fr); gap:11px; width:100%; margin-top:22px; opacity:.45; }
+  .inv-slot{ aspect-ratio:1; border-radius:16px; background:var(--card-dark); border:1.5px dashed var(--line);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; }
+  .inv-slot span{ font-size:9.5px; font-weight:900; color:var(--dim); }
+  .nv.lock{ opacity:.45; }
+
+  /* ---------- PLAYER HP + POSITION GATE ---------- */
+  .php-wrap{ margin-top:9px; }
+  .php-lbl{ display:flex; justify-content:space-between; font-size:10.5px; font-weight:900; margin-bottom:4px; }
+  .php-bar{ height:11px; border-radius:99px; background:rgba(0,0,0,.45); overflow:hidden; }
+  .php-bar i{ display:block; height:100%; border-radius:99px; transition:width .3s;
+    background:linear-gradient(90deg,#34D399,var(--green)); }
+  .php-bar.warn i{ background:linear-gradient(90deg,#FCD34D,var(--gold)); }
+  .php-bar.crit i{ background:linear-gradient(90deg,#F87171,var(--red)); animation:pulseLive .5s infinite; }
+  .posgate{ position:absolute; inset:0; z-index:8; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:12px; background:rgba(6,10,22,.86); backdrop-filter:blur(4px); text-align:center; padding:26px; }
+  .posgate .pg-ico{ width:80px; height:80px; border-radius:24px; background:var(--card-solid);
+    border:2px solid rgba(245,158,11,.5); display:flex; align-items:center; justify-content:center; animation:bob 2.2s infinite; }
+  .posgate h4{ font-size:19px; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.5); }
+  .posgate p{ font-size:12.5px; font-weight:800; color:var(--dim); max-width:24ch; }
+  .posgate .cd{ font-size:56px; font-weight:900; color:var(--gold); text-shadow:0 0 26px rgba(245,158,11,.7); }
+  .dmg.crit{ color:#FF5A5A; font-size:30px; text-shadow:0 0 18px rgba(239,68,68,.95),0 2px 0 rgba(0,0,0,.5); }
+  .critflash{ position:absolute; inset:0; z-index:7; pointer-events:none; background:radial-gradient(circle,rgba(239,68,68,.35),transparent 65%);
+    animation:cfl .35s ease-out forwards; }
+  @keyframes cfl{ to{ opacity:0; } }
+  .shake-hard{ animation:hardShake .32s; }
+  @keyframes hardShake{ 20%{transform:translate(-7px,3px) rotate(-2deg)} 45%{transform:translate(6px,-3px) rotate(2deg)}
+    70%{transform:translate(-4px,2px) rotate(-1deg)} }
+
   /* ---------- RANKED DUEL HUD ---------- */
   .rank-hud{ background:linear-gradient(180deg,#16213F,#101A33); border:1px solid rgba(255,255,255,.10);
     border-radius:20px; padding:12px 14px 14px; margin-bottom:10px; position:relative; box-shadow:0 8px 26px rgba(0,0,0,.45); }
@@ -562,6 +669,7 @@
       </div>
       <button class="round-btn" id="ch-next" onclick="switchChap(1)">›</button>
     </div>
+    <div class="dim" id="ch-global" style="font-size:11px;font-weight:900;margin-top:8px;color:var(--gold)">0 / 108 episodes</div>
     <div id="ch-lock" class="dim" style="display:none;font-size:11.5px;font-weight:900;margin-top:10px;color:var(--gold)">🔒 Finish the previous chapter to unlock this one</div>
   </div>
   <div id="map-wrap">
@@ -572,36 +680,28 @@
 
 <!-- ============ 4. ARENA HUB ============ -->
 <section class="screen" id="scr-arena">
-  <div class="hdr" style="font-size:22px;margin-bottom:14px">Arena</div>
-
-  <div class="card mode-card">
-    <div class="row" style="gap:13px"><span class="em"><svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="#F59E0B"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>
-      <div class="grow"><b>Speed Run</b><p>Hit your rep target as fast as you can.</p></div></div>
-    <div class="target-pills" id="sr-targets">
-      <button class="tpill sel" data-t="10" onclick="pickTarget(this,10)">10 reps</button>
-      <button class="tpill" data-t="25" onclick="pickTarget(this,25)">25 reps</button>
-      <button class="tpill" data-t="50" onclick="pickTarget(this,50)">50 reps</button>
-    </div>
-    <p class="dim" style="font-size:11px;font-weight:900;margin-top:10px;letter-spacing:.08em">PUSH-UPS · AI TRACKED</p>
-    <button class="btn b-gold" style="margin-top:12px" onclick="startSpeedRun()">START</button>
-  </div>
-
-  <div class="card mode-card">
-    <div class="row" style="gap:13px"><span class="em"><svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#EF4444" stroke-width="2.2" stroke-linecap="round"><path d="M2 9c2-3 4-3 6 0s4 3 6 0 4-3 6 0M2 16c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg></span>
-      <div class="grow"><b>Horde Mode</b><p>Endless waves. Survive as long as you can.</p></div>
-      <button class="btn b-red b-sm" onclick="startHorde()">START</button></div>
-  </div>
-
-  <div class="card mode-card">
-    <div class="row" style="gap:13px"><span class="em"><svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#8B5CF6" stroke-width="2.2" stroke-linecap="round"><path d="M2 12h3M19 12h3M5 8v8M19 8v8M8 12h8"/></svg></span>
-      <div class="grow"><b>Max Reps</b><p>One set. Absolute PR: <b class="gold" id="pr-show">35</b></p></div>
-      <button class="btn b-purple b-sm" onclick="startMax()">START</button></div>
-  </div>
+  <div class="topline"><div class="screen-title hdr">Duels</div><span class="chip hot" id="duel-elo">1000 ELO</span></div>
 
   <div class="card mode-card" style="border-color:rgba(245,158,11,.45)">
-    <div class="row" style="gap:13px"><span class="em"><svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg></span>
-      <div class="grow"><b>1v1 Ranked Duel</b><p>Live rep race vs a friend. First to 20 wins.</p></div>
-      <button class="btn b-gold b-sm" onclick="openLobby()">FIGHT</button></div>
+    <div class="row" style="gap:13px">
+      <svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg>
+      <div class="grow"><b>Ranked 1v1</b><p>Live rep race. Win to climb the ELO ladder.</p></div>
+    </div>
+    <button class="btn b-gold" style="margin-top:12px" onclick="findMatch()">FIND RANKED MATCH</button>
+  </div>
+
+  <div class="card mode-card">
+    <div class="row" style="gap:13px">
+      <svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.7 14.4c2.8.2 5 1.9 5.8 4.6"/></svg>
+      <div class="grow"><b>Fight a friend</b><p>Create a room, send them the code.</p></div>
+    </div>
+    <button class="btn b-purple" style="margin-top:12px" onclick="openLobby()">PRIVATE DUEL</button>
+  </div>
+
+  <div class="seclbl">Your record</div>
+  <div class="today-grid">
+    <div class="mini-stat"><div class="n gold" id="duel-elo2">1000</div><div class="l">ELO rating</div></div>
+    <div class="mini-stat"><div class="n green" id="duel-wins">0</div><div class="l">Duel wins</div></div>
   </div>
 </section>
 
@@ -612,13 +712,17 @@
       <span class="enemy-sprite" id="b-sprite"></span>
       <div>
         <div class="e-name" id="b-ename">Goblin</div>
-        <div class="e-meta"><span id="b-wave">Wave 1/3</span> · <span id="b-ex">Push-ups</span></div>
+        <div class="e-meta"><span id="b-wave">Wave 1/3</span> · <span id="b-diff" style="color:var(--gold)">NORMAL</span></div>
       </div>
       <div class="hud-timer"><div class="t" id="b-timer">0:00</div><div class="l">TIME</div></div>
     </div>
     <div class="hp-line">
       <div class="t"><span class="red" id="b-hplbl">HP</span><span id="b-hptxt">3 / 5</span></div>
       <div class="pbar fill-r"><i id="b-hpbar" style="width:60%"></i></div>
+    </div>
+    <div class="php-wrap">
+      <div class="php-lbl"><span class="green">YOUR STAMINA</span><span id="php-txt">100 / 100</span></div>
+      <div class="php-bar" id="php-bar"><i id="php-fill" style="width:100%"></i></div>
     </div>
   </div>
 
@@ -631,6 +735,12 @@
     <svg class="skel breathe" id="b-skel" viewBox="0 0 100 130" preserveAspectRatio="xMidYMid meet" style="display:none"></svg>
     <div class="track-pill load" id="b-track">⏳ Loading AI model…</div>
     <div class="calib"><span class="ok" id="b-calib">✓ Body in frame — form looks good</span></div>
+    <div class="posgate" id="posgate">
+      <div class="pg-ico" id="pg-ico"></div>
+      <h4 class="hdr" id="pg-title">Get into position</h4>
+      <p id="pg-text">Prop your phone up, get on the floor facing the camera, arms extended. The fight starts when you're set.</p>
+      <div class="cd" id="pg-cd" style="display:none">3</div>
+    </div>
   </div>
 
   <div class="bottom-hud">
@@ -747,25 +857,44 @@
 
 <!-- ============ 8. PROFILE ============ -->
 <section class="screen" id="scr-profile">
+  <div class="topline">
+    <div class="screen-title hdr">Account</div>
+    <button class="gear-btn" onclick="profTab('set')" aria-label="Settings">
+      <svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </div>
+
   <div class="ptabs">
-    <button class="ptab on" id="pt-char" onclick="profTab('char')">Character</button>
-    <button class="ptab" id="pt-ana" onclick="profTab('ana')">Analytics</button>
+    <button class="ptab on" id="pt-char" onclick="profTab('char')">Profile</button>
+    <button class="ptab" id="pt-ana" onclick="profTab('ana')">Stats</button>
     <button class="ptab" id="pt-set" onclick="profTab('set')">Settings</button>
   </div>
 
   <div id="p-char">
     <div class="prof-hero">
-      <div class="av-wrap" id="prof-av">
-        <span class="lvl-badge">LVL <span id="p-lvl">5</span></span>
-        <div class="avatar">YOU</div>
-        <span class="av-pet" id="p-pet"></span>
+      <div class="pfp-wrap">
+        <div class="pfp" id="pfp-view"></div>
+        <button class="pfp-edit" onclick="$('pfp-file').click()" aria-label="Change photo">
+          <svg viewBox="0 0 24 24" style="width:17px;height:17px" fill="none" stroke="#26190A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h2L9 4h6l1.5 2h2A2.5 2.5 0 0 1 21 8.5v9A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>
+        </button>
+        <input type="file" id="pfp-file" accept="image/*" style="display:none" onchange="uploadPfp(event)">
       </div>
-      <div class="hdr" style="font-size:20px;margin-top:10px">Fighter</div>
+      <div class="hdr" style="font-size:21px" id="prof-uname">Fighter</div>
       <span class="prof-title" id="p-title">ROOKIE</span>
-      <div class="rank-elo" style="margin-top:8px;font-size:13px"><span id="p-elo">1000</span> ELO</div>
+      <div class="rank-elo" style="margin-top:8px;font-size:13px"><span id="p-elo">1000</span> ELO · LVL <span id="p-lvl">1</span></div>
     </div>
+
+    <div class="seclbl">Bio</div>
+    <textarea class="bio-box" id="bio-in" rows="3" maxlength="140" placeholder="Say something about your training…" oninput="bioChanged()"></textarea>
+    <div class="dim" style="text-align:right;font-size:10.5px;font-weight:800;margin-top:5px"><span id="bio-count">0</span>/140</div>
+
+    <div class="seclbl">Badges</div>
+    <div class="badge-grid" id="badge-grid"></div>
+
     <div class="seclbl">Profile Icon</div>
     <div class="av-grid" id="av-grid"></div>
+    <p class="dim" style="font-size:11px;font-weight:800;margin-top:8px">Or upload your own photo with the camera button above.</p>
+
     <div class="seclbl">Frames</div>
     <div id="shop-frames"></div>
     <div class="seclbl">Titles</div>
@@ -775,6 +904,10 @@
   </div>
 
   <div id="p-ana" style="display:none">
+    <div class="today-grid">
+      <div class="mini-stat"><div class="n" id="p-total">0</div><div class="l">Total reps</div></div>
+      <div class="mini-stat"><div class="n gold" id="p-streak">0</div><div class="l">Day streak</div></div>
+    </div>
     <div class="card"><b style="font-size:13.5px">Weekly rep volume</b><div class="chart" id="ana-chart"></div></div>
     <div class="card"><b style="font-size:13.5px">Exercise distribution</b><div style="margin-top:11px" id="ana-dist"></div></div>
     <div class="card"><b style="font-size:13.5px">Streak heatmap — last 4 weeks</b><div class="heat" id="ana-heat" style="margin-top:11px"></div></div>
@@ -794,9 +927,9 @@
       Test camera on phone
       <button class="claim" style="margin-left:auto" onclick="openDevModal()">GUIDE</button>
     </div>
-    <div class="set-row">👤 Account <span class="dim" style="margin-left:auto;font-size:12px">fighter@repquest.app</span></div>
+    <div class="set-row">👤 Account <span class="dim" style="margin-left:auto;font-size:12px" id="set-email">—</span></div>
     <div class="set-row">⭐ Membership <span class="own" style="margin-left:auto">FOUNDER ✓</span></div>
-    <div class="set-row">🚪 Log out <button class="claim" style="margin-left:auto;background:var(--red);color:#fff" onclick="logout()">LOG OUT</button></div>
+    <div class="set-row">🚪 Log out <button class="claim" style="margin-left:auto;background:var(--red);color:#fff" onclick="confirmLogout()">SIGN OUT</button></div>
   </div>
 </section>
 
@@ -1010,16 +1143,44 @@
 <!-- ============ NAV ============ -->
 <nav id="nav">
   <button class="nv on" data-s="scr-home" onclick="nav('scr-home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
-  <button class="nv" data-s="scr-campaign" onclick="nav('scr-campaign')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3zM9 7v13M15 4v13"/></svg>Campaign</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3zM9 7v13M15 4v13"/></svg>Quests</button>
   <button class="nv" data-s="scr-arena" onclick="nav('scr-arena')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5 5 5-9 9H5v-5l9-9zM12 7l5 5M5 3l2 2M19 17l2 2"/></svg>Arena</button>
-  <button class="nv" data-s="scr-ranks" onclick="nav('scr-ranks')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Ranks</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg>Duels</button>
   <button class="nv" data-s="scr-profile" onclick="nav('scr-profile')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Profile</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Account</button>
+  <button class="nv lock" data-s="scr-inventory" onclick="nav('scr-inventory')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Gear</button>
 </nav>
+
+<section class="screen" id="scr-inventory">
+  <div class="locked-page">
+    <div class="lk">
+      <svg viewBox="0 0 24 24" style="width:44px;height:44px" fill="none" stroke="#8B5CF6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V6.5a4 4 0 0 1 8 0V10"/><circle cx="12" cy="15.5" r="1.6"/></svg>
+    </div>
+    <div class="hdr" style="font-size:23px">Armory</div>
+    <span class="soon-tag">COMING SOON</span>
+    <p class="dim" style="font-weight:800;font-size:13px;margin-top:10px;max-width:30ch;line-height:1.6">
+      Forge and equip armor, gloves and relics. Better gear means more damage per rep — turn the same push-up into a bigger hit.</p>
+    <div class="inv-preview">
+      <div class="inv-slot"><svg viewBox="0 0 24 24" style="width:26px;height:26px" fill="none" stroke="#8B5CF6" stroke-width="1.8"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6z"/></svg><span>ARMOR</span></div>
+      <div class="inv-slot"><svg viewBox="0 0 24 24" style="width:26px;height:26px" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round"><path d="M8 11V6a1.5 1.5 0 0 1 3 0v5M11 10.5V5a1.5 1.5 0 0 1 3 0v6M14 10.5V7a1.5 1.5 0 0 1 3 0v7c0 3.3-2.2 6-6 6-2.4 0-3.6-.8-4.7-2.2L4.6 14a1.4 1.4 0 0 1 2-2l1.4 1"/></svg><span>GLOVES</span></div>
+      <div class="inv-slot"><svg viewBox="0 0 24 24" style="width:26px;height:26px" fill="none" stroke="#10B981" stroke-width="1.8"><path d="M12 2l2.6 6.4L21 11l-6.4 2.6L12 20l-2.6-6.4L3 11l6.4-2.6z"/></svg><span>RELIC</span></div>
+    </div>
+    <p class="dim" style="font-size:11px;font-weight:800;margin-top:20px">Unlocks in a future update — your coins are already piling up for it.</p>
+  </div>
+</section>
+
+<div id="flashlayer"></div>
+<div id="loader">
+  <div class="ld-logo">
+    <span class="ld-ring"></span>
+    <svg viewBox="0 0 24 24" style="width:52px;height:52px" fill="#fff"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+  </div>
+  <div class="ld-title hdr">RepQuest</div>
+  <div class="ld-tip" id="ld-tip">Waking the arena…</div>
+  <div class="ld-track"><i id="ld-fill"></i></div>
+  <div class="ld-pct" id="ld-pct">0%</div>
+</div>
 
 <div id="modal-layer"><div class="modal" id="modal-box"></div></div>
 <div id="toast"></div>
@@ -1104,6 +1265,15 @@ const CHAPTERS=[
   { name:'Spiderfang Hollow', icon:'brood',
     pool:[['Spiderling','spider'],['Venom Bat','bat'],['Web Ghoul','ghoul'],['Fang Goblin','goblin'],['Shadow Wraith','wraith'],['Cave Troll','troll']],
     boss:['Broodmother','brood'] },
+  { name:'Ashfang Keep', icon:'warlord',
+    pool:[['Ash Goblin','goblin'],['Ember Bat','bat'],['Cinder Ghoul','ghoul'],['Forge Troll','troll'],['Ash Archer','archer'],['Molten Bones','bone']],
+    boss:['Ashfang Warlord','warlord'] },
+  { name:'Frostbound Depths', icon:'wraith',
+    pool:[['Frost Wraith','wraith'],['Ice Spider','spider'],['Rime Ghoul','ghoul'],['Glacier Troll','troll'],['Frozen Bones','bone'],['Snow Bat','bat']],
+    boss:['Hollow King','skelking'] },
+  { name:'Dragons Peak', icon:'dragonet',
+    pool:[['Drake Whelp','dragonet'],['Peak Wraith','wraith'],['Stone Troll','troll'],['Wyrm Spider','spider'],['Bone Drake','bone'],['Sky Archer','archer']],
+    boss:['Elder Dragon','dragonet'] },
 ];
 S.chapters=CHAPTERS.map((c,ci)=>({ name:c.name, icon:c.icon, eps:[] }));
 CHAPTERS.forEach((c,ci)=>{
@@ -1152,11 +1322,54 @@ function beep(f,d,type){
   }catch(e){}
 }
 
+/* ---------- EXTREME FX ENGINE ---------- */
+function burstAt(el,color,count){
+  const app=$('app'), r=app.getBoundingClientRect();
+  let cx=r.width/2, cy=r.height/2;
+  if(el&&el.getBoundingClientRect){ const b=el.getBoundingClientRect(); cx=b.left-r.left+b.width/2; cy=b.top-r.top+b.height/2; }
+  const cols=color?[color]:['#F59E0B','#8B5CF6','#10B981','#FCD34D'];
+  const n=count||14;
+  for(let i=0;i<n;i++){
+    const s=document.createElement('div'); s.className='spark';
+    const ang=(Math.PI*2*i)/n + Math.random()*.5, dist=48+Math.random()*70;
+    s.style.cssText='left:'+cx+'px;top:'+cy+'px;background:'+cols[i%cols.length]+
+      ';--sx:'+(Math.cos(ang)*dist)+'px;--sy:'+(Math.sin(ang)*dist)+'px;--sr:'+(Math.random()*540)+'deg';
+    app.appendChild(s); setTimeout(()=>s.remove(),650);
+  }
+}
+function shockwave(el,color){
+  const app=$('app'), r=app.getBoundingClientRect();
+  let cx=r.width/2, cy=r.height/2;
+  if(el&&el.getBoundingClientRect){ const b=el.getBoundingClientRect(); cx=b.left-r.left+b.width/2; cy=b.top-r.top+b.height/2; }
+  const w=document.createElement('div'); w.className='shockwave';
+  w.style.cssText='left:'+cx+'px;top:'+cy+'px;margin:-5px 0 0 -5px;border-color:'+(color||'rgba(245,158,11,.9)');
+  app.appendChild(w); setTimeout(()=>w.remove(),520);
+}
+function quake(){ const a=$('app'); a.classList.remove('quake'); void a.offsetWidth; a.classList.add('quake');
+  setTimeout(()=>a.classList.remove('quake'),360); }
+function flashScreen(){ const f=$('flashlayer'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
+function pump(id){ const e=$(id); if(!e) return; e.classList.remove('pump'); void e.offsetWidth; e.classList.add('pump'); }
+
+function chord(freqs,d,type){ freqs.forEach((f,i)=>setTimeout(()=>beep(f,d||.12,type||'square'),i*55)); }
+const SFX={
+  rep:()=>beep(520,.06),
+  crit:()=>{ chord([660,880,1180],.10); },
+  hit:()=>beep(300,.05,'sine'),
+  kill:()=>chord([523,659,784,1046],.13),
+  levelup:()=>chord([523,659,784,1046,1318],.15),
+  win:()=>chord([784,988,1318],.18),
+  lose:()=>chord([392,330,262],.22,'sine'),
+  click:()=>beep(660,.05),
+  err:()=>beep(180,.16,'sine'),
+  hurt:()=>beep(220,.12,'sawtooth'),
+  ready:()=>chord([700,900],.11),
+};
+
 /* ================= NAV / SHELL ================= */
 /* ================= ROUTING (History API) ================= */
 const ROUTES={
   '':'scr-home', home:'scr-home', workout:'scr-workout', campaign:'scr-campaign',
-  arena:'scr-arena', ranks:'scr-ranks', profile:'scr-profile', stats:'scr-stats',
+  duels:'scr-arena', arena:'scr-arena', ranks:'scr-ranks', account:'scr-profile', profile:'scr-profile', stats:'scr-stats', gear:'scr-inventory', quests:'scr-home',
   achievements:'scr-achievements', friends:'scr-friends',
 };
 const SLUG_OF={}; Object.entries(ROUTES).forEach(([k,v])=>{ if(k) SLUG_OF[v]=k; });
@@ -1167,7 +1380,7 @@ function nav(id, opts){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
   ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
-     'scr-ranks':renderLB,'scr-profile':renderProfile })[id]?.();
+     'scr-ranks':renderLB,'scr-profile':renderProfile,'scr-workout':renderWorkout })[id]?.();
   updateUrl(id, opts);
 }
 function updateUrl(id, opts){
@@ -1239,6 +1452,10 @@ function renderHome(){
   if(!$('ps-flame').dataset.ico){ $('ps-flame').insertAdjacentHTML('afterbegin',ICO.flame(15)); $('ps-flame').dataset.ico=1;
     $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(15)); $('ps-coin').dataset.ico=1; }
   if(PROFILE){ $('home-uname').textContent=PROFILE.username; paintAvatars(); }
+  const cch=S.chapters[S.cur.c];
+  if($('camp-ico')){ $('camp-ico').innerHTML=mon(cch.icon,26);
+    $('camp-name').textContent=cch.name;
+    $('camp-sub').textContent='Chapter '+(S.cur.c+1)+' · Episode '+(S.cur.e+1)+'/18'; }
   $('h-lvl').textContent=S.user.lvl;
   $('h-xp').textContent=S.user.xp; $('h-xpn').textContent=xpNeed();
   $('h-xpbar').style.width=(S.user.xp/xpNeed()*100)+'%';
@@ -1283,7 +1500,7 @@ function claimQuest(id){ saveProfile();
   q.claimed=true;
   if(q.rw.xp){ addXP(q.rw.xp); floatFX('+'+q.rw.xp+' XP'); }
   if(q.rw.coins){ addCoins(q.rw.coins); floatFX('+'+q.rw.coins+' 🪙','#F59E0B'); }
-  beep(880,.12); confetti(); renderHome();
+  SFX.levelup(); confetti(); burstAt(null,'#FCD34D',20); renderHome();
   if(pendingLvlUps) toast('🎉 LEVEL UP! Now level '+S.user.lvl);
 }
 
@@ -1305,6 +1522,9 @@ function renderMap(){
   const done=ch.eps.filter(e=>epStatus(e)==='done').length;
   $('ch-name').textContent=ch.name;
   $('ch-num').textContent='CHAPTER '+(S.viewC+1)+' / '+S.chapters.length;
+  const allEps=S.chapters.reduce((a,c)=>a+c.eps.length,0);
+  const allDone=S.chapters.reduce((a,c)=>a+c.eps.filter(e=>e.stars>0).length,0);
+  if($('ch-global')) $('ch-global').textContent=allDone+' / '+allEps+' episodes cleared';
   $('ch-icon').innerHTML=mon(ch.icon,40);
   $('ch-prog').textContent=unlocked?Math.min(done+1,18):0;
   $('ch-stars').textContent=ch.eps.reduce((a,e)=>a+e.stars,0);
@@ -1356,6 +1576,8 @@ function openDrawer(ci,i){
     <div class="ex-chips">${e.exs.map(x=>`<span class="exchip">${x}</span>`).join('')}</div>
     <div class="dim" style="font-size:11px;font-weight:900;letter-spacing:.1em">POSSIBLE DROPS</div>
     <div class="drops">${e.drops}</div>
+    <div class="dim" style="font-size:11px;font-weight:900;letter-spacing:.1em">DIFFICULTY</div>
+    ${diffPickerHTML()}
     ${st==='lock'
       ? '<button class="btn b-ghost" disabled>🔒 Clear previous episodes first</button>'
       : `<button class="btn ${e.boss?'b-red':'b-purple'}" onclick="startEpisode(${ci},${i})">${e.stars>0?'REPLAY':'START'} EPISODE</button>`}`;
@@ -1364,27 +1586,39 @@ function openDrawer(ci,i){
 function closeDrawer(){ $('drawer')?.classList.remove('open'); }
 
 /* ================= ARENA ================= */
-function renderArena(){ $('pr-show').textContent=S.user.pr; }
+function renderArena(){
+  const e=myElo();
+  if($('duel-elo')) $('duel-elo').textContent=e+' ELO';
+  if($('duel-elo2')) $('duel-elo2').textContent=e;
+  if($('duel-wins')) $('duel-wins').textContent=PROFILE?.duel_wins||0;
+}
+function renderWorkout2(){ if($('pr-show')) $('pr-show').textContent=S.user.pr;
+  if($('diff-card')) $('diff-card').innerHTML=diffPickerHTML(); }
 function pickTarget(el,t){ S.speedTarget=t; document.querySelectorAll('#sr-targets .tpill').forEach(p=>p.classList.toggle('sel',p===el)); }
 function pickEx(el,x){ S.speedEx=x; document.querySelectorAll('#sr-ex .tpill').forEach(p=>p.classList.toggle('sel',p===el)); }
 
 /* ================= BATTLE ENGINE ================= */
 function makeBattle(cfg){
-  S.B={ ...cfg, waveIdx:0, reps:0, sec:0, paused:false, timers:[], repTs:[], eHP:cfg.waves[0].hp, tracking:false };
+  S.B={ ...cfg, waveIdx:0, reps:0, sec:0, paused:false, timers:[], repTs:[], eHP:cfg.waves[0].hp,
+        tracking:false, live:false, php:100, lastRepAt:0, gate:true };
   goFlow('scr-battle');
-  $('b-ex').textContent=cfg.exercise;
+  if($('b-diff')) $('b-diff').textContent=D().name.toUpperCase();
   $('b-endset').style.display=cfg.endset?'block':'none';
   $('b-auto').textContent='▶'; $('b-auto').style.display='flex';
   $('b-reps').textContent='0';
   $('rep-mode-lbl').textContent='TAP = 1 REP';
   $('b-skel').style.display='none';
   syncEnemyHUD(true);
+  $('pg-ico').innerHTML=mon(cfg.waves[0].sprite,48);
+  showGate(true,'Get into position',"Prop your phone up, get on the floor facing the camera, arms extended. The fight starts when you're set.");
+  syncStamina();
   acquireWake();
   startBattleTracking();
   const t=setInterval(()=>{
-    if(!S.B||S.B.paused) return;
+    if(!S.B||S.B.paused||S.B.gate) return;
     S.B.sec++; S.user.activeSec++;
     $('b-timer').textContent=fmt(S.B.sec);
+    tickStamina();
   },1000);
   S.B.timers.push(t);
 }
@@ -1399,7 +1633,10 @@ async function startBattleTracking(){
   }
   const ok=await PoseEngine.start('b-video','b-canvas',myB.exercise,
     ()=>{ if(S.B===myB && !S.B.paused) battleRep(); },
-    (type,msg)=>setTrackPill('b-track','b-calib',type,msg));
+    (type,msg)=>{
+      setTrackPill('b-track','b-calib',type,msg);
+      if(S.B===myB && S.B.gate===true && typeof msg==='string' && msg.indexOf('IN POSITION')>-1) onInPosition();
+    });
   if(S.B!==myB){ if(ok) PoseEngine.stop(); return; }   /* battle ended while loading */
   if(ok){
     myB.tracking=true;
@@ -1409,9 +1646,67 @@ async function startBattleTracking(){
   } else {
     /* pose unavailable → plain camera preview + tap mode + decorative skeleton */
     initCam('b-video','b-fb');
+    showGate(true,'Tap mode','AI tracking is unavailable. Tap the rep pill each time you complete a push-up. Tap below to begin.');
+    $('posgate').onclick=()=>{ if(S.B&&S.B.gate===true) onInPosition(); };
     $('b-skel').style.display='block';
     drawSkeleton();
   }
+}
+function showGate(on,title,text){
+  const g=$('posgate'); if(!g) return;
+  g.style.display=on?'flex':'none';
+  if(title) $('pg-title').textContent=title;
+  if(text) $('pg-text').textContent=text;
+  $('pg-cd').style.display='none';
+}
+function onInPosition(){
+  const B=S.B; if(!B||!B.gate) return;
+  B.gate='counting';
+  $('pg-title').textContent='Ready!';
+  $('pg-text').textContent='Hold it…';
+  const cd=$('pg-cd'); cd.style.display='block';
+  let n=3; cd.textContent=n; SFX.ready();
+  const t=setInterval(()=>{
+    if(!S.B){ clearInterval(t); return; }
+    n--;
+    if(n>0){ cd.textContent=n; beep(620,.09); }
+    else if(n===0){ cd.textContent='FIGHT!'; SFX.kill(); }
+    else{
+      clearInterval(t);
+      if(!S.B) return;
+      S.B.gate=false; S.B.lastRepAt=performance.now();
+      showGate(false);
+      toast('Every rep = damage. Keep moving or you lose stamina!');
+    }
+  },700);
+  B.timers.push(t);
+}
+function syncStamina(){
+  const B=S.B; if(!B) return;
+  const p=Math.max(0,Math.round(B.php));
+  $('php-txt').textContent=p+' / 100';
+  $('php-fill').style.width=p+'%';
+  const bar=$('php-bar');
+  bar.className='php-bar'+(p<=25?' crit':p<=55?' warn':'');
+}
+function tickStamina(){
+  const B=S.B; if(!B||B.gate||B.noHP) return;
+  const idle=(performance.now()-B.lastRepAt)/1000;
+  if(idle>4){
+    B.php-=D().drain;                              /* stalling drains you */
+    if(B.php<=30 && !B._warned){ B._warned=true; toast('Stamina draining — keep repping!'); SFX.hurt(); }
+    syncStamina();
+    if(B.php<=0){ B.php=0; syncStamina(); loseBattle(); }
+  }
+}
+function loseBattle(){
+  const B=S.B; if(!B) return;
+  B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);});
+  stopCams(); SFX.lose();
+  const reps=B.reps, sec=Math.max(1,B.sec);
+  vicCtx={ origin:S.B_origin, headline:'STAMINA DRAINED', stars:0, reps, sec, coins:reps*1, win:false };
+  addXP(reps*10); addCoins(reps);
+  S.B=null; saveProfile(); showVictory();
 }
 function setTrackPill(pillId,calibId,type,msg){
   const p=$(pillId); if(!p) return;
@@ -1440,21 +1735,31 @@ function syncEnemyHUD(spawn){
   if(spawn){ const h=$('c-hud'); h.classList.remove('hit'); }
 }
 function battleRep(){
-  const B=S.B; if(!B||B.paused) return;
+  const B=S.B; if(!B||B.paused||B.gate) return;
   B.reps++; recordPace(B.repTs);
+  B.lastRepAt=performance.now();
+  B.php=Math.min(100,B.php+2.5); B._warned=false; syncStamina();
   S.user.todayReps++; S.user.cal=Math.round(S.user.cal+0.35);
   questProgress(B.exercise);
   $('b-reps').textContent=B.reps;
   const rp=$('rep-pill'); rp.classList.remove('bump'); void rp.offsetWidth; rp.classList.add('bump');
-  beep(520,.07);
+  SFX.rep(); burstAt($('rep-pill'),'#F59E0B',8);
   if(!B.noHP){
-    B.eHP--;
-    const hud=$('c-hud'); hud.classList.remove('hit'); void hud.offsetWidth; hud.classList.add('hit');
-    const d=document.createElement('div'); d.className='dmg'; d.textContent='-1 HP!';
+    const crit=Math.random()<0.14, dmg=crit?3:1;
+    B.eHP=Math.max(0,B.eHP-dmg);
+    const hud=$('c-hud'); hud.classList.remove('hit','shake-hard'); void hud.offsetWidth;
+    hud.classList.add(crit?'shake-hard':'hit');
+    const d=document.createElement('div'); d.className='dmg'+(crit?' crit':''); d.textContent=crit?'CRIT -3!':'-1 HP!';
     d.style.left=(30+Math.random()*40)+'%'; d.style.top='22%';
     $('b-vp').appendChild(d); setTimeout(()=>d.remove(),700);
+    if(crit){
+      SFX.crit(); quake(); flashScreen();
+      burstAt($('c-hud'),'#EF4444',20); shockwave($('c-hud'),'rgba(239,68,68,.9)');
+      const fl=document.createElement('div'); fl.className='critflash';
+      $('b-vp').appendChild(fl); setTimeout(()=>fl.remove(),400);
+    }
     if(B.eHP<=0){
-      beep(760,.12);
+      SFX.kill(); quake(); flashScreen(); shockwave($('c-hud')); burstAt($('c-hud'),null,26);
       if(B.infinite){ B.waveIdx++; B.waves.push(nextHordeWave(B.waveIdx)); B.eHP=B.waves[B.waveIdx].hp; toast('🌊 Wave '+(B.waveIdx+1)+' incoming!'); }
       else if(B.waveIdx<B.waves.length-1){ B.waveIdx++; B.eHP=B.waves[B.waveIdx].hp; toast('⚔️ Next enemy!'); }
       else { finishBattle(true); return; }
@@ -1491,7 +1796,8 @@ function startEpisode(ci,i){
   closeDrawer(); S.B_origin='campaign';
   const e=S.chapters[ci].eps[i];
   const waves=[];
-  for(let w=0;w<e.waves;w++) waves.push({ name:e.name+(e.waves>1?' '+(w+1):''), sprite:e.sprite, hp:Math.ceil(e.hp/e.waves) });
+  const dm=D().hp;
+  for(let w=0;w<e.waves;w++) waves.push({ name:e.name+(e.waves>1?' '+(w+1):''), sprite:e.sprite, hp:Math.max(1,Math.ceil(e.hp*dm/e.waves)) });
   makeBattle({ kind:'episode', chap:ci, ep:i, exercise:e.exs[0], waves, modeName:'Episode '+(i+1) });
 }
 function fightDailyBoss(){
@@ -1532,12 +1838,13 @@ function finishBattle(win){
     }
     bonusC=15+(B.chap*18+B.ep)*3; bonusXP=e.boss?80:25;
   }
-  else if(B.kind==='boss'){ stars=3; S.dailyBoss.done=true; S.dailyBoss.hp=0; bonusXP=S.dailyBoss.rwXP; bonusC=S.dailyBoss.rwCoins; }
+  else if(B.kind==='boss'){ stars=3; if(PROFILE) PROFILE.bosses=(PROFILE.bosses||0)+1; S.dailyBoss.done=true; S.dailyBoss.hp=0; bonusXP=S.dailyBoss.rwXP; bonusC=S.dailyBoss.rwCoins; }
   else if(B.kind==='horde'){ stars=Math.min(3,1+Math.floor(B.waveIdx/2)); headline='SURVIVED '+B.waveIdx+' WAVE'+(B.waveIdx===1?'':'S')+'!'; bonusC=B.waveIdx*12; }
   else if(B.kind==='tutorial'){ stars=3; headline='FIRST BLOOD!'; bonusXP=50; bonusC=50; }
   else if(B.kind==='max'){ stars=reps>=S.user.pr?3:reps>=S.user.pr*.7?2:1;
     if(reps>S.user.pr){ S.user.pr=reps; newPR=true; headline='NEW RECORD!'; } bonusC=20; }
-  const coins=reps*2+bonusC, xp=reps*10+bonusXP;
+  const dm=D();
+  const coins=Math.round((reps*2+bonusC)*dm.coin), xp=Math.round((reps*10+bonusXP)*dm.xp);
   addXP(xp); addCoins(coins);
   vicCtx={ origin:S.B_origin, headline, stars, reps, sec, coins, win:true, newPR };
   S.B=null;
@@ -1550,6 +1857,7 @@ function showVictory(){
   const v=vicCtx;
   $('v-head').textContent=v.headline;
   $('v-head').classList.toggle('lose',!v.win);
+  $('v-stars').style.display=v.stars?'block':'none';
   $('v-reps').textContent=v.reps;
   $('v-time').textContent=fmt(v.sec);
   $('v-acc').textContent=ri(90,99)+'%';
@@ -1565,7 +1873,7 @@ function showVictory(){
     if(i<v.stars) setTimeout(()=>{ stars[i].classList.add('on'); beep(600+i*140,.12); },300+i*350);
     else stars[i].classList.add('off');
   }
-  if(v.win){ confetti(); }
+  if(v.win){ confetti(); burstAt(null,null,24); if(v.stars>=3){ setTimeout(()=>{flashScreen(); shockwave(null);},400); } }
   pendingLvlUps=0;
 }
 function victoryContinue(){
@@ -1574,16 +1882,101 @@ function victoryContinue(){
   nav(o==='campaign'?'scr-campaign':o==='arena'?'scr-arena':'scr-home');
 }
 
+/* ================= DIFFICULTY ================= */
+const DIFFS={
+  easy:      { name:'Easy',      hp:0.7, xp:0.7, coin:0.7, drain:2.0, col:'#10B981', desc:'Fewer reps, gentler stamina drain' },
+  normal:    { name:'Normal',    hp:1.0, xp:1.0, coin:1.0, drain:3.5, col:'#8B5CF6', desc:'The intended fight' },
+  hard:      { name:'Hard',      hp:1.4, xp:1.5, coin:1.5, drain:5.0, col:'#F59E0B', desc:'Tougher enemies, better rewards' },
+  nightmare: { name:'Nightmare', hp:2.0, xp:2.2, coin:2.2, drain:7.0, col:'#EF4444', desc:'Brutal. Huge XP and coins.' },
+};
+const DIFF_KEYS=['easy','normal','hard','nightmare'];
+function curDiff(){ return DIFFS[PROFILE?.difficulty] ? PROFILE.difficulty : 'normal'; }
+function D(){ return DIFFS[curDiff()]; }
+function setDiff(k){
+  if(!DIFFS[k]) return;
+  if(PROFILE){ PROFILE.difficulty=k; saveProfile(); }
+  document.querySelectorAll('.diff-pick').forEach(b=>b.classList.toggle('on',b.dataset.d===k));
+  document.querySelectorAll('.diff-note').forEach(n=>{ n.textContent=DIFFS[k].desc+' · '+Math.round(DIFFS[k].xp*100)+'% XP'; });
+  SFX.click(); burstAt(null);
+}
+function diffPickerHTML(){
+  return '<div class="diff-row">'+DIFF_KEYS.map(k=>{
+    const d=DIFFS[k];
+    return '<button class="diff-pick'+(curDiff()===k?' on':'')+'" data-d="'+k+'" style="--dc:'+d.col+'" onclick="setDiff(\''+k+'\')">'
+      +'<b>'+d.name+'</b><span>'+Math.round(d.xp*100)+'% XP</span></button>';
+  }).join('')+'</div><p class="diff-note dim">'+D().desc+' · '+Math.round(D().xp*100)+'% XP</p>';
+}
+
+/* ================= PROFILE PHOTO UPLOAD ================= */
+function uploadPfp(ev){
+  const file=ev.target.files?.[0]; if(!file) return;
+  if(file.size>8*1024*1024){ toast('Image too big — pick one under 8MB'); SFX.err(); return; }
+  const rd=new FileReader();
+  rd.onload=()=>{
+    const img=new Image();
+    img.onload=()=>{
+      /* square-crop + downscale to 256px so it fits comfortably in the DB */
+      const S2=256, c=document.createElement('canvas'); c.width=S2; c.height=S2;
+      const ctx=c.getContext('2d');
+      const side=Math.min(img.width,img.height);
+      ctx.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,S2,S2);
+      const url=c.toDataURL('image/jpeg',0.82);
+      if(PROFILE){ PROFILE.avatar_url=url; saveProfile(); }
+      paintAvatars(); SFX.ready(); toast('Profile photo updated');
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(file);
+  ev.target.value='';
+}
+function bioChanged(){
+  const v=$('bio-in').value;
+  $('bio-count').textContent=v.length;
+  if(PROFILE){ PROFILE.bio=v; saveProfile(); }
+}
+
+/* ================= BADGES ================= */
+const BADGES=[
+  { id:'first',  name:'First Blood',  desc:'Finish the tutorial', ico:()=>ICO.bolt(26),   has:()=>!!PROFILE?.tutorial_done },
+  { id:'founder',name:'Founder',      desc:'Beta supporter',      ico:()=>ICO.crown(26),  has:()=>PROFILE?.membership==='founder' },
+  { id:'c100',   name:'Century',      desc:'100 total reps',      ico:()=>ICO.medal(26,'#F59E0B'), has:()=>(PROFILE?.total_reps||0)>=100 },
+  { id:'c500',   name:'Iron Will',    desc:'500 total reps',      ico:()=>ICO.shield(26), has:()=>(PROFILE?.total_reps||0)>=500 },
+  { id:'boss',   name:'Boss Slayer',  desc:'Beat a boss',         ico:()=>ICO.skull(26),  has:()=>(PROFILE?.bosses||0)>=1 },
+  { id:'duel',   name:'Duelist',      desc:'Win a live duel',     ico:()=>ICO.swords(26), has:()=>(PROFILE?.duel_wins||0)>=1 },
+  { id:'lvl10',  name:'Veteran',      desc:'Reach level 10',      ico:()=>ICO.star(26),   has:()=>S.user.lvl>=10 },
+  { id:'elo1200',name:'Ranked',       desc:'Hit 1200 ELO',        ico:()=>ICO.flame(26),  has:()=>myElo()>=1200 },
+  { id:'streak7',name:'Unbroken',     desc:'7-day streak',        ico:()=>ICO.coin(26),   has:()=>S.user.streak>=7 },
+];
+function renderBadges(){
+  const w=$('badge-grid'); if(!w) return;
+  w.innerHTML='';
+  BADGES.forEach(b=>{
+    const got=!!b.has();
+    const el=document.createElement('div');
+    el.className='badge '+(got?'got':'locked');
+    el.innerHTML='<div class="bi">'+b.ico()+'</div><b>'+b.name+'</b><span>'+b.desc+'</span>';
+    w.appendChild(el);
+  });
+}
+
 /* ================= AVATARS + ELO ================= */
 const AVATARS=['goblin','warlord','chief','skelking','brood','troll','ghoul','wraith','bone','spider','dragonet','slime'];
 const myAv=()=> PROFILE?.avatar || 'goblin';
-function avHTML(key,size){ return mon(key||'goblin',size); }
+function avHTML(key,size){
+  const u=PROFILE?.avatar_url;
+  if(u) return '<img src="'+u+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  return mon(key||'goblin',size);
+}
 function paintAvatars(){
   const k=myAv();
   const set=(id,s)=>{ const el=$(id); if(el) el.innerHTML=avHTML(k,s); };
   document.querySelectorAll('.statusbar .avatar').forEach(el=>{ el.innerHTML=avHTML(k,30); });
   document.querySelectorAll('.prof-hero .avatar').forEach(el=>{ el.innerHTML=avHTML(k,56); });
   set('lp-me-av',34); set('d-me-av',46);
+  const pv=$('pfp-view');
+  if(pv) pv.innerHTML = PROFILE?.avatar_url
+    ? '<img src="'+PROFILE.avatar_url+'">'
+    : mon(k,62);
 }
 function renderAvPicker(){
   const w=$('av-grid'); if(!w) return;
@@ -1707,7 +2100,7 @@ function d_countdown(at){
 }
 function onOppRep(n){
   const d=S.duel; if(!d||!d.running) return;
-  d.op=n; syncDuelUI();
+  d.op=n; syncDuelUI(); pump('d-oreps');
   setLead(); beep(300,.05,'sine');
   if(d.op>=d.target) endDuel(false);
 }
@@ -1826,8 +2219,9 @@ function duelRep(){
   d.tBase=S.user.avgRepSec;                     /* bot keeps matching player pace */
   S.user.todayReps++; S.user.cal=Math.round(S.user.cal+0.35);
   questProgress('Push-ups');
-  syncDuelUI();
+  syncDuelUI(); pump('d-myreps');
   const br=$('d-bigrep'); br.classList.remove('bump'); void br.offsetWidth; br.classList.add('bump');
+  burstAt(br,'#F59E0B',9);
   beep(520,.07); setLead();
   if(d.my>=d.target){ if(d.live&&RT.ch){ try{ RT.ch.send({type:'broadcast',event:'done',payload:{}}); }catch(e){} } endDuel(true); }
 }
@@ -1849,6 +2243,7 @@ function endDuel(win){
   const xp=win?150:50, coins=win?60:15;
   addXP(xp); addCoins(coins);
   const eloD=applyElo(win, !!d.live);
+  if(win&&PROFILE){ PROFILE.duel_wins=(PROFILE.duel_wins||0)+1; }
   vicCtx={ origin:'arena', headline:win?'VICTORY!':'DEFEAT', stars:win?3:1,
            reps:d.my, sec:d.sec, coins, win };
   S.duel=null; lastLead=0; RT.started=false;
@@ -1928,7 +2323,11 @@ function renderProfile(){
   $('p-title').textContent=S.user.title;
   $('p-pet').innerHTML=S.user.pet?mon(S.user.pet,24):'';
   applyFrame($('prof-av'));
-  renderAvPicker(); paintAvatars();
+  renderAvPicker(); paintAvatars(); renderBadges();
+  const bi=$('bio-in'); if(bi && document.activeElement!==bi){ bi.value=PROFILE?.bio||''; $('bio-count').textContent=(PROFILE?.bio||'').length; }
+  $('p-total').textContent=(PROFILE?.total_reps||0).toLocaleString('en-US');
+  $('p-streak').textContent=S.user.streak+'🔥';
+  if($('set-email')) $('set-email').textContent=ME?.email||'—';
   renderShop('shop-frames',S.shop.frames,'frame');
   renderShop('shop-titles',S.shop.titles,'title');
   renderShop('shop-pets',S.shop.pets,'pet');
@@ -2234,7 +2633,8 @@ async function loadProfile(){
   if(data){ PROFILE=data; }
   else {
     PROFILE={ id:ME.id, username:ME.user_metadata?.username||'Fighter', level:1, xp:0, coins:200,
-      streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null };
+      streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null,
+      elo:1000, bio:'', avatar_url:null, duel_wins:0, bosses:0, difficulty:'normal' };
     await sb.from('profiles').upsert(PROFILE);
   }
   /* apply to game state */
@@ -2251,6 +2651,13 @@ function saveProfile(){
     PROFILE.total_reps=(PROFILE.total_reps||0);
     try{ await sb.from('profiles').upsert(PROFILE); }catch(e){}
   },800);
+}
+function confirmLogout(){
+  SFX.click();
+  openModal('<div class="em">🚪</div><h3 class="hdr">Sign out?</h3>'+
+    '<p>Your progress is saved to your account — you can sign back in any time.</p>'+
+    '<button class="btn b-red" onclick="logout()">SIGN OUT</button>'+
+    '<button class="btn b-ghost" style="margin-top:10px" onclick="closeModal()">STAY</button>');
 }
 async function logout(){
   try{ await sb?.auth.signOut(); }catch(e){}
@@ -2444,21 +2851,58 @@ function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show');
   });
 })();
 
+/* ================= LOADING SCREEN ================= */
+const LD_TIPS=[
+  'Every clean rep is one point of damage.',
+  'Stall too long and your stamina drains.',
+  '14% of your reps land as CRITS for triple damage.',
+  'Harder difficulty means far more XP and coins.',
+  'Beat a friend in a live duel to climb the ELO ladder.',
+  'Bosses wait at the end of every 6th episode.',
+];
+let ldVal=0, ldTimer=null, ldTipTimer=null;
+function ldSet(p,msg){
+  ldVal=Math.max(ldVal,Math.min(100,p));
+  $('ld-fill').style.width=ldVal+'%';
+  $('ld-pct').textContent=Math.round(ldVal)+'%';
+  if(msg) $('ld-tip').textContent=msg;
+}
+function ldStart(){
+  let i=Math.floor(Math.random()*LD_TIPS.length);
+  $('ld-tip').textContent=LD_TIPS[i];
+  ldTipTimer=setInterval(()=>{
+    i=(i+1)%LD_TIPS.length;
+    const t=$('ld-tip'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
+    t.textContent=LD_TIPS[i];
+  },2600);
+  ldTimer=setInterval(()=>{ if(ldVal<88) ldSet(ldVal+Math.random()*7); },260);
+}
+function ldDone(){
+  clearInterval(ldTimer); clearInterval(ldTipTimer);
+  ldSet(100,'Ready.');
+  setTimeout(()=>{ $('loader').classList.add('gone'); }, 420);
+}
+
 /* ================= BOOT ================= */
 document.body.classList.add('locked');
 async function boot(){
+  ldStart();
   goFlow('scr-splash');
-  const minSplash=new Promise(r=>setTimeout(r,1200));
+  const minSplash=new Promise(r=>setTimeout(r,1500));
+  ldSet(25,'Connecting to the arena…');
   let session=null;
   try{ session=(await sb?.auth.getSession())?.data?.session||null; }catch(e){}
+  ldSet(55,'Checking your account…');
   await minSplash;
   if(session){
     ME=session.user;
+    ldSet(75,'Loading your fighter…');
     await loadProfile();
     enterApp();
   } else {
     goFlow('scr-auth');
   }
+  ldDone();
 }
 boot();
 renderHome();
