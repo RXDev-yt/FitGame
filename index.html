@@ -166,10 +166,11 @@
   let conn = null;
   let localStream = null;
   let shortCode = "";
-  const ROOM_PREFIX = "kliky-v5-";
+  const ROOM_PREFIX = "kliky-v6-";
 
   let pushupState = "TOP";
-  const ANGLE_TOP = 140;     
+  // Eased thresholds: easier push-up completion at top position
+  const ANGLE_TOP = 125;     
   const ANGLE_BOTTOM = 110;   
 
   function generate4DigitCode() {
@@ -380,8 +381,8 @@
     pose.setOptions({
       modelComplexity: 1,
       smoothLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
+      minDetectionConfidence: 0.4,
+      minTrackingConfidence: 0.4
     });
 
     pose.onResults((results) => {
@@ -402,11 +403,11 @@
         const lHip = results.poseLandmarks[23];
         const rHip = results.poseLandmarks[24];
 
-        // Evaluate best-visible arm
-        const leftArmVisible = lShoulder && lElbow && lWrist && lShoulder.visibility > 0.4 && lElbow.visibility > 0.4;
-        const rightArmVisible = rShoulder && rElbow && rWrist && rShoulder.visibility > 0.4 && rElbow.visibility > 0.4;
+        // Evaluate best-visible arm (uses threshold visibility)
+        const leftArmVisible = lShoulder && lElbow && lWrist && lShoulder.visibility > 0.3 && lElbow.visibility > 0.3;
+        const rightArmVisible = rShoulder && rElbow && rWrist && rShoulder.visibility > 0.3 && rElbow.visibility > 0.3;
 
-        if ((leftArmVisible || rightArmVisible) && lHip && rHip) {
+        if (leftArmVisible || rightArmVisible) {
           let avgElbowAngle = 180;
           if (leftArmVisible && rightArmVisible) {
             avgElbowAngle = (calculateAngle(lShoulder, lElbow, lWrist) + calculateAngle(rShoulder, rElbow, rWrist)) / 2;
@@ -416,15 +417,16 @@
             avgElbowAngle = calculateAngle(rShoulder, rElbow, rWrist);
           }
 
-          // Torso Tilt Angle (Flat horizontal = ~0-35°, Sitting/Standing = >60°)
-          const avgShoulder = { x: (lShoulder.x + rShoulder.x)/2, y: (lShoulder.y + rShoulder.y)/2 };
-          const avgHip = { x: (lHip.x + rHip.x)/2, y: (lHip.y + rHip.y)/2 };
-          
-          const dx = Math.abs(avgShoulder.x - avgHip.x);
-          const dy = Math.abs(avgShoulder.y - avgHip.y);
-          const torsoAngleDegrees = Math.atan2(dy, dx) * (180 / Math.PI);
-
-          const isUpright = torsoAngleDegrees > 60; 
+          // Check posture to avoid counting while standing/sitting
+          let isUpright = false;
+          if (lHip && rHip && lShoulder && rShoulder) {
+            const avgShoulder = { x: (lShoulder.x + rShoulder.x)/2, y: (lShoulder.y + rShoulder.y)/2 };
+            const avgHip = { x: (lHip.x + rHip.x)/2, y: (lHip.y + rHip.y)/2 };
+            const dx = Math.abs(avgShoulder.x - avgHip.x);
+            const dy = Math.abs(avgShoulder.y - avgHip.y);
+            const torsoAngleDegrees = Math.atan2(dy, dx) * (180 / Math.PI);
+            isUpright = torsoAngleDegrees > 65;
+          }
 
           if (isUpright) {
             warnEl.style.display = "block";
@@ -462,15 +464,9 @@
             canvasCtx.stroke();
           }
 
-          // Draw Torso
-          canvasCtx.beginPath();
-          canvasCtx.moveTo(avgShoulder.x * canvasElement.width, avgShoulder.y * canvasElement.height);
-          canvasCtx.lineTo(avgHip.x * canvasElement.width, avgHip.y * canvasElement.height);
-          canvasCtx.stroke();
-
         } else {
           warnEl.style.display = "block";
-          warnEl.innerText = "POSITION CAMERA TO SHOW UPPER BODY & HIPS";
+          warnEl.innerText = "POSITION CAMERA TO SHOW YOUR UPPER BODY";
         }
       } else {
         warnEl.style.display = "block";
