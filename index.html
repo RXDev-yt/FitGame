@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kliky Arena — Reliable 1v1 Push-Up Tracker</title>
+<title>Kliky Arena — Ultra Fast 1v1 Push-Up Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
@@ -26,7 +26,6 @@
     --dim:#94A3B8;
     --line:rgba(241,245,249,0.12);
     --grad-purple:linear-gradient(135deg,#8B5CF6,#6D28D9);
-    --grad-cta:linear-gradient(135deg,#8B5CF6 10%,#F59E0B 120%);
   }
   *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
   html,body{ height:100%; }
@@ -78,6 +77,8 @@
   .lead-tag.ahead{ color:var(--green); border-color:rgba(16,185,129,.5); }
   .lead-tag.behind{ color:var(--red); border-color:rgba(239,68,68,.5); }
   .status-pill{ font-size:11px; font-weight:800; padding:4px 8px; border-radius:8px; background:var(--card-2); text-align:center; margin-top:6px; }
+  
+  .warn-banner{ position:absolute; top:40%; left:50%; transform:translate(-50%, -50%); background:rgba(239,68,68,0.9); color:#fff; font-weight:900; font-size:13px; padding:8px 16px; border-radius:99px; z-index:10; display:none; pointer-events:none; text-align:center; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
 </style>
 </head>
 <body>
@@ -85,8 +86,8 @@
 <div id="app">
   <!-- ARENA & ROOM SETUP -->
   <div id="scr-arena" class="screen active">
-    <h2 style="margin-bottom:4px;">KLIKY DUEL (ONLY PUSH-UPS)</h2>
-    <p class="dim" style="margin-bottom:16px;">Pose tracking monitors elbow angles to auto-count your reps.</p>
+    <h2 style="margin-bottom:4px;">KLIKY DUEL (FAST & STRICT)</h2>
+    <p class="dim" style="margin-bottom:16px;">Dual-arm pose verification + Ultra-fast WebRTC pairing.</p>
 
     <div class="card">
       <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">1. MATCH DURATION</div>
@@ -100,10 +101,10 @@
     <div class="card">
       <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">2. MULTIPLAYER ROOM</div>
       <div style="font-size:14px; font-weight:800; margin-bottom:8px; text-align:center;">
-        YOUR CODE: <span class="gold" id="my-short-code" style="font-size:20px; letter-spacing:2px;">...</span>
+        YOUR CODE: <span class="gold" id="my-short-code" style="font-size:22px; letter-spacing:3px;">...</span>
       </div>
       <input type="text" id="friend-id-input" class="inp-box" maxlength="4" placeholder="4-DIGIT CODE">
-      <button class="btn b-purple" onclick="connectToFriend()">CONNECT TO FRIEND</button>
+      <button class="btn b-purple" onclick="connectToFriend()">INSTANT CONNECT</button>
       <div class="status-pill" id="conn-status" style="color:var(--dim);">Status: Disconnected</div>
     </div>
 
@@ -132,6 +133,7 @@
     <div class="duel-half me">
       <video id="duel-webcam" autoplay playsinline muted></video>
       <canvas class="pose-canvas" id="poseCanvas"></canvas>
+      <div class="warn-banner" id="cheat-warn">GET INTO PUSH-UP POSITION</div>
       <div class="duel-ov">
         <div class="duel-top">
           <span class="live-b" style="background:var(--purple);">YOU</span>
@@ -160,18 +162,16 @@
   let oppReps = 0;
   let timerInterval = null;
   
-  // PeerJS Connections
   let peer = null;
   let conn = null;
   let shortCode = "";
-  const ROOM_PREFIX = "kliky-v1-";
+  const ROOM_PREFIX = "kliky-v4-";
 
-  // Pose Tracking State
+  // Dual-Arm Pushup Detection Logic
   let pushupState = "TOP";
-  const ANGLE_TOP = 150;
-  const ANGLE_BOTTOM = 95;
+  const ANGLE_TOP = 150;     // Extended arms
+  const ANGLE_BOTTOM = 100;   // Chest dropped down
 
-  // Generate simple 4-digit code
   function generate4DigitCode() {
     return Math.floor(1000 + Math.random() * 9000).toString();
   }
@@ -180,19 +180,22 @@
     shortCode = generate4DigitCode();
     document.getElementById('my-short-code').innerText = shortCode;
 
-    // Use reliable PeerJS servers with fallback options
+    // Fast-path configuration using multiple low-latency STUN nodes
     peer = new Peer(ROOM_PREFIX + shortCode, {
-      debug: 1,
+      debug: 0,
       config: {
         iceServers: [
           { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' }
-        ]
+          { urls: 'stun:stun1.l.google.com:19302' },
+          { urls: 'stun:stun2.l.google.com:19302' },
+          { urls: 'stun:global.stun.twilio.com:3478' }
+        ],
+        sdpSemantics: 'unified-plan'
       }
     });
 
     peer.on('open', () => {
-      updateStatus("Ready for Connection", "var(--green)");
+      updateStatus("Ready", "var(--green)");
     });
 
     peer.on('connection', (c) => {
@@ -201,12 +204,8 @@
     });
 
     peer.on('error', (err) => {
-      if (err.type === 'unavailable-id') {
-        // Regenerate code if collision occurs
-        initPeer();
-      } else {
-        updateStatus("Connection Error. Retrying...", "var(--red)");
-      }
+      if (err.type === 'unavailable-id') initPeer();
+      else updateStatus("Retry connection", "var(--red)");
     });
   }
 
@@ -220,16 +219,18 @@
     const inputCode = document.getElementById('friend-id-input').value.trim();
     if (inputCode.length === 4) {
       updateStatus("Connecting...", "var(--gold)");
-      conn = peer.connect(ROOM_PREFIX + inputCode, { reliable: true });
+      // Disable WebRTC ordered buffer overhead for zero-delay synchronization
+      conn = peer.connect(ROOM_PREFIX + inputCode, { 
+        reliable: false, 
+        serialization: 'json' 
+      });
       setupPeerListeners();
-    } else {
-      alert("Please enter a valid 4-digit code.");
     }
   }
 
   function setupPeerListeners() {
     conn.on('open', () => {
-      updateStatus("Connected to Friend!", "var(--green)");
+      updateStatus("Connected!", "var(--green)");
     });
 
     conn.on('data', (data) => {
@@ -243,7 +244,7 @@
     });
 
     conn.on('close', () => {
-      updateStatus("Friend Disconnected", "var(--red)");
+      updateStatus("Friend left", "var(--red)");
     });
   }
 
@@ -334,7 +335,6 @@
     switchTab('scr-victory');
   }
 
-  // --- MEDIAPIPE PUSH-UP POSE TRACKING ---
   function calculateAngle(A, B, C) {
     const radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
     let angle = Math.abs((radians * 180.0) / Math.PI);
@@ -346,6 +346,7 @@
     const videoElement = document.getElementById('duel-webcam');
     const canvasElement = document.getElementById('poseCanvas');
     const canvasCtx = canvasElement.getContext('2d');
+    const warnEl = document.getElementById('cheat-warn');
 
     const pose = new Pose({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
@@ -354,8 +355,8 @@
     pose.setOptions({
       modelComplexity: 1,
       smoothLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.6
     });
 
     pose.onResults((results) => {
@@ -365,31 +366,86 @@
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
       if (results.poseLandmarks) {
-        // Track shoulder (12), elbow (14), and wrist (16)
-        const shoulder = results.poseLandmarks[12];
-        const elbow = results.poseLandmarks[14];
-        const wrist = results.poseLandmarks[16];
+        // Left arm joints
+        const lShoulder = results.poseLandmarks[11];
+        const lElbow = results.poseLandmarks[13];
+        const lWrist = results.poseLandmarks[15];
 
-        if (shoulder && elbow && wrist) {
-          const elbowAngle = calculateAngle(shoulder, elbow, wrist);
+        // Right arm joints
+        const rShoulder = results.poseLandmarks[12];
+        const rElbow = results.poseLandmarks[14];
+        const rWrist = results.poseLandmarks[16];
 
-          // Push-Up State Machine logic
-          if (elbowAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
-            pushupState = "BOTTOM";
-          } else if (elbowAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
-            pushupState = "TOP";
-            countPushupRep();
+        // Hips (for posture checking)
+        const lHip = results.poseLandmarks[23];
+        const rHip = results.poseLandmarks[24];
+
+        const hasLeftArm = lShoulder && lElbow && lWrist && lShoulder.visibility > 0.5 && lElbow.visibility > 0.5;
+        const hasRightArm = rShoulder && rElbow && rWrist && rShoulder.visibility > 0.5 && rElbow.visibility > 0.5;
+        const hasHips = lHip && rHip && lHip.visibility > 0.4;
+
+        if (hasLeftArm && hasRightArm) {
+          const leftAngle = calculateAngle(lShoulder, lElbow, lWrist);
+          const rightAngle = calculateAngle(rShoulder, rElbow, rWrist);
+          const avgAngle = (leftAngle + rightAngle) / 2;
+
+          // FAILSAFE 1: Wrist vs Hip/Shoulder posture check
+          let isValidPosture = true;
+          if (hasHips) {
+            const avgWristY = (lWrist.y + rWrist.y) / 2;
+            const avgShoulderY = (lShoulder.y + rShoulder.y) / 2;
+            const avgHipY = (lHip.y + rHip.y) / 2;
+            
+            // Rejects standing upright with hands above shoulders
+            if (avgWristY < avgShoulderY && avgShoulderY < avgHipY) {
+              isValidPosture = false;
+            }
           }
 
-          // Render skeleton line
-          canvasCtx.strokeStyle = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
+          // FAILSAFE 2: Arm symmetry check (prevents single-arm flailing)
+          const armDifference = Math.abs(leftAngle - rightAngle);
+          const isBalanced = armDifference < 45;
+
+          if (!isValidPosture || !isBalanced) {
+            warnEl.style.display = "block";
+            warnEl.innerText = !isValidPosture ? "GET ON THE FLOOR!" : "USE BOTH ARMS!";
+          } else {
+            warnEl.style.display = "none";
+
+            // Push-Up State Machine
+            if (avgAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
+              pushupState = "BOTTOM";
+            } else if (avgAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
+              pushupState = "TOP";
+              countPushupRep();
+            }
+          }
+
+          // Render active skeletal structure
+          const lineCol = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
+          canvasCtx.strokeStyle = lineCol;
           canvasCtx.lineWidth = 6;
+
+          // Left Arm
           canvasCtx.beginPath();
-          canvasCtx.moveTo(shoulder.x * canvasElement.width, shoulder.y * canvasElement.height);
-          canvasCtx.lineTo(elbow.x * canvasElement.width, elbow.y * canvasElement.height);
-          canvasCtx.lineTo(wrist.x * canvasElement.width, wrist.y * canvasElement.height);
+          canvasCtx.moveTo(lShoulder.x * canvasElement.width, lShoulder.y * canvasElement.height);
+          canvasCtx.lineTo(lElbow.x * canvasElement.width, lElbow.y * canvasElement.height);
+          canvasCtx.lineTo(lWrist.x * canvasElement.width, lWrist.y * canvasElement.height);
           canvasCtx.stroke();
+
+          // Right Arm
+          canvasCtx.beginPath();
+          canvasCtx.moveTo(rShoulder.x * canvasElement.width, rShoulder.y * canvasElement.height);
+          canvasCtx.lineTo(rElbow.x * canvasElement.width, rElbow.y * canvasElement.height);
+          canvasCtx.lineTo(rWrist.x * canvasElement.width, rWrist.y * canvasElement.height);
+          canvasCtx.stroke();
+        } else {
+          warnEl.style.display = "block";
+          warnEl.innerText = "STEP BACK — SHOW BOTH ARMS";
         }
+      } else {
+        warnEl.style.display = "block";
+        warnEl.innerText = "NO POSE DETECTED";
       }
       canvasCtx.restore();
     });
@@ -404,7 +460,6 @@
     camera.start();
   }
 
-  // Initialize App Peer Connection
   initPeer();
 </script>
 </body>
