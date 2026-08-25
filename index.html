@@ -194,7 +194,7 @@
   .found-card{ animation:si .3s ease; }
 
   /* ---- DUEL (split) ---- */
-  #scr-duel{ padding:12px 12px 14px; display:none; flex-direction:column; }
+  #scr-duel{ padding:12px 12px calc(88px + env(safe-area-inset-bottom)); display:none; flex-direction:column; }
   #scr-duel.active{ display:flex; }
   .duel-half{ flex:1; position:relative; border-radius:18px; overflow:hidden; border:2px solid var(--line); background:#000; min-height:0; }
   .duel-half.opp{ border-color:rgba(239,68,68,.6); }
@@ -616,16 +616,33 @@
 
   .duel-stage{ flex:1; position:relative; border-radius:20px; overflow:hidden; background:#000;
     border:1px solid var(--line); min-height:0; }
-  .duel-stage video{ width:100%; height:100%; object-fit:cover; }
-  .bigrep{ position:absolute; left:50%; bottom:16px; transform:translateX(-50%); z-index:6;
-    width:112px; height:112px; border-radius:50%; background:rgba(245,158,11,.92);
-    border:5px solid #FFE7A8; display:flex; align-items:center; justify-content:center;
-    font-size:44px; font-weight:900; color:#26190A; box-shadow:0 0 34px rgba(245,158,11,.75); }
-  .bigrep.bump{ animation:bmp .18s; }
-  .stage-tag{ position:absolute; top:10px; left:10px; z-index:6; font-size:10px; font-weight:900;
+  .duel-stage video{ width:100%; height:100%; object-fit:cover; background:#000; }
+  /* hide every native media control (iOS shows a big play button on empty/unstarted video) */
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-start-playback-button,
+  video::-webkit-media-controls-play-button,
+  video::-webkit-media-controls-panel,
+  video::-webkit-media-controls-overlay-play-button{ display:none !important; -webkit-appearance:none; opacity:0; }
+  video{ pointer-events:none; }
+  video.live{ opacity:1; }
+  #d-video, #b-video{ opacity:0; transition:opacity .3s; }
+  /* combo popup — only visible while you're actually landing reps */
+  .combo{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); z-index:7;
+    display:flex; flex-direction:column; align-items:center; gap:2px; pointer-events:none;
+    opacity:0; transition:opacity .35s ease; }
+  .combo.show{ opacity:1; }
+  .combo-n{ font-size:74px; font-weight:900; line-height:.9; color:#FCD34D;
+    text-shadow:0 5px 0 rgba(0,0,0,.45), 0 0 40px rgba(245,158,11,.9); }
+  .combo-lbl{ font-size:13px; font-weight:900; letter-spacing:.24em; color:#fff;
+    text-shadow:0 2px 6px rgba(0,0,0,.8); }
+  .combo.pop .combo-n{ animation:comboPop .28s cubic-bezier(.2,.9,.3,1.7); }
+  @keyframes comboPop{ 0%{ transform:scale(.55) rotate(-8deg); } 60%{ transform:scale(1.28) rotate(3deg); } }
+  .combo.hot .combo-n{ color:#FF7A45; text-shadow:0 5px 0 rgba(0,0,0,.45), 0 0 46px rgba(239,68,68,.95); }
+  .stage-tag{ position:absolute; bottom:12px; right:12px; z-index:6; font-size:10px; font-weight:900;
     letter-spacing:.1em; padding:6px 11px; border-radius:99px; background:rgba(0,0,0,.55); backdrop-filter:blur(4px); }
-  .lead-float{ position:absolute; top:10px; right:10px; z-index:6; font-size:11.5px; font-weight:900;
-    padding:6px 12px; border-radius:99px; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); }
+  .lead-float{ position:absolute; bottom:12px; left:12px; z-index:6; font-size:12px; font-weight:900;
+    padding:7px 14px; border-radius:99px; background:rgba(0,0,0,.65); backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.12); }
   .lead-float.ahead{ color:var(--green); } .lead-float.behind{ color:var(--red); }
   .lead-float.flash{ animation:bmp .3s; }
 
@@ -653,7 +670,7 @@
   .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block;
     box-shadow:0 0 9px var(--green); animation:pulseLive 1.3s infinite; }
   @keyframes pulseLive{ 50%{ opacity:.25; } }
-  .rt-badge{ position:absolute; top:10px; right:10px; z-index:5; font-size:9.5px; font-weight:900; letter-spacing:.1em;
+  .rt-badge{ position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:5; font-size:9.5px; font-weight:900; letter-spacing:.1em;
     padding:5px 10px; border-radius:99px; background:rgba(16,185,129,.2); color:var(--green); }
 
   @media (prefers-reduced-motion:reduce){
@@ -783,7 +800,7 @@
   </div>
 
   <div class="viewport" id="b-vp">
-    <video id="b-video" autoplay playsinline muted></video>
+    <video id="b-video" autoplay playsinline muted disablepictureinpicture controlslist="nodownload noplaybackrate nofullscreen"></video>
     <canvas class="pose-canvas" id="b-canvas"></canvas>
     <div class="vp-fallback" id="b-fb" style="display:none">
       <span style="font-size:60px;opacity:.4">🧍</span>
@@ -883,14 +900,17 @@
         </div>
       </div>
     </div>
-    <video id="d-video" autoplay playsinline muted></video>
+    <video id="d-video" autoplay playsinline muted disablepictureinpicture controlslist="nodownload noplaybackrate nofullscreen"></video>
     <canvas class="pose-canvas" id="d-canvas"></canvas>
     <div class="vp-fallback" id="d-fb" style="display:none"><span style="font-size:54px;opacity:.4">🧍</span></div>
     <button class="duel-tapzone" id="d-tapzone" onclick="duelTap()" aria-label="Tap to count rep"></button>
     <span class="stage-tag" id="d-track">Loading AI…</span>
     <span class="rt-badge" id="rt-badge" style="display:none">● LIVE OPPONENT</span>
     <span class="lead-float" id="d-lead">EVEN</span>
-    <div class="bigrep" id="d-bigrep">0</div>
+    <div class="combo" id="d-combo">
+      <div class="combo-n" id="d-combo-n">2</div>
+      <div class="combo-lbl" id="d-combo-l">COMBO</div>
+    </div>
   </div>
 
   <div class="row" style="gap:10px;margin-top:10px">
@@ -2228,6 +2248,7 @@ function applyElo(win,live){
 }
 function resetDuelHud(){
   const d=S.duel; if(!d) return;
+  resetCombo();
   $('d-me-name').textContent=PROFILE?.username||'You';
   $('d-me-elo').textContent=myElo();
   $('d-me-av').innerHTML=avHTML(myAv(),46);
@@ -2457,6 +2478,30 @@ function scheduleBotRep(){
   },delay);
   d.timers.push(t);
 }
+/* combo: consecutive reps within a window; only visible while you're landing damage */
+let comboN=0, comboT=null, comboHide=null;
+const COMBO_WINDOW=4200;
+function hitCombo(){
+  comboN++;
+  clearTimeout(comboT); clearTimeout(comboHide);
+  const box=$('d-combo'), n=$('d-combo-n'), l=$('d-combo-l');
+  if(!box) return;
+  if(comboN>=2){
+    n.textContent='x'+comboN;
+    l.textContent = comboN>=10 ? 'UNSTOPPABLE' : comboN>=6 ? 'ON FIRE' : 'COMBO';
+    box.classList.toggle('hot',comboN>=6);
+    box.classList.add('show');
+    box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+    if(comboN>=6) burstAt(box,'#FF7A45',10);
+  }
+  /* combo expires if you stop repping */
+  comboT=setTimeout(()=>{ comboN=0; hideCombo(); }, COMBO_WINDOW);
+  /* popup fades shortly after each hit — it's a damage flash, not a permanent HUD */
+  comboHide=setTimeout(hideCombo, 1100);
+}
+function hideCombo(){ const b=$('d-combo'); if(b) b.classList.remove('show'); }
+function resetCombo(){ comboN=0; clearTimeout(comboT); clearTimeout(comboHide); hideCombo(); }
+
 function duelRep(){
   const d=S.duel; if(!d||!d.running) return;
   d.my++; recordPace(d.myTs);
@@ -2465,9 +2510,9 @@ function duelRep(){
   S.user.todayReps++; S.user.cal=Math.round(S.user.cal+0.35);
   questProgress('Push-ups');
   syncDuelUI(); pump('d-myreps');
-  const br=$('d-bigrep'); br.classList.remove('bump'); void br.offsetWidth; br.classList.add('bump');
-  burstAt(br,'#F59E0B',9);
-  beep(520,.07); setLead();
+  hitCombo();
+  burstAt($('d-myreps'),'#F59E0B',9);
+  SFX.rep(); setLead();
   if(d.my>=d.target){ if(d.live&&RT.ch){ try{ RT.ch.send({type:'broadcast',event:'done',payload:{}}); }catch(e){} } endDuel(true); }
 }
 let lastLead=0;
@@ -2493,7 +2538,7 @@ function endDuel(win){
   if(win&&PROFILE){ PROFILE.duel_wins=(PROFILE.duel_wins||0)+1; }
   vicCtx={ origin:'arena', headline:win?'VICTORY!':'DEFEAT', stars:win?3:1,
            reps:d.my, sec:d.sec, coins, win };
-  S.duel=null; lastLead=0; RT.started=false;
+  S.duel=null; lastLead=0; RT.started=false; resetCombo();
   try{ RT.ch?.unsubscribe(); }catch(e){} RT.ch=null;
   $('rt-badge').style.display='none';
   saveProfile();
@@ -2688,7 +2733,9 @@ const PoseEngine={
       this.stream=await navigator.mediaDevices.getUserMedia({
         video:{ facingMode:'user', width:1280, height:720 } });
     }catch(e){ onStatus('tap','Tap mode — camera blocked'); return false; }
-    video.srcObject=this.stream; video.play();
+    video.srcObject=this.stream;
+    video.play().catch(()=>{});
+    video.classList.add('live');
     this.target={ video, canvas, ctx:canvas.getContext('2d'),
       cfg:EX_CFG[exercise]||EX_CFG['Push-ups'], onRep, onStatus,
       phase:'READY', lastRep:0, lowVisSince:0, armed:false, extSince:0, jointName:(EX_CFG[exercise]||EX_CFG['Push-ups']).joint };
@@ -2796,7 +2843,7 @@ const PoseEngine={
     this.cam=null;
     this.stream?.getTracks().forEach(tr=>tr.stop());
     this.stream=null;
-    if(t){ try{ t.video.srcObject=null; t.ctx.clearRect(0,0,t.canvas.width,t.canvas.height); }catch(e){} }
+    if(t){ try{ t.video.classList.remove('live'); t.video.srcObject=null; t.ctx.clearRect(0,0,t.canvas.width,t.canvas.height); }catch(e){} }
   },
 };
 function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/ids.length; }
@@ -3165,7 +3212,7 @@ function initCam(vid,fbId){
   const v=$(vid), fb=$(fbId);
   if(!navigator.mediaDevices?.getUserMedia){ v.style.display='none'; fb.style.display='flex'; return; }
   navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}})
-    .then(st=>{ cams.push(st); v.srcObject=st; v.style.display='block'; fb.style.display='none'; })
+    .then(st=>{ cams.push(st); v.srcObject=st; v.style.display='block'; v.classList.add('live'); v.play().catch(()=>{}); fb.style.display='none'; })
     .catch(()=>{ v.style.display='none'; fb.style.display='flex'; });
 }
 function stopCams(){ cams.forEach(s=>s.getTracks().forEach(t=>t.stop())); cams=[]; PoseEngine.stop(); releaseWake(); }
