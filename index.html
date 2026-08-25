@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Kliky Arena — 1v1 Push-Up Tracker</title>
+<title>Kliky Arena — Reliable 1v1 Push-Up Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
@@ -53,13 +53,12 @@
   .btn:active{ transform:scale(.97); }
   .b-purple{ background:var(--grad-purple); color:#fff; box-shadow:0 6px 18px rgba(139,92,246,.45); }
   .b-gold{ background:linear-gradient(135deg,#FCD34D,var(--gold)); color:#3A2503; text-shadow:none; box-shadow:0 6px 18px rgba(245,158,11,.4); }
-  .b-cta{ background:var(--grad-cta); color:#fff; box-shadow:0 0 26px rgba(245,158,11,.5); }
 
   .target-pills{ display:flex; gap:8px; margin-top:11px; }
   .tpill{ flex:1; text-align:center; font-weight:900; font-size:12.5px; padding:10px; border-radius:11px; background:var(--card-2); border:1.5px solid transparent; color:var(--dim); cursor:pointer; }
   .tpill.sel{ border-color:var(--gold); color:var(--gold); background:rgba(245,158,11,.1); }
 
-  .inp-box{ width:100%; padding:12px; border-radius:12px; background:var(--card-2); border:1px solid var(--line); margin-bottom:10px; text-align:center; font-weight:800; text-transform:uppercase; letter-spacing:2px; }
+  .inp-box{ width:100%; padding:12px; border-radius:12px; background:var(--card-2); border:1px solid var(--line); margin-bottom:10px; text-align:center; font-weight:900; font-size:20px; letter-spacing:6px; color:var(--gold); }
 
   /* DUEL SCREEN */
   #scr-duel{ padding:12px 12px 20px; display:none; flex-direction:column; height:100dvh; }
@@ -68,7 +67,7 @@
   .duel-half.opp{ border-color:rgba(239,68,68,.6); }
   .duel-half.me{ border-color:rgba(139,92,246,.7); margin-top:8px; }
   .duel-half video{ width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
-  .pose-canvas{ position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; }
+  .pose-canvas{ position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; transform:scaleX(-1); }
   .duel-ov{ position:absolute; inset:0; padding:10px; display:flex; flex-direction:column; justify-content:space-between; z-index:3; pointer-events:none; }
   .duel-top{ display:flex; align-items:center; gap:8px; }
   .live-b{ font-size:9px; font-weight:900; background:var(--red); padding:3px 8px; border-radius:99px; letter-spacing:.1em; }
@@ -78,6 +77,7 @@
   .lead-tag{ font-weight:900; font-size:13px; padding:5px 14px; border-radius:99px; background:var(--card-2); border:1px solid var(--line); }
   .lead-tag.ahead{ color:var(--green); border-color:rgba(16,185,129,.5); }
   .lead-tag.behind{ color:var(--red); border-color:rgba(239,68,68,.5); }
+  .status-pill{ font-size:11px; font-weight:800; padding:4px 8px; border-radius:8px; background:var(--card-2); text-align:center; margin-top:6px; }
 </style>
 </head>
 <body>
@@ -85,11 +85,11 @@
 <div id="app">
   <!-- ARENA & ROOM SETUP -->
   <div id="scr-arena" class="screen active">
-    <h2 style="margin-bottom:4px;">KLIKY (PUSH-UP) DUEL</h2>
-    <p class="dim" style="margin-bottom:16px;">Tracks your shoulder-elbow angle to auto-count reps.</p>
+    <h2 style="margin-bottom:4px;">KLIKY DUEL (ONLY PUSH-UPS)</h2>
+    <p class="dim" style="margin-bottom:16px;">Pose tracking monitors elbow angles to auto-count your reps.</p>
 
     <div class="card">
-      <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">1. SELECT DURATION</div>
+      <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">1. MATCH DURATION</div>
       <div class="target-pills">
         <div class="tpill sel" id="t-10" onclick="selectTime(10)">10 sec</div>
         <div class="tpill" id="t-30" onclick="selectTime(30)">30 sec</div>
@@ -99,9 +99,12 @@
 
     <div class="card">
       <div style="font-weight:900; font-size:12px; color:var(--dim); margin-bottom:8px;">2. MULTIPLAYER ROOM</div>
-      <div style="font-size:12px; margin-bottom:8px;" id="my-peer-id">My Room Code: <span class="gold">Generating...</span></div>
-      <input type="text" id="friend-id-input" class="inp-box" placeholder="ENTER FRIEND'S CODE">
+      <div style="font-size:14px; font-weight:800; margin-bottom:8px; text-align:center;">
+        YOUR CODE: <span class="gold" id="my-short-code" style="font-size:20px; letter-spacing:2px;">...</span>
+      </div>
+      <input type="text" id="friend-id-input" class="inp-box" maxlength="4" placeholder="4-DIGIT CODE">
       <button class="btn b-purple" onclick="connectToFriend()">CONNECT TO FRIEND</button>
+      <div class="status-pill" id="conn-status" style="color:var(--dim);">Status: Disconnected</div>
     </div>
 
     <button class="btn b-gold" style="margin-top:10px;" onclick="startPushupMatch()">START MATCH</button>
@@ -160,32 +163,75 @@
   // PeerJS Connections
   let peer = null;
   let conn = null;
+  let shortCode = "";
+  const ROOM_PREFIX = "kliky-v1-";
 
   // Pose Tracking State
   let pushupState = "TOP";
   const ANGLE_TOP = 150;
   const ANGLE_BOTTOM = 95;
 
-  // Initialize Peer Connection
-  peer = new Peer();
-  peer.on('open', (id) => {
-    document.getElementById('my-peer-id').innerHTML = `My Room Code: <span class="gold">${id}</span>`;
-  });
+  // Generate simple 4-digit code
+  function generate4DigitCode() {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  }
 
-  peer.on('connection', (c) => {
-    conn = c;
-    setupPeerListeners();
-  });
+  function initPeer() {
+    shortCode = generate4DigitCode();
+    document.getElementById('my-short-code').innerText = shortCode;
+
+    // Use reliable PeerJS servers with fallback options
+    peer = new Peer(ROOM_PREFIX + shortCode, {
+      debug: 1,
+      config: {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      }
+    });
+
+    peer.on('open', () => {
+      updateStatus("Ready for Connection", "var(--green)");
+    });
+
+    peer.on('connection', (c) => {
+      conn = c;
+      setupPeerListeners();
+    });
+
+    peer.on('error', (err) => {
+      if (err.type === 'unavailable-id') {
+        // Regenerate code if collision occurs
+        initPeer();
+      } else {
+        updateStatus("Connection Error. Retrying...", "var(--red)");
+      }
+    });
+  }
+
+  function updateStatus(msg, color) {
+    const el = document.getElementById('conn-status');
+    el.innerText = `Status: ${msg}`;
+    el.style.color = color || "var(--dim)";
+  }
 
   function connectToFriend() {
-    const friendId = document.getElementById('friend-id-input').value.trim();
-    if (friendId) {
-      conn = peer.connect(friendId);
+    const inputCode = document.getElementById('friend-id-input').value.trim();
+    if (inputCode.length === 4) {
+      updateStatus("Connecting...", "var(--gold)");
+      conn = peer.connect(ROOM_PREFIX + inputCode, { reliable: true });
       setupPeerListeners();
+    } else {
+      alert("Please enter a valid 4-digit code.");
     }
   }
 
   function setupPeerListeners() {
+    conn.on('open', () => {
+      updateStatus("Connected to Friend!", "var(--green)");
+    });
+
     conn.on('data', (data) => {
       if (data.type === 'REP_UPDATE') {
         oppReps = data.reps;
@@ -194,6 +240,10 @@
       } else if (data.type === 'START_MATCH') {
         runMatchTimer(data.duration);
       }
+    });
+
+    conn.on('close', () => {
+      updateStatus("Friend Disconnected", "var(--red)");
     });
   }
 
@@ -284,7 +334,7 @@
     switchTab('scr-victory');
   }
 
-  // --- MEDIAPIPE REAL POSE TRACKING ---
+  // --- MEDIAPIPE PUSH-UP POSE TRACKING ---
   function calculateAngle(A, B, C) {
     const radians = Math.atan2(C.y - B.y, C.x - B.x) - Math.atan2(A.y - B.y, A.x - B.x);
     let angle = Math.abs((radians * 180.0) / Math.PI);
@@ -315,7 +365,7 @@
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
       if (results.poseLandmarks) {
-        // Retrieve key joints (Right arm index: 12=Shoulder, 14=Elbow, 16=Wrist)
+        // Track shoulder (12), elbow (14), and wrist (16)
         const shoulder = results.poseLandmarks[12];
         const elbow = results.poseLandmarks[14];
         const wrist = results.poseLandmarks[16];
@@ -323,7 +373,7 @@
         if (shoulder && elbow && wrist) {
           const elbowAngle = calculateAngle(shoulder, elbow, wrist);
 
-          // State Machine Rep Count
+          // Push-Up State Machine logic
           if (elbowAngle <= ANGLE_BOTTOM && pushupState === "TOP") {
             pushupState = "BOTTOM";
           } else if (elbowAngle >= ANGLE_TOP && pushupState === "BOTTOM") {
@@ -331,7 +381,7 @@
             countPushupRep();
           }
 
-          // Draw skeleton overlay
+          // Render skeleton line
           canvasCtx.strokeStyle = pushupState === "BOTTOM" ? "#10B981" : "#8B5CF6";
           canvasCtx.lineWidth = 6;
           canvasCtx.beginPath();
@@ -353,6 +403,9 @@
     });
     camera.start();
   }
+
+  // Initialize App Peer Connection
+  initPeer();
 </script>
 </body>
 </html>
