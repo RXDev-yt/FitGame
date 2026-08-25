@@ -360,8 +360,83 @@
     color:var(--gold); padding:6px 14px; border-radius:99px; margin-bottom:14px; }
   body.locked #nav{ display:none; }
 
+  /* ---------- AMBIENT / POLISH ---------- */
+  #app::before{ content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
+    background:
+      radial-gradient(600px 300px at 15% -5%, rgba(139,92,246,.16), transparent 60%),
+      radial-gradient(500px 260px at 95% 8%, rgba(245,158,11,.10), transparent 60%); }
+  .screen{ z-index:1; }
+  .orb{ position:absolute; border-radius:50%; pointer-events:none; z-index:0; filter:blur(28px); opacity:.5;
+    animation:drift 14s ease-in-out infinite; }
+  @keyframes drift{ 50%{ transform:translate(18px,-26px) scale(1.15);} }
+
+  /* staggered entrance for cards */
+  .screen.active .card, .screen.active .qstat, .screen.active .mode-card, .screen.active .lb-row{
+    animation:riseIn .42s cubic-bezier(.2,.9,.3,1.1) backwards; }
+  .screen.active .card:nth-child(1){animation-delay:.02s} .screen.active .card:nth-child(2){animation-delay:.07s}
+  .screen.active .card:nth-child(3){animation-delay:.12s} .screen.active .card:nth-child(4){animation-delay:.17s}
+  .screen.active .card:nth-child(5){animation-delay:.22s}
+  @keyframes riseIn{ from{ opacity:0; transform:translateY(16px) scale(.985);} }
+
+  .btn{ position:relative; overflow:hidden; }
+  .btn::after{ content:""; position:absolute; top:0; left:-60%; width:40%; height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent); transform:skewX(-20deg);
+    animation:sheen 4.5s ease-in-out infinite; }
+  @keyframes sheen{ 0%,72%{ left:-60%; } 88%,100%{ left:130%; } }
+
+  .hdr.glow{ animation:hdrGlow 3.4s ease-in-out infinite; }
+  @keyframes hdrGlow{ 50%{ text-shadow:0 3px 0 rgba(0,0,0,.45),0 0 26px rgba(245,158,11,.55);} }
+  .pop{ animation:popIn .38s cubic-bezier(.2,.9,.3,1.4) backwards; }
+  @keyframes popIn{ from{ opacity:0; transform:scale(.86);} }
+  .float-slow{ animation:bob 3.2s ease-in-out infinite; }
+
+  /* ---------- ONBOARDING ---------- */
+  .obwrap{ flex:1; display:flex; flex-direction:column; padding:30px 24px calc(26px + env(safe-area-inset-bottom));
+    background:radial-gradient(circle at 50% 12%,#241458,var(--bg-dark)); overflow-y:auto; scrollbar-width:none; }
+  .obwrap::-webkit-scrollbar{ display:none; }
+  .ob-dots{ display:flex; gap:7px; justify-content:center; margin-bottom:24px; }
+  .ob-dots i{ width:26px; height:5px; border-radius:99px; background:var(--card-2); transition:background .3s; }
+  .ob-dots i.on{ background:var(--gold); box-shadow:0 0 12px rgba(245,158,11,.6); }
+  .ob-hero{ text-align:center; margin-bottom:20px; }
+  .ob-sprite{ width:120px; height:120px; margin:0 auto 16px; border-radius:34px; background:var(--card-solid);
+    border:2px solid rgba(139,92,246,.55); display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 46px rgba(139,92,246,.45); animation:bob 3s ease-in-out infinite; }
+  .ob-title{ font-size:25px; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.45); }
+  .ob-sub{ color:var(--dim); font-weight:800; font-size:13.5px; margin-top:9px; line-height:1.6; }
+  .ob-step{ display:none; animation:riseIn .4s cubic-bezier(.2,.9,.3,1.1); }
+  .ob-step.on{ display:block; }
+  .taste-row{ display:flex; gap:13px; align-items:center; background:var(--card-dark); border:1px solid var(--line);
+    border-radius:17px; padding:14px; margin-bottom:11px; animation:riseIn .45s backwards; }
+  .taste-row:nth-child(2){animation-delay:.08s} .taste-row:nth-child(3){animation-delay:.16s} .taste-row:nth-child(4){animation-delay:.24s}
+  .taste-ico{ width:46px; height:46px; border-radius:14px; background:var(--card-2); flex:none;
+    display:flex; align-items:center; justify-content:center; }
+  .taste-row b{ font-size:14px; display:block; }
+  .taste-row span{ font-size:12px; color:var(--dim); font-weight:700; }
+  .cam-state{ border-radius:18px; padding:18px; text-align:center; font-weight:800; font-size:13px; margin:16px 0; border:1.5px solid var(--line); background:var(--card-dark); }
+  .cam-state.ok{ border-color:rgba(16,185,129,.55); color:var(--green); }
+  .cam-state.bad{ border-color:rgba(239,68,68,.55); color:var(--red); }
+
+  /* ---------- DUEL LOBBY ---------- */
+  .code-box{ font-family:ui-monospace,Menlo,monospace; font-size:38px; font-weight:900; letter-spacing:10px;
+    color:var(--gold); background:var(--card-solid); border:1.5px dashed rgba(245,158,11,.55); border-radius:18px;
+    padding:18px; text-align:center; margin:14px 0; text-shadow:0 0 22px rgba(245,158,11,.5); }
+  .code-in{ width:100%; background:var(--card-dark); border:1.5px solid var(--line); border-radius:14px; padding:16px;
+    color:var(--text); font-family:ui-monospace,Menlo,monospace; font-size:26px; font-weight:900; letter-spacing:8px;
+    text-align:center; text-transform:uppercase; outline:none; }
+  .code-in:focus{ border-color:var(--gold); }
+  .lobby-players{ display:flex; align-items:center; justify-content:center; gap:16px; margin:18px 0; }
+  .lobby-p{ text-align:center; opacity:.35; transition:opacity .35s; }
+  .lobby-p.in{ opacity:1; }
+  .lobby-p .avatar{ margin:0 auto 7px; width:54px; height:54px; font-size:17px; }
+  .lobby-p b{ font-size:12.5px; display:block; }
+  .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block;
+    box-shadow:0 0 9px var(--green); animation:pulseLive 1.3s infinite; }
+  @keyframes pulseLive{ 50%{ opacity:.25; } }
+  .rt-badge{ position:absolute; top:10px; right:10px; z-index:5; font-size:9.5px; font-weight:900; letter-spacing:.1em;
+    padding:5px 10px; border-radius:99px; background:rgba(16,185,129,.2); color:var(--green); }
+
   @media (prefers-reduced-motion:reduce){
-    .conf,.b-cta,.node.act,.radar::after,.feed-fake{ animation:none; }
+    .conf,.b-cta,.node.act,.radar::after,.feed-fake,.btn::after,.orb,.hdr.glow,.float-slow{ animation:none; }
   }
 </style>
 </head>
@@ -386,10 +461,10 @@
 
   <div class="card boss-banner">
     <div class="row" style="gap:14px">
-      <div class="boss-sprite" id="db-sprite"></div>
+      <div class="boss-sprite float-slow" id="db-sprite"></div>
       <div class="grow">
         <div class="boss-tag">TODAY'S BOSS</div>
-        <div class="boss-nm" id="db-name">Goblin Chief</div>
+        <div class="boss-nm hdr glow" id="db-name">Goblin Chief</div>
         <div class="hp-line">
           <div class="t"><span class="red">HP</span><span id="db-hp">60 / 60</span></div>
           <div class="pbar fill-r"><i id="db-bar" style="width:100%"></i></div>
@@ -467,8 +542,8 @@
 
   <div class="card mode-card" style="border-color:rgba(245,158,11,.45)">
     <div class="row" style="gap:13px"><span class="em"><svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg></span>
-      <div class="grow"><b>1v1 Ranked Duel</b><p>Real-time rep race. First to 20 wins.</p></div>
-      <button class="btn b-gold b-sm" onclick="queueDuel()">QUEUE</button></div>
+      <div class="grow"><b>1v1 Ranked Duel</b><p>Live rep race vs a friend. First to 20 wins.</p></div>
+      <button class="btn b-gold b-sm" onclick="openLobby()">FIGHT</button></div>
   </div>
 </section>
 
@@ -532,7 +607,7 @@
 
 <!-- ============ 5. DUEL SPLIT SCREEN ============ -->
 <section class="screen" id="scr-duel">
-  <div class="duel-half opp">
+  <div class="duel-half opp"><span class="rt-badge" id="rt-badge" style="display:none">● LIVE OPPONENT</span>
     <div class="feed-fake"><span style="font-size:44px" id="d-oav-big">💪</span></div>
     <div class="duel-ov">
       <div class="duel-top"><span class="live-b">LIVE</span><span class="duel-nm" id="d-oname">IronPusher99</span><span class="duel-lvl" id="d-olvl">LVL 5</span></div>
@@ -701,6 +776,127 @@
     </div>
     <button class="btn b-ghost" style="margin-top:22px" onclick="backToLogin()">BACK TO LOG IN</button>
     <button class="btn b-purple" style="margin-top:10px" onclick="resendConfirm()" id="resend-btn">RESEND EMAIL</button>
+  </div>
+</section>
+
+<!-- ============ ONBOARDING ============ -->
+<section class="screen fullflow" id="scr-onboard">
+  <div class="obwrap">
+    <div class="ob-dots"><i id="od1" class="on"></i><i id="od2"></i><i id="od3"></i></div>
+
+    <!-- step 1: name -->
+    <div class="ob-step on" id="ob1">
+      <div class="ob-hero">
+        <div class="ob-sprite" id="ob-hero-art"></div>
+        <div class="ob-title hdr">Every hero needs a name</div>
+        <div class="ob-sub">This is the name other fighters see on the leaderboard and in duels.</div>
+      </div>
+      <div class="field">
+        <label>Your fighter name</label>
+        <input id="ob-name" type="text" maxlength="20" placeholder="IronPusher_CZ">
+      </div>
+      <div class="auth-err" id="ob-err"></div>
+      <button class="btn b-purple" onclick="obNext(1)">CONTINUE</button>
+    </div>
+
+    <!-- step 2: the taste -->
+    <div class="ob-step" id="ob2">
+      <div class="ob-hero">
+        <div class="ob-sprite" id="ob-goblin-art"></div>
+        <div class="ob-title hdr glow" id="ob-greet">Here's the deal, Fighter</div>
+        <div class="ob-sub">You're not opening a fitness app. You're stepping into an arena.</div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-ico" id="ti1"></div>
+        <div><b>Your push-ups are your sword</b><span>Every clean rep deals 1 damage to the monster</span></div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-ico" id="ti2"></div>
+        <div><b>The camera is the referee</b><span>AI watches your form — sloppy reps don't count</span></div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-ico" id="ti3"></div>
+        <div><b>54 episodes, 3 chapters</b><span>Goblin Caves → Crypt of Bones → Spiderfang Hollow</span></div>
+      </div>
+      <div class="taste-row">
+        <div class="taste-ico" id="ti4"></div>
+        <div><b>Real fighters, real duels</b><span>Race a friend live, 20 reps, first to finish wins</span></div>
+      </div>
+      <button class="btn b-purple" style="margin-top:16px" onclick="obNext(2)">I'M READY</button>
+    </div>
+
+    <!-- step 3: camera gate -->
+    <div class="ob-step" id="ob3">
+      <div class="ob-hero">
+        <div class="ob-sprite" id="ob-cam-art"></div>
+        <div class="ob-title hdr">One thing before you fight</div>
+        <div class="ob-sub">RepQuest counts your reps with the camera. Nothing is recorded, uploaded, or saved — the video never leaves your phone.</div>
+      </div>
+      <div class="cam-state" id="cam-state">Camera permission required to play</div>
+      <button class="btn b-gold" id="cam-btn" onclick="requestCamOnce()">ALLOW CAMERA</button>
+      <p class="dim" style="text-align:center;font-size:11.5px;font-weight:800;margin-top:14px">
+        Without camera access the arena stays locked — there's no way to count reps.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DUEL LOBBY ============ -->
+<section class="screen" id="scr-lobby">
+  <div class="topline">
+    <button class="back-btn" onclick="leaveLobby()">‹ Back</button>
+    <div class="screen-title hdr">1v1 Duel</div>
+    <span style="width:44px"></span>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <div class="ob-title hdr" style="font-size:18px">Fight a friend</div>
+    <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">Create a room and send them the code</p>
+    <button class="btn b-gold" style="margin-top:14px" onclick="hostRoom()">CREATE ROOM</button>
+  </div>
+
+  <div class="card">
+    <div class="dim" style="font-size:11px;font-weight:900;letter-spacing:.12em;text-align:center">HAVE A CODE?</div>
+    <input class="code-in" id="join-code" maxlength="5" placeholder="ABCDE" style="margin:12px 0">
+    <button class="btn b-purple" onclick="joinRoom()">JOIN ROOM</button>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <div class="dim" style="font-size:12.5px;font-weight:800">No friend around?</div>
+    <button class="btn b-ghost" style="margin-top:11px" onclick="findMatch()">FIND RANDOM OPPONENT</button>
+  </div>
+</section>
+
+<!-- ============ ROOM WAITING ============ -->
+<section class="screen" id="scr-room">
+  <div class="topline">
+    <button class="back-btn" onclick="leaveLobby()">‹ Leave</button>
+    <div class="screen-title hdr">Duel Room</div>
+    <span style="width:44px"></span>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <div class="dim" style="font-size:11.5px;font-weight:900;letter-spacing:.12em">ROOM CODE — SHARE THIS</div>
+    <div class="code-box" id="room-code">-----</div>
+    <button class="btn b-ghost b-sm" style="margin:0 auto" onclick="shareCode()">COPY CODE</button>
+  </div>
+
+  <div class="card">
+    <div class="lobby-players">
+      <div class="lobby-p in" id="lp-me">
+        <div class="avatar" id="lp-me-av">ME</div>
+        <b id="lp-me-name">You</b>
+        <span class="dim" style="font-size:10.5px;font-weight:800"><span class="live-dot"></span> Ready</span>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="lobby-p" id="lp-opp">
+        <div class="avatar" id="lp-opp-av">?</div>
+        <b id="lp-opp-name">Waiting…</b>
+        <span class="dim" style="font-size:10.5px;font-weight:800" id="lp-opp-state">Not joined</span>
+      </div>
+    </div>
+    <button class="btn b-gold" id="room-start" onclick="hostStart()" style="display:none">START DUEL</button>
+    <p class="dim" style="text-align:center;font-size:11.5px;font-weight:800;margin-top:10px" id="room-hint">
+      Send the code to your friend — the duel starts when they join.</p>
   </div>
 </section>
 
@@ -887,6 +1083,10 @@ function goFlow(id){ /* flow screens without nav highlight */
   document.querySelectorAll('.nv').forEach(n=>n.classList.remove('on'));
 }
 function cleanupFlows(dest){
+  if(dest!=='scr-room'&&dest!=='scr-duel'&&dest!=='scr-lobby'&&dest!=='scr-victory'&&dest!=='scr-queue'){
+    try{ RT.ch?.unsubscribe(); }catch(e){} try{ RT.lob?.unsubscribe(); }catch(e){}
+    RT.ch=null; RT.lob=null; RT.seeking=false; if(RT.seekT){clearTimeout(RT.seekT);RT.seekT=null;}
+  }
   if(S.B && dest!=='scr-battle' && dest!=='scr-victory') killBattle();
   if(S.duel && dest!=='scr-duel' && dest!=='scr-victory') killDuel();
   if(S.queueT){ clearTimeout(S.queueT); S.queueT=null; }
@@ -1073,6 +1273,13 @@ function makeBattle(cfg){
 }
 async function startBattleTracking(){
   const myB=S.B;
+  if(!camGranted){
+    try{ const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}}); s.getTracks().forEach(t=>t.stop()); camGranted=true; }
+    catch(e){
+      openModal('<div class="em">📷</div><h3 class="hdr">Camera needed</h3><p>RepQuest counts reps with the camera. Allow camera access for this site, then try again.</p><button class="btn b-purple" onclick="closeModal();quitBattle()">OK</button>');
+      return;
+    }
+  }
   const ok=await PoseEngine.start('b-video','b-canvas',myB.exercise,
     ()=>{ if(S.B===myB && !S.B.paused) battleRep(); },
     (type,msg)=>setTrackPill('b-track','b-calib',type,msg));
@@ -1250,13 +1457,150 @@ function victoryContinue(){
   nav(o==='campaign'?'scr-campaign':o==='arena'?'scr-arena':'scr-home');
 }
 
-/* ================= 1v1: QUEUE + BOT (per spec) ================= */
+/* ================= REALTIME 1v1 (Supabase channels) ================= */
+const RT={ ch:null, code:null, host:false, opp:null, started:false, seeking:false, seekT:null };
+const myUid=()=> ME?.id || ('guest-'+Math.random().toString(36).slice(2,9));
+function makeCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
+function openLobby(){ nav('scr-lobby'); }
+
+function bindRoom(code,isHost){
+  RT.code=code; RT.host=isHost; RT.opp=null; RT.started=false;
+  $('room-code').textContent=code;
+  $('lp-me-name').textContent=PROFILE?.username||'You';
+  $('lp-me-av').textContent=(PROFILE?.username||'ME').slice(0,2).toUpperCase();
+  $('lp-opp').classList.remove('in');
+  $('lp-opp-name').textContent='Waiting…'; $('lp-opp-av').textContent='?';
+  $('lp-opp-state').textContent='Not joined';
+  $('room-start').style.display='none';
+  $('room-hint').textContent=isHost?'Send the code to your friend — you start the duel once they join.':'Joined! Waiting for the host to start…';
+  goFlow('scr-room');
+
+  const ch=sb.channel('duel-'+code,{ config:{ presence:{ key:myUid() }, broadcast:{ self:false } } });
+  ch.on('presence',{event:'sync'},()=>{
+      const st=ch.presenceState(); const others=[];
+      Object.entries(st).forEach(([k,v])=>{ if(k!==myUid()) others.push(v[0]); });
+      if(others.length){
+        RT.opp=others[0];
+        $('lp-opp').classList.add('in');
+        $('lp-opp-name').textContent=RT.opp.name||'Fighter';
+        $('lp-opp-av').textContent=(RT.opp.name||'OP').slice(0,2).toUpperCase();
+        $('lp-opp-state').innerHTML='<span class="live-dot"></span> Ready · LVL '+(RT.opp.lvl||1);
+        if(RT.host){ $('room-start').style.display='flex'; $('room-hint').textContent='Your opponent is in. Start when you are both ready.'; }
+        beep(700,.1);
+      } else {
+        RT.opp=null; $('lp-opp').classList.remove('in');
+        $('lp-opp-name').textContent='Waiting…'; $('lp-opp-state').textContent='Not joined';
+        $('room-start').style.display='none';
+      }
+    })
+   .on('broadcast',{event:'start'},({payload})=>{ beginRealDuel(payload.at); })
+   .on('broadcast',{event:'rep'},({payload})=>{ onOppRep(payload.reps); })
+   .on('broadcast',{event:'done'},()=>{ if(S.duel&&S.duel.running) endDuel(false); })
+   .subscribe(async s=>{ if(s==='SUBSCRIBED') await ch.track({ name:PROFILE?.username||'Fighter', lvl:S.user.lvl, t:Date.now() }); });
+  RT.ch=ch;
+}
+function hostRoom(){ if(!sb){ toast('Connection error'); return; } bindRoom(makeCode(),true); }
+function joinRoom(){
+  const c=$('join-code').value.trim().toUpperCase();
+  if(c.length<5){ toast('Enter the 5-letter code'); return; }
+  if(!sb){ toast('Connection error'); return; }
+  bindRoom(c,false);
+}
+function shareCode(){
+  const c=RT.code||'';
+  try{ navigator.clipboard.writeText(c); toast('Code '+c+' copied — send it to your friend'); }
+  catch(e){ toast('Your code is '+c); }
+}
+function hostStart(){
+  if(!RT.ch||!RT.opp) return;
+  const at=Date.now()+3200;
+  RT.ch.send({ type:'broadcast', event:'start', payload:{ at } });
+  beginRealDuel(at);
+}
+function beginRealDuel(at){
+  if(RT.started) return; RT.started=true;
+  S.B_origin='arena';
+  S.duel={ opp:RT.opp?.name||'Fighter', oppLvl:RT.opp?.lvl||1, target:20, my:0, op:0, sec:0,
+           running:false, timers:[], live:true, myTs:[] };
+  goFlow('scr-duel');
+  $('rt-badge').style.display='block';
+  $('d-oname').textContent=S.duel.opp; $('d-olvl').textContent='LVL '+S.duel.oppLvl;
+  $('d-oav-big').innerHTML=mon('goblin',56);
+  $('d-myreps').textContent='0'; $('d-oreps').textContent='0';
+  $('d-myhp').style.width='100%'; $('d-ohp').style.width='100%';
+  $('d-timer').textContent='0:00'; setLead();
+  d_countdown(at);
+}
+function d_countdown(at){
+  const d=S.duel;
+  const tick=setInterval(()=>{
+    const left=Math.ceil((at-Date.now())/1000);
+    if(left>0){ $('d-timer').textContent=left; $('d-hint').textContent='Get in position!'; }
+    else{
+      clearInterval(tick);
+      $('d-timer').textContent='0:00'; $('d-hint').textContent='GO!'; beep(880,.16);
+      d.running=true;
+      startDuelTracking(d);
+      const clock=setInterval(()=>{ if(!S.duel) return; S.duel.sec++; S.user.activeSec++; $('d-timer').textContent=fmt(S.duel.sec); },1000);
+      d.timers.push(clock);
+    }
+  },200);
+  d.timers.push(tick);
+}
+function onOppRep(n){
+  const d=S.duel; if(!d||!d.running) return;
+  d.op=n; $('d-oreps').textContent=n;
+  $('d-ohp').style.width=Math.max(0,(d.target-n)/d.target*100)+'%';
+  setLead(); beep(300,.05,'sine');
+  if(d.op>=d.target) endDuel(false);
+}
+function leaveLobby(){
+  try{ RT.ch?.unsubscribe(); }catch(e){}
+  RT.ch=null; RT.code=null; RT.started=false; RT.opp=null;
+  if(RT.seekT){ clearTimeout(RT.seekT); RT.seekT=null; }
+  RT.seeking=false;
+  nav('scr-arena');
+}
+/* random matchmaking: wait in shared lobby, pair with earliest waiting player, bot only if truly nobody */
+function findMatch(){
+  if(!sb){ queueDuel(); return; }
+  RT.seeking=true;
+  goFlow('scr-queue');
+  $('q-search').style.display='block'; $('q-found').style.display='none';
+  const myCode=makeCode(), mine={ code:myCode, name:PROFILE?.username||'Fighter', lvl:S.user.lvl, t:Date.now() };
+  const lob=sb.channel('rq-lobby',{ config:{ presence:{ key:myUid() } } });
+  lob.on('presence',{event:'sync'},()=>{
+      if(!RT.seeking) return;
+      const st=lob.presenceState(); const others=[];
+      Object.entries(st).forEach(([k,v])=>{ if(k!==myUid()&&v[0]?.code) others.push(v[0]); });
+      if(!others.length) return;
+      others.sort((a,b)=>a.t-b.t);
+      const first=others[0];
+      RT.seeking=false; clearTimeout(RT.seekT);
+      try{ lob.unsubscribe(); }catch(e){}
+      /* earliest waiter hosts; the other joins their code */
+      if(first.t < mine.t) bindRoom(first.code,false);
+      else bindRoom(myCode,true);
+      toast('Opponent found — '+(first.name||'Fighter')+'!');
+    })
+   .subscribe(async s=>{ if(s==='SUBSCRIBED') await lob.track(mine); });
+  RT.lob=lob;
+  /* nobody after 12s → bot fallback (only then) */
+  RT.seekT=setTimeout(()=>{
+    if(!RT.seeking) return;
+    RT.seeking=false;
+    try{ lob.unsubscribe(); }catch(e){}
+    toast('Nobody online right now — training bot incoming');
+    queueDuel(true);
+  },12000);
+}
+
+/* ================= BOT FALLBACK (only when nobody is online) ================= */
 const BOTS=['IronPusher99','VikingSquatter','FitKnight','RepLord_77','SquatWitch','PushCzar','FlexFalcon','PlankPirate'];
-function queueDuel(){
+function queueDuel(fast){
   S.B_origin='arena';
   goFlow('scr-queue');
   $('q-search').style.display='block'; $('q-found').style.display='none';
-  /* spec: search real player, after 4s load bot seamlessly */
   S.queueT=setTimeout(()=>{
     const name=BOTS[ri(0,BOTS.length-1)];
     const lvl=Math.max(1,S.user.lvl+ri(-2,2));           /* level ±2 of player */
@@ -1266,7 +1610,7 @@ function queueDuel(){
     $('q-oav').textContent=name.slice(0,2).toUpperCase();
     $('q-search').style.display='none'; $('q-found').style.display='block';
     beep(700,.14);
-  },4000);
+  },fast?600:4000);
 }
 function cancelQueue(){ clearTimeout(S.queueT); S.queueT=null; nav('scr-arena'); }
 function beginDuel(){
@@ -1306,7 +1650,7 @@ function duelTap(){
 }
 /* Pace Emulation: T_rep = T_base + random(-0.4, +0.5); fatigue after 60%: +15–30% */
 function scheduleBotRep(){
-  const d=S.duel; if(!d||!d.running) return;
+  const d=S.duel; if(!d||!d.running||d.live) return;
   let base=d.tBase;
   if(d.op>=d.target*0.6 && !d.fatigued){ d.fatigued=true; d.fatigueMul=1+rnd(.15,.30); }
   if(d.fatigued) base*=d.fatigueMul;
@@ -1324,13 +1668,14 @@ function scheduleBotRep(){
 function duelRep(){
   const d=S.duel; if(!d||!d.running) return;
   d.my++; recordPace(d.myTs);
+  if(d.live&&RT.ch){ try{ RT.ch.send({ type:'broadcast', event:'rep', payload:{ reps:d.my } }); }catch(e){} }
   d.tBase=S.user.avgRepSec;                     /* bot keeps matching player pace */
   S.user.todayReps++; S.user.cal=Math.round(S.user.cal+0.35);
   questProgress('Push-ups');
   $('d-myreps').textContent=d.my;
   $('d-myhp').style.width=Math.max(0,(d.target-d.my)/d.target*100)+'%';
   beep(520,.07); setLead();
-  if(d.my>=d.target) endDuel(true);
+  if(d.my>=d.target){ if(d.live&&RT.ch){ try{ RT.ch.send({type:'broadcast',event:'done',payload:{}}); }catch(e){} } endDuel(true); }
 }
 let lastLead=0;
 function setLead(){
@@ -1351,7 +1696,9 @@ function endDuel(win){
   addXP(xp); addCoins(coins);
   vicCtx={ origin:'arena', headline:win?'VICTORY!':'DEFEAT', stars:win?3:1,
            reps:d.my, sec:d.sec, coins, win };
-  S.duel=null; lastLead=0;
+  S.duel=null; lastLead=0; RT.started=false;
+  try{ RT.ch?.unsubscribe(); }catch(e){} RT.ch=null;
+  $('rt-badge').style.display='none';
   saveProfile();
   showVictory();
   toast(win?'⚔️ You beat '+'the opponent by pace!':'💀 So close — queue again!');
@@ -1752,12 +2099,60 @@ async function logout(){
   try{ await sb?.auth.signOut(); }catch(e){}
   location.reload();
 }
+function greetLine(){
+  const hr=new Date().getHours();
+  const t = hr<5?'Still awake':hr<12?'Good morning':hr<18?'Good afternoon':'Good evening';
+  return t;
+}
+let camGranted=false;
+function obStep(n){
+  [1,2,3].forEach(i=>{ $('ob'+i).classList.toggle('on',i===n); $('od'+i).classList.toggle('on',i<=n); });
+}
+function obNext(from){
+  if(from===1){
+    const n=$('ob-name').value.trim();
+    if(n.length<3){ $('ob-err').textContent='Pick a name with at least 3 characters.'; return; }
+    $('ob-err').textContent='';
+    if(PROFILE){ PROFILE.username=n; saveProfile(); }
+    $('ob-greet').textContent="Here's the deal, "+n;
+    obStep(2);
+  } else if(from===2){ obStep(3); }
+}
+async function requestCamOnce(){
+  const st=$('cam-state'), btn=$('cam-btn');
+  btn.textContent='REQUESTING…';
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user' } });
+    s.getTracks().forEach(t=>t.stop());
+    camGranted=true;
+    st.className='cam-state ok'; st.textContent='✓ Camera ready — the arena is open';
+    btn.textContent='ENTER THE ARENA'; btn.onclick=startTutorial;
+    beep(760,.13); confetti();
+  }catch(e){
+    camGranted=false;
+    st.className='cam-state bad';
+    st.textContent='Camera blocked. Open your browser settings for this site, allow Camera, then tap retry.';
+    btn.textContent='RETRY CAMERA';
+  }
+}
+function startOnboarding(){
+  document.body.classList.add('locked');
+  $('ob-hero-art').innerHTML=mon('chief',72);
+  $('ob-goblin-art').innerHTML=mon('warlord',72);
+  $('ob-cam-art').innerHTML='<svg viewBox="0 0 24 24" style="width:60px;height:60px" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h2L9 4h6l1.5 2h2A2.5 2.5 0 0 1 21 8.5v9A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="4"/></svg>';
+  $('ti1').innerHTML=ICO.bolt(22); $('ti2').innerHTML=ICO.star(22);
+  $('ti3').innerHTML=mon('spider',26); $('ti4').innerHTML=ICO.swords(22);
+  $('ob-name').value=PROFILE?.username||'';
+  obStep(1);
+  goFlow('scr-onboard');
+}
 function enterApp(){
   const uname=PROFILE?.username||'Fighter';
   document.querySelectorAll('.hello .name, .prof-name').forEach(e=>{});
-  if(!PROFILE?.tutorial_done){ startTutorial(); return; }
+  if(!PROFILE?.tutorial_done){ startOnboarding(); return; }
   document.body.classList.remove('locked');
   nav('scr-home');
+  setTimeout(()=>toast(greetLine()+', '+(PROFILE?.username||'Fighter')+'!'),500);
 }
 /* ---- Tutorial: one wave, then unskippable paywall ---- */
 function startTutorial(){
@@ -1872,6 +2267,16 @@ function closeModal(){ $('modal-layer').classList.remove('open'); }
 let toastT=null;
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show');
   clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2500); }
+
+/* ambient background orbs */
+(function orbs(){
+  const cfg=[[ -40,-30,220,'rgba(139,92,246,.30)'],[ 300,120,180,'rgba(245,158,11,.16)'],[-60,520,200,'rgba(16,185,129,.10)']];
+  cfg.forEach((c,i)=>{
+    const o=document.createElement('div'); o.className='orb';
+    o.style.cssText='left:'+c[0]+'px;top:'+c[1]+'px;width:'+c[2]+'px;height:'+c[2]+'px;background:'+c[3]+';animation-delay:'+(i*2.5)+'s';
+    $('app').prepend(o);
+  });
+})();
 
 /* ================= BOOT ================= */
 document.body.classList.add('locked');
