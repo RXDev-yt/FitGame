@@ -1449,8 +1449,10 @@ const ROUTES={
 const SLUG_OF={}; Object.entries(ROUTES).forEach(([k,v])=>{ if(k) SLUG_OF[v]=k; });
 let routing=false;   /* guards against pushState loops while popping state */
 
+const FLOW_SCREENS=new Set(['scr-splash','scr-auth','scr-checkmail','scr-forgot','scr-resetsent','scr-newpass','scr-onboard','scr-paywall']);
 function nav(id, opts){
   cleanupFlows(id);
+  if(!FLOW_SCREENS.has(id)) document.body.classList.remove('locked');
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
   ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
@@ -1472,6 +1474,7 @@ window.addEventListener('popstate', e=>{
   const id=e.state?.scr;
   if(!id) return;
   routing=true;
+  if(!FLOW_SCREENS.has(id)) document.body.classList.remove('locked');
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
   ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
@@ -2155,7 +2158,7 @@ function beginRealDuel(at){
            running:false, timers:[], live:true, myTs:[] };
   goFlow('scr-duel');
   $('rt-badge').style.display='block';
-  $('d-oname').textContent=S.duel.opp; $('d-olvl').textContent='LVL '+S.duel.oppLvl;
+  $('d-oname').textContent=S.duel.opp;
   $('d-oav-big').innerHTML=mon(RT.opp?.av||'goblin',46);
   $('d-oelo').textContent=RT.opp?.elo||1000;
   resetDuelHud();
@@ -2245,7 +2248,7 @@ function cancelQueue(){ clearTimeout(S.queueT); S.queueT=null; nav('scr-arena');
 function beginDuel(){
   const d=S.duel; if(!d) return;
   goFlow('scr-duel');
-  $('d-oname').textContent=d.opp; $('d-olvl').textContent='LVL '+d.oppLvl;
+  $('d-oname').textContent=d.opp;
   $('d-oav-big').innerHTML=mon(['goblin','troll','bone','ghoul'][ri(0,3)],56);
   resetDuelHud();
   d.tracking=false;
@@ -2401,7 +2404,6 @@ function renderProfile(){
   $('p-lvl').textContent=S.user.lvl;
   $('p-title').textContent=S.user.title;
   $('p-pet').innerHTML=S.user.pet?mon(S.user.pet,24):'';
-  applyFrame($('prof-av'));
   renderAvPicker(); paintAvatars(); renderBadges();
   const bi=$('bio-in'); if(bi && document.activeElement!==bi){ bi.value=PROFILE?.bio||''; $('bio-count').textContent=(PROFILE?.bio||'').length; }
   $('p-total').textContent=(PROFILE?.total_reps||0).toLocaleString('en-US');
