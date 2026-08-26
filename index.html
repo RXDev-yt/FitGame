@@ -509,6 +509,26 @@
   .oauth-sep i{ flex:1; height:1px; background:var(--line); }
   .oauth-sep span{ font-size:11px; font-weight:900; color:var(--dim); letter-spacing:.1em; }
 
+  .page-head{ display:flex; align-items:center; gap:11px; margin-bottom:14px; }
+  .page-head .ph-ico{ width:42px; height:42px; border-radius:14px; flex:none;
+    display:flex; align-items:center; justify-content:center; }
+  .page-head b{ font-size:23px; font-weight:900; display:block; line-height:1.1; }
+  .page-head span{ font-size:12.5px; font-weight:800; color:var(--dim); }
+  .big-card{ border-radius:22px; padding:18px; background:var(--card-dark); border:1.5px solid var(--line); }
+  .big-card + .big-card{ margin-top:12px; }
+  .big-card .bc-top{ display:flex; align-items:center; gap:12px; }
+  .big-card .bc-ico{ width:46px; height:46px; border-radius:14px; flex:none;
+    display:flex; align-items:center; justify-content:center; }
+  .big-card b{ font-size:17px; font-weight:900; display:block; line-height:1.15; }
+  .big-card p{ font-size:13px; font-weight:800; color:var(--dim); margin-top:3px; }
+  .big-card .btn{ margin-top:13px; }
+  .big-card.gold{ border-color:rgba(245,158,11,.45); background:rgba(245,158,11,.07); }
+  .big-card.gold .bc-ico{ background:rgba(245,158,11,.2); }
+  .big-card.green{ border-color:rgba(16,185,129,.45); background:rgba(16,185,129,.06); }
+  .big-card.green .bc-ico{ background:rgba(16,185,129,.2); }
+  .big-card.purple{ border-color:rgba(139,92,246,.45); background:rgba(139,92,246,.07); }
+  .big-card.purple .bc-ico{ background:rgba(139,92,246,.2); }
+
   /* ---------- KID-CLEAR HOME ---------- */
   .hello-card{ display:flex; align-items:center; gap:13px; padding:14px;
     background:linear-gradient(135deg,#3A2A7A,#221A55); border-radius:22px;
@@ -955,12 +975,62 @@
 <body>
 <div id="app">
 
+<!-- ============ PRACTICE ============ -->
+<section class="screen" id="scr-workout">
+  <div class="page-head">
+    <div class="ph-ico" style="background:rgba(245,158,11,.18)">
+      <svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#F59E0B" stroke-width="2.3" stroke-linecap="round"><path d="M2 12h3M19 12h3M5 8v8M19 8v8M8 12h8"/></svg>
+    </div>
+    <div><b>Practice</b><span>Train without a match</span></div>
+  </div>
+
+  <div class="sect-head"><b>PICK YOUR MOVE</b><span class="ln"></span></div>
+  <div class="target-pills" id="sr-ex">
+    <button class="tpill sel" onclick="pickEx(this,'Push-ups')">Push-ups</button>
+    <button class="tpill" onclick="pickEx(this,'Sit-ups')">Sit-ups</button>
+    <button class="tpill" onclick="pickEx(this,'Squats')">Squats</button>
+  </div>
+
+  <div class="sect-head"><b>HOW HARD?</b><span class="ln"></span></div>
+  <div class="card" id="diff-card"></div>
+
+  <div class="sect-head"><b>CHOOSE A MODE</b><span class="ln"></span></div>
+  <div class="big-card gold">
+    <div class="bc-top">
+      <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="#F59E0B"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+      <div class="grow"><b>Speed Run</b><p>Hit your target as fast as you can</p></div>
+    </div>
+    <div class="target-pills" id="sr-targets" style="margin-top:11px">
+      <button class="tpill sel" onclick="pickTarget(this,10)">10 reps</button>
+      <button class="tpill" onclick="pickTarget(this,25)">25 reps</button>
+      <button class="tpill" onclick="pickTarget(this,50)">50 reps</button>
+    </div>
+    <button class="btn b-gold" onclick="startSpeedRun()">START</button>
+  </div>
+
+  <div class="big-card green">
+    <div class="bc-top">
+      <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"><path d="M2 9c2-3 4-3 6 0s4 3 6 0 4-3 6 0M2 16c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg></div>
+      <div class="grow"><b>Endless Waves</b><p>Creatures keep coming — how far can you go?</p></div>
+    </div>
+    <button class="btn b-purple" onclick="startHorde()">START</button>
+  </div>
+
+  <div class="big-card purple">
+    <div class="bc-top">
+      <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg></div>
+      <div class="grow"><b>Max Reps</b><p>One big set. Your best: <b class="gold" id="pr-show">0</b></p></div>
+    </div>
+    <button class="btn b-ghost" onclick="startMax()">START</button>
+  </div>
+</section>
+
 <!-- ============ 1. HOME / QUEST DASHBOARD ============ -->
 <section class="screen active" id="scr-home">
   <div class="hello-card">
     <div class="hello-av" id="crest-av"></div>
     <div class="hello-txt" style="min-width:0">
-      <b id="home-uname">Player</b>
+      <b id="home-uname">Champion</b>
       <span id="hello-sub">Ready to play?</span>
     </div>
     <div class="hello-lvl"><b id="h-lvl">1</b><span>LEVEL</span></div>
@@ -1007,8 +1077,6 @@
   <div class="sect-head"><b>TODAY'S QUESTS</b><span class="ln"></span></div>
   <div id="quest-list"></div>
 
-  <div class="sect-head"><b>HOW HARD?</b><span class="ln"></span></div>
-  <div class="card" id="diff-card-home"></div>
 
   <div style="display:none">
     <span id="qs-time"></span><span id="qs-cal"></span><span id="crest-reps"></span>
@@ -1045,12 +1113,17 @@
 
 <!-- ============ 4. ARENA HUB ============ -->
 <section class="screen" id="scr-arena">
-  <div class="topline"><div class="screen-title hdr">Versus</div><span class="chip hot" id="duel-elo">1000 ELO</span></div>
+  <div class="page-head">
+    <div class="ph-ico" style="background:rgba(16,185,129,.18)">
+      <svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.8-3 3.3-4.8 6.5-4.8s5.7 1.8 6.5 4.8"/><circle cx="17.5" cy="9" r="2.4"/></svg>
+    </div>
+    <div><b>Versus</b><span>Race someone, rep for rep</span></div>
+  </div>
 
-  <div class="rank-card" id="rankcard" style="--rc1:#8C5A2B;--rc2:#5B3617;margin-bottom:14px">
+  <div class="rank-card" id="rankcard" style="--rc1:#8C5A2B;--rc2:#5B3617;margin-bottom:12px">
     <div class="rank-emblem" id="rank-emblem"></div>
     <div class="rank-tier" id="rank-tier">BRONZE</div>
-    <div class="rank-sub"><span id="rank-elo-n">1000</span> ELO</div>
+    <div class="rank-sub"><span id="rank-elo-n">1000</span> RANK POINTS</div>
     <div class="rank-prog">
       <div class="t"><span id="rank-cur">BRONZE</span><span id="rank-nxt">SILVER 900</span></div>
       <div class="bar"><i id="rank-fill" style="width:0%"></i></div>
@@ -1058,27 +1131,29 @@
   </div>
   <div class="tier-row" id="tier-row"></div>
 
-  <div class="card mode-card" style="border-color:rgba(245,158,11,.45);margin-top:14px">
-    <div class="row" style="gap:13px">
-      <svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg>
-      <div class="grow"><b>Play a Stranger</b><p>Race someone online. Win to climb the ranks!</p></div>
+  <div class="sect-head"><b>WHO DO YOU WANT TO PLAY?</b><span class="ln"></span></div>
+
+  <div class="big-card purple">
+    <div class="bc-top">
+      <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.8-3 3.3-4.8 6.5-4.8s5.7 1.8 6.5 4.8"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.7 14.4c2.6.2 4.7 1.8 5.5 4.4"/></svg></div>
+      <div class="grow"><b>A Friend</b><p>Make a room and share the code</p></div>
     </div>
-    <button class="btn b-gold" style="margin-top:12px" onclick="findMatch()">FIND SOMEONE TO PLAY</button>
+    <button class="btn b-purple" onclick="openLobby()">PLAY WITH FRIEND</button>
   </div>
 
-  <div class="card mode-card">
-    <div class="row" style="gap:13px">
-      <svg viewBox="0 0 24 24" style="width:28px;height:28px" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.4"/><path d="M2.5 20c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5"/><circle cx="17.5" cy="9" r="2.6"/><path d="M15.7 14.4c2.8.2 5 1.9 5.8 4.6"/></svg>
-      <div class="grow"><b>Play a Friend</b><p>Make a room and share the code.</p></div>
+  <div class="big-card gold">
+    <div class="bc-top">
+      <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/></svg></div>
+      <div class="grow"><b>Someone Online</b><p>Win to earn rank points</p></div>
     </div>
-    <button class="btn b-purple" style="margin-top:12px" onclick="openLobby()">PLAY WITH FRIEND</button>
+    <button class="btn b-gold" onclick="findMatch()">FIND SOMEONE TO PLAY</button>
   </div>
 
-  <div class="seclbl">Your record</div>
-  <div class="today-grid">
-    <div class="mini-stat"><div class="n gold" id="duel-elo2">1000</div><div class="l">ELO rating</div></div>
-    <div class="mini-stat"><div class="n green" id="duel-wins">0</div><div class="l">Duel wins</div></div>
+  <div class="today-strip" style="margin-top:16px">
+    <div><b id="duel-elo2">1000</b><span>RANK POINTS</span></div>
+    <div><b id="duel-wins">0</b><span>WINS</span></div>
   </div>
+  <div style="display:none"><span id="duel-elo"></span></div>
 </section>
 
 <!-- ============ 2. BATTLE ============ -->
@@ -1316,7 +1391,7 @@
         <input type="file" id="pfp-file" accept="image/*" style="display:none" onchange="uploadPfp(event)">
       </div>
       <button onclick="editName()" style="display:flex;align-items:center;gap:8px;margin:10px auto 0">
-        <span class="hdr" style="font-size:22px" id="prof-uname">Player</span>
+        <span class="hdr" style="font-size:22px" id="prof-uname">Champion</span>
         <svg viewBox="0 0 24 24" style="width:17px;height:17px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
       </button>
       <div class="crest-tier" id="p-tier" style="margin-top:8px"></div>
@@ -2056,7 +2131,6 @@ function renderHome(){
     $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(14)); $('ps-coin').dataset.ico=1; }
   if(PROFILE){ setTxt('home-uname', PROFILE.username); paintAvatars(); }
   setTxt('hello-sub', greetLine()+' — ready to play?');
-  if($('diff-card-home')) $('diff-card-home').innerHTML=diffPickerHTML();
   renderEpHero();
   /* royale crest */
 
@@ -2183,13 +2257,16 @@ function editName(){
 }
 function saveName(){
   const v=($('name-in')?.value||'').trim();
-  if(v.length<3){ $('name-err').textContent='Name needs at least 3 characters.'; SFX.err(); return; }
-  if(v.length>20){ $('name-err').textContent='Keep it under 20 characters.'; SFX.err(); return; }
-  if(PROFILE){ PROFILE.username=v; cacheProfileLocally(); saveProfile(); }
+  const err=$('name-err');
+  if(v.length<3){ if(err) err.textContent='Name needs at least 3 letters.'; SFX.err(); return; }
+  if(v.length>20){ if(err) err.textContent='Keep it under 20 letters.'; SFX.err(); return; }
+  closeModal();                                   /* close first — never looks stuck */
   setTxt('home-uname', v); setTxt('prof-uname', v);
-  try{ renderProfile(); renderHome(); }catch(e){}
-  closeModal(); SFX.ready(); burstAt(null,'#F59E0B',14);
+  if(PROFILE){ PROFILE.username=v; cacheProfileLocally(); saveProfile(); }
+  SFX.ready(); burstAt(null,'#F59E0B',14);
   toast('Name changed to '+v);
+  setTimeout(()=>{ try{ renderProfile(); }catch(e){console.error(e);}
+                   try{ renderHome(); }catch(e){console.error(e);} },30);
 }
 function showHowToPlay(){
   SFX.click();
@@ -3517,7 +3594,7 @@ function profTab(t){
 function setTxt(id,v){ const e=$(id); if(e) e.textContent=v; }
 function setHTML(id,v){ const e=$(id); if(e) e.innerHTML=v; }
 function renderProfile(){
-  setTxt('prof-uname', PROFILE?.username || 'Player');
+  setTxt('prof-uname', PROFILE?.username || 'Champion');
   setTxt('p-elo', myElo());
   setTxt('p-lvl', S.user.lvl);
   setTxt('p-title', S.user.title);
@@ -3889,7 +3966,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='28.0';
+const BUILD='29.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4131,7 +4208,8 @@ async function resendConfirm(){
 }
 async function loadProfile(){
   if(!sb||!ME) return;
-  const DEFAULTS={ id:ME.id, username:ME.user_metadata?.username||'Fighter', level:1, xp:0, coins:200,
+  const emailName=(ME.email||'').split('@')[0].replace(/[^a-zA-Z0-9_]/g,'').slice(0,16);
+  const DEFAULTS={ id:ME.id, username:ME.user_metadata?.username || emailName || 'Champion', level:1, xp:0, coins:200,
     streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null,
     elo:1000, bio:'', avatar:'goblin', avatar_url:null, duel_wins:0, bosses:0,
     difficulty:'easy', story_seen:'', offer_started:null };
@@ -4152,6 +4230,9 @@ async function loadProfile(){
   } else {
     PROFILE={ ...DEFAULTS, ...(local||{}) };
     await pushProfile();
+  }
+  if(!PROFILE.username || ['Player','Fighter',''].includes(PROFILE.username)){
+    PROFILE.username = emailName || 'Champion';
   }
   cacheProfileLocally();
   /* apply to game state */
