@@ -509,6 +509,52 @@
   .oauth-sep i{ flex:1; height:1px; background:var(--line); }
   .oauth-sep span{ font-size:11px; font-weight:900; color:var(--dim); letter-spacing:.1em; }
 
+  /* ---------- KID-CLEAR HOME ---------- */
+  .hello-card{ display:flex; align-items:center; gap:13px; padding:14px;
+    background:linear-gradient(135deg,#3A2A7A,#221A55); border-radius:22px;
+    border:1.5px solid rgba(245,158,11,.35); }
+  .hello-av{ width:56px; height:56px; border-radius:50%; overflow:hidden; flex:none;
+    border:3px solid var(--gold); background:#1A1440; display:flex; align-items:center; justify-content:center; }
+  .hello-av img{ width:100%; height:100%; object-fit:cover; }
+  .hello-txt b{ font-size:19px; font-weight:900; display:block; line-height:1.15; }
+  .hello-txt span{ font-size:12.5px; font-weight:800; color:var(--dim); }
+  .hello-lvl{ margin-left:auto; text-align:center; flex:none; background:rgba(0,0,0,.3);
+    border-radius:14px; padding:8px 12px; }
+  .hello-lvl b{ display:block; font-size:20px; font-weight:900; color:var(--gold); line-height:1; }
+  .hello-lvl span{ font-size:8px; font-weight:900; letter-spacing:.14em; color:var(--dim); }
+
+  .big-play{ display:block; width:100%; margin-top:14px; padding:20px 18px; border-radius:26px;
+    background:linear-gradient(135deg,#FBBF24,#F59E0B); color:#241703; text-align:left;
+    box-shadow:0 12px 30px rgba(245,158,11,.42); position:relative; overflow:hidden;
+    transition:transform .12s; }
+  .big-play:active{ transform:scale(.975); }
+  .big-play .bp-lbl{ font-size:11px; font-weight:900; letter-spacing:.2em; opacity:.8; }
+  .big-play .bp-name{ font-size:25px; font-weight:900; line-height:1.1; margin-top:3px; }
+  .big-play .bp-sub{ font-size:13px; font-weight:800; opacity:.85; margin-top:5px; }
+  .big-play .bp-mon{ position:absolute; right:12px; bottom:6px; opacity:.95;
+    animation:bob 3s ease-in-out infinite; }
+  .big-play .bp-go{ display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+    background:rgba(0,0,0,.22); border-radius:99px; padding:9px 16px; font-size:14px; font-weight:900; }
+
+  .tiles{ display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-top:12px; }
+  .tile{ padding:16px 13px; border-radius:20px; background:var(--card-dark);
+    border:1.5px solid var(--line); text-align:left; transition:transform .12s; }
+  .tile:active{ transform:scale(.96); }
+  .tile .ti{ width:38px; height:38px; border-radius:12px; display:flex; align-items:center;
+    justify-content:center; margin-bottom:9px; }
+  .tile b{ font-size:15px; font-weight:900; display:block; }
+  .tile span{ font-size:11.5px; font-weight:800; color:var(--dim); }
+  .tile.map{ border-color:rgba(139,92,246,.5); } .tile.map .ti{ background:rgba(139,92,246,.2); }
+  .tile.vs{ border-color:rgba(16,185,129,.45); } .tile.vs .ti{ background:rgba(16,185,129,.2); }
+  .tile.help{ border-color:rgba(96,165,250,.45); } .tile.help .ti{ background:rgba(96,165,250,.18); }
+  .tile.train{ border-color:rgba(245,158,11,.42); } .tile.train .ti{ background:rgba(245,158,11,.18); }
+
+  .today-strip{ display:flex; gap:9px; margin-top:14px; }
+  .today-strip div{ flex:1; background:var(--card-dark); border:1px solid var(--line);
+    border-radius:16px; padding:11px 6px; text-align:center; }
+  .today-strip b{ display:block; font-size:19px; font-weight:900; line-height:1; }
+  .today-strip span{ font-size:9px; font-weight:900; letter-spacing:.1em; color:var(--dim); }
+
   /* ---------- ROYALE HOME ---------- */
   .crest{ position:relative; border-radius:26px; padding:16px 16px 14px; overflow:hidden;
     background:linear-gradient(150deg,#3B2478 0%,#221650 45%,#141033 100%);
@@ -911,98 +957,65 @@
 
 <!-- ============ 1. HOME / QUEST DASHBOARD ============ -->
 <section class="screen active" id="scr-home">
-  <div class="crest">
-    <div class="crest-top">
-      <div class="crest-av" id="crest-av"></div>
-      <div class="grow" style="min-width:0">
-        <button class="crest-name" onclick="editName()">
-          <span id="home-uname">Fighter</span>
-          <svg viewBox="0 0 24 24" style="width:14px;height:14px;flex:none;opacity:.7" fill="none" stroke="#F59E0B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-        </button>
-        <span class="crest-tier" id="crest-tier"></span>
-      </div>
-      <div class="crest-lvl"><b id="h-lvl">1</b><span>LEVEL</span></div>
+  <div class="hello-card">
+    <div class="hello-av" id="crest-av"></div>
+    <div class="hello-txt" style="min-width:0">
+      <b id="home-uname">Player</b>
+      <span id="hello-sub">Ready to play?</span>
     </div>
-    <div class="crest-xp">
-      <div class="t"><span>XP TO NEXT LEVEL</span><span><span id="h-xp">0</span>/<span id="h-xpn">50</span></span></div>
-      <div class="bar"><i id="h-xpbar" style="width:0%"></i></div>
-    </div>
-    <div class="crest-stats">
-      <div class="crest-stat"><b id="ps-flame"><span id="h-streak">1</span></b><span>DAY STREAK</span></div>
-      <div class="crest-stat"><b id="ps-coin"><span id="h-coins">0</span></b><span>COINS</span></div>
-      <div class="crest-stat"><b id="crest-reps">0</b><span>TOTAL REPS</span></div>
-    </div>
+    <div class="hello-lvl"><b id="h-lvl">1</b><span>LEVEL</span></div>
   </div>
 
-  <div class="quick-row">
-    <button class="quick gold" onclick="playCurrentEpisode()">
-      <div class="qi"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="#F59E0B"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
-      <b>Play</b>
-    </button>
-    <button class="quick purple" onclick="nav('scr-arena')">
-      <div class="qi"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg></div>
-      <b>Versus</b>
-    </button>
-    <button class="quick" onclick="nav('scr-workout')">
-      <div class="qi"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"><path d="M2 12h3M19 12h3M5 8v8M19 8v8M8 12h8"/></svg></div>
-      <b>Train</b>
-    </button>
+  <div class="crest-xp" style="margin-top:12px">
+    <div class="t"><span>XP</span><span><span id="h-xp">0</span> / <span id="h-xpn">50</span></span></div>
+    <div class="bar"><i id="h-xpbar" style="width:0%"></i></div>
   </div>
 
-  <button class="card" style="width:100%;display:flex;align-items:center;gap:12px;text-align:left;margin-top:12px"
-          onclick="showHowToPlay()">
-    <div style="width:40px;height:40px;flex:none;border-radius:12px;background:rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center">
-      <svg viewBox="0 0 24 24" style="width:22px;height:22px" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4"/><circle cx="12" cy="17" r="1" fill="#A78BFA" stroke="none"/></svg>
-    </div>
-    <div class="grow"><b style="font-size:14px">How do I play?</b>
-      <span class="dim" style="font-size:11.5px;font-weight:800;display:block">Quick guide — takes 20 seconds</span></div>
-    <span class="dim" style="font-size:18px">›</span>
+  <button class="big-play" onclick="playCurrentEpisode()">
+    <div class="bp-lbl" id="hero-eyebrow">YOUR NEXT MATCH</div>
+    <div class="bp-name" id="hero-name">Grib</div>
+    <div class="bp-sub" id="hero-sub">3 push-ups to win</div>
+    <div class="bp-go">▶ PLAY NOW</div>
+    <div class="bp-mon" id="hero-mon"></div>
   </button>
 
-  <div class="sect-head"><b>YOUR NEXT MATCH</b><span class="ln"></span></div>
-  <div class="ep-hero" id="ep-hero">
-    <div class="eyebrow" id="hero-eyebrow">EPISODE 1 OF 18</div>
-    <div class="chap" id="hero-chap">Chapter 1 · Sprout Caves</div>
-    <div class="epname" id="hero-name">Goblin</div>
-    <div class="row2">
-      <div class="mon" id="hero-mon"></div>
-      <div class="grow"><div class="ep-meta" id="hero-meta"></div></div>
-    </div>
-    <button class="btn b-gold" onclick="playCurrentEpisode()">START MATCH</button>
-    <button class="btn b-ghost b-sm" style="margin-top:8px" onclick="goToMapSmooth()">SEE THE WHOLE MAP ›</button>
+  <div class="tiles">
+    <button class="tile map" onclick="goToMapSmooth()">
+      <div class="ti"><svg viewBox="0 0 24 24" style="width:22px;height:22px" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3zM9 7v13M15 4v13"/></svg></div>
+      <b>Map</b><span>See all the lands</span>
+    </button>
+    <button class="tile vs" onclick="nav('scr-arena')">
+      <div class="ti"><svg viewBox="0 0 24 24" style="width:22px;height:22px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.8-3 3.3-4.8 6.5-4.8s5.7 1.8 6.5 4.8"/><circle cx="17.5" cy="9" r="2.4"/></svg></div>
+      <b>Versus</b><span>Play a friend</span>
+    </button>
+    <button class="tile train" onclick="nav('scr-workout')">
+      <div class="ti"><svg viewBox="0 0 24 24" style="width:22px;height:22px" fill="none" stroke="#F59E0B" stroke-width="2.3" stroke-linecap="round"><path d="M2 12h3M19 12h3M5 8v8M19 8v8M8 12h8"/></svg></div>
+      <b>Practice</b><span>Free workout</span>
+    </button>
+    <button class="tile help" onclick="showHowToPlay()">
+      <div class="ti"><svg viewBox="0 0 24 24" style="width:22px;height:22px" fill="none" stroke="#60A5FA" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4"/><circle cx="12" cy="17" r="1" fill="#60A5FA" stroke="none"/></svg></div>
+      <b>How to Play</b><span>Quick guide</span>
+    </button>
   </div>
 
-  <div class="sect-head"><b>TODAY'S BIG MATCH</b><span class="ln"></span></div>
-  <div class="card boss-banner">
-    <div class="row" style="gap:14px">
-      <div class="boss-sprite float-slow" id="db-sprite"></div>
-      <div class="grow">
-        <div class="boss-nm hdr glow" id="db-name">Chief Grib</div>
-        <div class="hp-line">
-          <div class="t"><span class="red">Energy</span><span id="db-hp">60 / 60</span></div>
-          <div class="pbar fill-r"><i id="db-bar" style="width:100%"></i></div>
-        </div>
-        <div class="reward-chips">
-          <span class="rchip"><span id="db-target">60</span> reps to defeat</span>
-          <span class="rchip gold">+150 XP</span>
-          <span class="rchip gold" id="db-coinchip">200</span>
-        </div>
-      </div>
-    </div>
-    <button class="btn b-red" style="margin-top:12px" onclick="fightDailyBoss()">PLAY THE BIG MATCH</button>
+  <div class="today-strip">
+    <div><b id="qs-reps">0</b><span>REPS TODAY</span></div>
+    <div><b id="h-streak">1</b><span>DAY STREAK</span></div>
+    <div><b id="h-coins">0</b><span>COINS</span></div>
   </div>
 
-  <div class="sect-head"><b>DIFFICULTY</b><span class="ln"></span></div>
-  <div class="card" id="diff-card-home"></div>
-
-  <div class="sect-head"><b>DAILY QUESTS</b><span class="ln"></span></div>
+  <div class="sect-head"><b>TODAY'S QUESTS</b><span class="ln"></span></div>
   <div id="quest-list"></div>
 
-  <div class="sect-head"><b>TODAY</b><span class="ln"></span></div>
-  <div class="qstats">
-    <div class="qstat"><div class="n" id="qs-reps">0</div><div class="l">Reps</div></div>
-    <div class="qstat"><div class="n" id="qs-time">0:00</div><div class="l">Active</div></div>
-    <div class="qstat"><div class="n" id="qs-cal">0</div><div class="l">Kcal</div></div>
+  <div class="sect-head"><b>HOW HARD?</b><span class="ln"></span></div>
+  <div class="card" id="diff-card-home"></div>
+
+  <div style="display:none">
+    <span id="qs-time"></span><span id="qs-cal"></span><span id="crest-reps"></span>
+    <span id="crest-tier"></span><span id="ps-flame"></span><span id="ps-coin"></span>
+    <span id="db-sprite"></span><span id="db-name"></span><span id="db-hp"></span>
+    <span id="db-bar"></span><span id="db-target"></span><span id="db-coinchip"></span>
+    <span id="hero-chap"></span><span id="hero-meta"></span><span id="ep-hero"></span>
   </div>
 </section>
 
@@ -1294,7 +1307,7 @@
   </div>
 
   <div id="p-char">
-    <div class="prof-hero">
+    <div class="card" style="text-align:center;padding:20px">
       <div class="pfp-wrap">
         <div class="pfp" id="pfp-view"></div>
         <button class="pfp-edit" onclick="$('pfp-file').click()" aria-label="Change photo">
@@ -1302,60 +1315,52 @@
         </button>
         <input type="file" id="pfp-file" accept="image/*" style="display:none" onchange="uploadPfp(event)">
       </div>
-      <button onclick="editName()" style="display:flex;align-items:center;gap:8px;margin:0 auto">
-        <span class="hdr" style="font-size:21px" id="prof-uname">Fighter</span>
+      <button onclick="editName()" style="display:flex;align-items:center;gap:8px;margin:10px auto 0">
+        <span class="hdr" style="font-size:22px" id="prof-uname">Player</span>
         <svg viewBox="0 0 24 24" style="width:17px;height:17px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
       </button>
-      <span class="prof-title" id="p-title">ROOKIE</span>
-      <div class="rank-elo" style="margin-top:8px;font-size:13px"><span id="p-elo">1000</span> ELO · LVL <span id="p-lvl">1</span></div>
+      <div class="crest-tier" id="p-tier" style="margin-top:8px"></div>
+      <p class="dim" style="font-size:11px;font-weight:800;margin-top:10px">Tap your name or the camera to change them</p>
     </div>
 
-    <div class="seclbl">Bio</div>
+    <div class="today-strip">
+      <div><b id="p-lvl">1</b><span>LEVEL</span></div>
+      <div><b id="p-total">0</b><span>TOTAL REPS</span></div>
+      <div><b id="p-streak">1</b><span>DAY STREAK</span></div>
+    </div>
+    <div class="today-strip" style="margin-top:9px">
+      <div><b id="p-elo">1000</b><span>RANK POINTS</span></div>
+      <div><b id="p-coins">0</b><span>COINS</span></div>
+    </div>
+
+    <div class="sect-head"><b>ABOUT ME</b><span class="ln"></span></div>
     <textarea class="bio-box" id="bio-in" rows="3" maxlength="140" placeholder="Say something about your training…" oninput="bioChanged()"></textarea>
     <div class="dim" style="text-align:right;font-size:10.5px;font-weight:800;margin-top:5px"><span id="bio-count">0</span>/140</div>
 
-    <div class="seclbl">Badges</div>
+    <div class="sect-head"><b>MY BADGES</b><span class="ln"></span></div>
     <div class="badge-grid" id="badge-grid"></div>
 
-    <div class="seclbl">Profile Icon</div>
+    <div class="sect-head"><b>PICK AN ICON</b><span class="ln"></span></div>
     <div class="av-grid" id="av-grid"></div>
-    <p class="dim" style="font-size:11px;font-weight:800;margin-top:8px">Uploading a photo is optional — your icon works fine on its own.</p>
-
-    <div class="seclbl">Frames</div>
-    <div id="shop-frames"></div>
-    <div class="seclbl">Titles</div>
-    <div id="shop-titles"></div>
-    <div class="seclbl">Combat Pets</div>
-    <div id="shop-pets"></div>
+    <p class="dim" style="font-size:11px;font-weight:800;margin-top:8px">Or use your own photo with the camera button above.</p>
+    <div style="display:none"><span id="p-title"></span><span id="shop-frames"></span><span id="shop-titles"></span><span id="shop-pets"></span></div>
   </div>
 
   <div id="p-ana" style="display:none">
-    <div class="today-grid">
-      <div class="mini-stat"><div class="n" id="p-total">0</div><div class="l">Total reps</div></div>
-      <div class="mini-stat"><div class="n gold" id="p-streak">0</div><div class="l">Day streak</div></div>
-    </div>
-    <div class="card"><b style="font-size:13.5px">Weekly rep volume</b><div class="chart" id="ana-chart"></div></div>
-    <div class="card"><b style="font-size:13.5px">Exercise distribution</b><div style="margin-top:11px" id="ana-dist"></div></div>
-    <div class="card"><b style="font-size:13.5px">Streak heatmap — last 4 weeks</b><div class="heat" id="ana-heat" style="margin-top:11px"></div></div>
+    <div class="card"><b style="font-size:13.5px">Reps this week</b><div class="chart" id="ana-chart"></div></div>
+    <div class="card"><b style="font-size:13.5px">What you've been doing</b><div style="margin-top:11px" id="ana-dist"></div></div>
+    <div class="card"><b style="font-size:13.5px">Last 4 weeks</b><div class="heat" id="ana-heat" style="margin-top:11px"></div></div>
   </div>
 
   <div id="p-set" style="display:none">
-    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#8B5CF6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 8.5a5 5 0 0 1 0 7"/></svg> Sound FX <button class="toggle on" id="set-sound" onclick="toggleSound()"><i></i></button></div>
-    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg> Pose sensitivity
-      <div class="sens">
-        <button onclick="setSens(1)" id="sn1">1</button>
-        <button class="on" onclick="setSens(2)" id="sn2">2</button>
-        <button onclick="setSens(3)" id="sn3">3</button>
-      </div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#8B5CF6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 8.5a5 5 0 0 1 0 7"/></svg> Sound <button class="toggle on" id="set-sound" onclick="toggleSound()"><i></i></button></div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/></svg> Camera sensitivity
+      <div class="sens"><button onclick="setSens(1)" id="sn1">1</button><button class="on" onclick="setSens(2)" id="sn2">2</button><button onclick="setSens(3)" id="sn3">3</button></div>
     </div>
-    <div class="set-row">
-      <svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4L15 12l-3-3z"/></svg>
-      Test camera on phone
-      <button class="claim" style="margin-left:auto" onclick="openDevModal()">GUIDE</button>
-    </div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#60A5FA" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4"/><circle cx="12" cy="17" r="1" fill="#60A5FA" stroke="none"/></svg> How to play <button class="claim" style="margin-left:auto" onclick="showHowToPlay()">OPEN</button></div>
     <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#8B5CF6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg> Account <span class="dim" style="margin-left:auto;font-size:12px" id="set-email">—</span></div>
-    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg> Membership <span class="own" style="margin-left:auto">FOUNDER ✓</span></div>
-    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#EF4444" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l-5-5 5-5M5 12h9"/></svg> Log out <button class="claim" style="margin-left:auto;background:var(--red);color:#fff" onclick="confirmLogout()">SIGN OUT</button></div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg> Membership <span class="own" style="margin-left:auto">FOUNDER</span></div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F87171" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l-5-5 5-5M5 12h9"/></svg> Log out <button class="claim" style="margin-left:auto;background:var(--red);color:#fff" onclick="confirmLogout()">SIGN OUT</button></div>
   </div>
 </section>
 
@@ -1725,7 +1730,7 @@
   <div class="ld-tip" id="ld-tip">Waking the arena…</div>
   <div class="ld-track"><i id="ld-fill"></i></div>
   <div class="ld-pct" id="ld-pct">0%</div>
-  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 26.0</div>
+  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 27.0</div>
 </div>
 
 <div id="modal-layer"><div class="modal" id="modal-box"></div></div>
@@ -2011,19 +2016,21 @@ function exIcon(name,size){
 }
 function currentEp(){ return S.chapters[S.cur.c]?.eps[S.cur.e]; }
 function renderEpHero(){
-  const e=currentEp(); if(!e || !$('ep-hero')) return;
+  const e=currentEp(); if(!e) return;
   const ch=S.chapters[S.cur.c];
-  $('hero-eyebrow').textContent = (e.boss?'BIG MATCH · ':'')+'MATCH '+(S.cur.e+1)+' OF 18';
-  $('hero-chap').textContent = 'Chapter '+(S.cur.c+1)+' · '+ch.name;
-  $('hero-name').textContent = e.name;
-  $('hero-mon').innerHTML = mon(e.sprite,58);
+  setTxt('hero-eyebrow', e.boss ? 'BIG MATCH!' : 'YOUR NEXT MATCH');
+  setTxt('hero-chap','Chapter '+(S.cur.c+1)+' · '+ch.name);
+  setTxt('hero-name', e.name);
+  setHTML('hero-mon', mon(e.sprite,64));
   const hp=Math.max(1,Math.ceil(e.hp*D().hp));
-  $('hero-meta').innerHTML =
+  const reps=Math.max(1,Math.ceil(e.hp*D().hp));
+  setTxt('hero-sub', reps+' '+e.exs[0].toLowerCase()+' to win · '+ch.name);
+  setHTML('hero-meta',
     '<span class="hp">'+hp+' Energy · '+hp+' reps</span>'+
     '<span class="ex">'+e.exs[0]+'</span>'+
     (e.waves>1?'<span>'+e.waves+' waves</span>':'')+
     (e.boss?'<span class="bs">BIG MATCH</span>':'')+
-    '<span>'+D().name+'</span>';
+    '<span>'+D().name+'</span>');
 }
 function playCurrentEpisode(){
   const hero=$('ep-hero');
@@ -2044,23 +2051,21 @@ function renderHome(){
   if($('ps-flame') && !$('ps-flame').dataset.ico){
     $('ps-flame').insertAdjacentHTML('afterbegin',ICO.flame(14)); $('ps-flame').dataset.ico=1;
     $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(14)); $('ps-coin').dataset.ico=1; }
-  if(PROFILE){ $('home-uname').textContent=PROFILE.username; paintAvatars(); }
+  if(PROFILE){ setTxt('home-uname', PROFILE.username); paintAvatars(); }
+  setTxt('hello-sub', greetLine()+' — ready to play?');
   if($('diff-card-home')) $('diff-card-home').innerHTML=diffPickerHTML();
   renderEpHero();
   /* royale crest */
-  const cav=$('crest-av');
-  if(cav) cav.innerHTML = PROFILE?.avatar_url ? '<img src="'+PROFILE.avatar_url+'">' : mon(myAv(),42);
-  const t=tierOf(myElo());
-  const ct=$('crest-tier');
-  if(ct) ct.innerHTML = tierEmblem(t,14)+'<span style="color:'+t.col+'">'+t.n+'</span> · '+myElo()+' ELO';
-  if($('crest-reps')) $('crest-reps').textContent=((PROFILE?.total_reps)||0).toLocaleString('en-US');
-  $('h-lvl').textContent=S.user.lvl;
-  $('h-xp').textContent=S.user.xp; $('h-xpn').textContent=xpNeed();
-  const xb=$('h-xpbar'); xb.style.width=(S.user.xp/xpNeed()*100)+'%';
-  xb.classList.remove('xpbar-glow'); void xb.offsetWidth; xb.classList.add('xpbar-glow');
-  $('h-streak').textContent=S.user.streak;
-  $('h-coins').textContent=S.user.coins.toLocaleString('en-US');
-  const b=S.dailyBoss;
+
+  setTxt('crest-reps', ((PROFILE?.total_reps)||0).toLocaleString('en-US'));
+  setTxt('h-lvl', S.user.lvl);
+  setTxt('h-xp', S.user.xp); setTxt('h-xpn', xpNeed());
+  const xb=$('h-xpbar');
+  if(xb){ xb.style.width=(S.user.xp/xpNeed()*100)+'%';
+    xb.classList.remove('xpbar-glow'); void xb.offsetWidth; xb.classList.add('xpbar-glow'); }
+  setTxt('h-streak', S.user.streak);
+  setTxt('h-coins', S.user.coins.toLocaleString('en-US'));
+  const b=S.dailyBoss; if(!$('db-name')) return;
   $('db-name').textContent=b.done?b.name+' — OUT OF ENERGY':b.name;
   $('db-hp').textContent=b.hp+' / '+b.max;
   $('db-bar').style.width=(b.hp/b.max*100)+'%';
@@ -2665,7 +2670,7 @@ function startEpisode(ci,i){
   makeBattle({ kind:'episode', chap:ci, ep:i, exercise:e.exs[0], waves, modeName:'Episode '+(i+1) });
 }
 function fightDailyBoss(){
-  const b=S.dailyBoss; S.B_origin='home';
+  const b=S.dailyBoss; if(!$('db-name')) return; S.B_origin='home';
   if(b.done){ toast('✓ Boss already defeated today — try the Arena!'); return; }
   makeBattle({ kind:'boss', exercise:'Push-ups', waves:[{name:b.name,sprite:b.sprite,hp:b.hp}], modeName:'Daily Boss' });
 }
@@ -3080,6 +3085,7 @@ function avHTML(key,size){
 }
 function paintAvatars(){
   const k=myAv();
+  try{
   const set=(id,s)=>{ const el=$(id); if(el) el.innerHTML=avHTML(k,s); };
   document.querySelectorAll('.statusbar .avatar').forEach(el=>{ el.innerHTML=avHTML(k,30); });
   document.querySelectorAll('.prof-hero .avatar').forEach(el=>{ el.innerHTML=avHTML(k,56); });
@@ -3088,6 +3094,9 @@ function paintAvatars(){
   if(pv) pv.innerHTML = PROFILE?.avatar_url
     ? '<img src="'+PROFILE.avatar_url+'">'
     : mon(k,62);
+  const cav=$('crest-av');
+  if(cav) cav.innerHTML = PROFILE?.avatar_url ? '<img src="'+PROFILE.avatar_url+'">' : mon(k,42);
+  }catch(e){ console.error('[FitRoyale] paintAvatars', e); }
 }
 function renderAvPicker(){
   const w=$('av-grid'); if(!w) return;
@@ -3489,23 +3498,30 @@ function profTab(t){
   });
   if(t==='ana') renderAnalytics();
 }
+function setTxt(id,v){ const e=$(id); if(e) e.textContent=v; }
+function setHTML(id,v){ const e=$(id); if(e) e.innerHTML=v; }
 function renderProfile(){
-  if(PROFILE) $('prof-uname').textContent=PROFILE.username;
-  $('p-elo').textContent=myElo();
-  $('p-lvl').textContent=S.user.lvl;
-  $('p-title').textContent=S.user.title;
-  $('p-pet').innerHTML=S.user.pet?mon(S.user.pet,24):'';
-  renderAvPicker(); paintAvatars(); renderBadges();
-  renderRankCard&&0;
-  const bi=$('bio-in'); if(bi && document.activeElement!==bi){ bi.value=PROFILE?.bio||''; $('bio-count').textContent=(PROFILE?.bio||'').length; }
-  $('p-total').textContent=(PROFILE?.total_reps||0).toLocaleString('en-US');
-  $('p-streak').textContent=S.user.streak+'🔥';
-  if($('set-email')) $('set-email').textContent=ME?.email||'—';
-  renderShop('shop-frames',S.shop.frames,'frame');
-  renderShop('shop-titles',S.shop.titles,'title');
-  renderShop('shop-pets',S.shop.pets,'pet');
-  $('set-sound').classList.toggle('on',S.sound);
-  [1,2,3].forEach(n=>$('sn'+n).classList.toggle('on',S.sens===n));
+  setTxt('prof-uname', PROFILE?.username || 'Player');
+  setTxt('p-elo', myElo());
+  setTxt('p-lvl', S.user.lvl);
+  setTxt('p-title', S.user.title);
+  const t=tierOf(myElo());
+  setHTML('p-tier', tierEmblem(t,16)+'<span style="color:'+t.col+'">'+t.n+'</span>');
+  paintAvatars(); renderAvPicker(); renderBadges();
+  const bi=$('bio-in');
+  if(bi && document.activeElement!==bi){
+    bi.value=PROFILE?.bio||'';
+    setTxt('bio-count',(PROFILE?.bio||'').length);
+  }
+  setTxt('p-total', (PROFILE?.total_reps||0).toLocaleString('en-US'));
+  setTxt('p-streak', S.user.streak);
+  setTxt('p-coins', S.user.coins.toLocaleString('en-US'));
+  setTxt('set-email', ME?.email || '—');
+  if($('shop-frames')) renderShop('shop-frames',S.shop.frames,'frame');
+  if($('shop-titles')) renderShop('shop-titles',S.shop.titles,'title');
+  if($('shop-pets'))   renderShop('shop-pets',S.shop.pets,'pet');
+  const ss=$('set-sound'); if(ss) ss.classList.toggle('on',S.sound);
+  [1,2,3].forEach(n=>{ const e=$('sn'+n); if(e) e.classList.toggle('on',S.sens===n); });
 }
 function renderShop(elId,items,slot){
   const wrap=$(elId); wrap.innerHTML='';
@@ -3856,7 +3872,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='26.0';
+const BUILD='27.0';
 console.log('[FitRoyale] build',BUILD);
 const SB_URL='https://yxtfhqkrhxpkaaexzvcn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dGZocWtyaHhwa2FhZXh6dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjg0ODgsImV4cCI6MjEwMzIwNDQ4OH0.y4dMu9spDHMZBNr3uAfzmNzHKxJCuujVY6QmqxNteOg';
