@@ -107,7 +107,7 @@
   .qstat .n{ font-size:19px; font-weight:900; }
   .qstat .l{ font-size:9.5px; font-weight:900; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; }
 
-  .seclbl{ font-size:11px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin:18px 0 9px; }
+  .seclbl{ color:var(--gold); letter-spacing:.16em; font-size:11px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin:18px 0 9px; }
 
   /* ---- CAMPAIGN MAP ---- */
   .chap-head{ background:linear-gradient(135deg,#233355,#1E293B); }
@@ -338,6 +338,16 @@
   .splash p{ color:var(--dim); font-weight:800; font-size:13px; letter-spacing:.14em; text-transform:uppercase; }
   .authbox{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:26px 24px 40px;
     background:radial-gradient(circle at 50% 0%,#1D1145,var(--bg-dark)); }
+  .stay-row{ display:flex; align-items:center; gap:11px; padding:12px 13px; margin-bottom:12px;
+    background:var(--card-dark); border:1.5px solid var(--line); border-radius:14px; }
+  .stay-row.on{ border-color:rgba(139,92,246,.55); background:rgba(139,92,246,.09); }
+  .stay-box{ width:24px; height:24px; flex:none; border-radius:8px; border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center; transition:all .18s; }
+  .stay-row.on .stay-box{ background:var(--grad-purple); border-color:transparent; }
+  .stay-box svg{ opacity:0; transition:opacity .18s; }
+  .stay-row.on .stay-box svg{ opacity:1; }
+  .stay-row b{ font-size:13px; display:block; line-height:1.2; }
+  .stay-row span{ font-size:10.5px; font-weight:800; color:var(--dim); }
   .fp-link{ text-align:center; margin-top:2px; font-size:12.5px; font-weight:800; color:var(--violet-light); }
   .resetbox{ flex:1; display:flex; flex-direction:column; justify-content:center; padding:26px 24px 40px;
     background:radial-gradient(circle at 50% 0%,#1D1145,var(--bg-dark)); }
@@ -480,6 +490,56 @@
   .oauth-sep{ display:flex; align-items:center; gap:12px; margin:4px 0 14px; }
   .oauth-sep i{ flex:1; height:1px; background:var(--line); }
   .oauth-sep span{ font-size:11px; font-weight:900; color:var(--dim); letter-spacing:.1em; }
+
+  /* ---------- ROYALE HOME ---------- */
+  .crest{ position:relative; border-radius:26px; padding:16px 16px 14px; overflow:hidden;
+    background:linear-gradient(150deg,#3B2478 0%,#221650 45%,#141033 100%);
+    border:1.5px solid rgba(245,158,11,.42);
+    box-shadow:0 14px 40px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.10); }
+  .crest::before{ content:""; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(300px 160px at 92% -10%, rgba(245,158,11,.30), transparent 62%); }
+  .crest::after{ content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent); opacity:.75; }
+  .crest-top{ display:flex; align-items:center; gap:13px; position:relative; z-index:1; }
+  .crest-av{ width:60px; height:60px; border-radius:50%; overflow:hidden; flex:none;
+    border:2.5px solid var(--gold); box-shadow:0 0 22px rgba(245,158,11,.5);
+    display:flex; align-items:center; justify-content:center; background:#160F33; }
+  .crest-av img{ width:100%; height:100%; object-fit:cover; }
+  .crest-name{ font-size:20px; font-weight:900; line-height:1.1; text-shadow:0 2px 0 rgba(0,0,0,.5);
+    display:flex; align-items:center; gap:7px; }
+  .crest-tier{ display:inline-flex; align-items:center; gap:5px; font-size:10px; font-weight:900;
+    letter-spacing:.14em; padding:4px 9px; border-radius:99px; margin-top:5px;
+    background:rgba(0,0,0,.34); border:1px solid rgba(255,255,255,.14); }
+  .crest-lvl{ margin-left:auto; text-align:center; flex:none; }
+  .crest-lvl b{ display:block; font-size:26px; font-weight:900; line-height:1; color:var(--gold);
+    text-shadow:0 2px 0 rgba(0,0,0,.5); }
+  .crest-lvl span{ font-size:8.5px; font-weight:900; letter-spacing:.18em; color:var(--dim); }
+  .crest-xp{ margin-top:12px; position:relative; z-index:1; }
+  .crest-xp .t{ display:flex; justify-content:space-between; font-size:10px; font-weight:900;
+    color:rgba(255,255,255,.75); margin-bottom:5px; }
+  .crest-xp .bar{ height:9px; border-radius:99px; background:rgba(0,0,0,.42); overflow:hidden; }
+  .crest-xp .bar i{ display:block; height:100%; border-radius:99px;
+    background:linear-gradient(90deg,var(--violet-light),var(--gold)); box-shadow:0 0 12px rgba(245,158,11,.65);
+    transition:width .5s cubic-bezier(.2,.9,.3,1.1); }
+  .crest-stats{ display:flex; gap:8px; margin-top:12px; position:relative; z-index:1; }
+  .crest-stat{ flex:1; background:rgba(0,0,0,.30); border:1px solid rgba(255,255,255,.10);
+    border-radius:14px; padding:9px 6px; text-align:center; }
+  .crest-stat b{ display:flex; align-items:center; justify-content:center; gap:4px;
+    font-size:15px; font-weight:900; line-height:1; }
+  .crest-stat span{ font-size:8.5px; font-weight:900; letter-spacing:.12em; color:var(--dim); display:block; margin-top:4px; }
+
+  .quick-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:12px; }
+  .quick{ background:var(--card-dark); border:1.5px solid var(--line); border-radius:18px;
+    padding:13px 6px; text-align:center; transition:transform .12s, border-color .2s, box-shadow .25s; }
+  .quick:active{ transform:scale(.95); }
+  .quick .qi{ height:26px; display:flex; align-items:center; justify-content:center; margin-bottom:6px; }
+  .quick b{ font-size:11px; font-weight:900; display:block; }
+  .quick.gold{ border-color:rgba(245,158,11,.45); box-shadow:0 0 18px rgba(245,158,11,.14); }
+  .quick.purple{ border-color:rgba(139,92,246,.45); box-shadow:0 0 18px rgba(139,92,246,.14); }
+
+  .sect-head{ display:flex; align-items:center; gap:9px; margin:20px 0 10px; }
+  .sect-head .ln{ flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent); }
+  .sect-head b{ font-size:11px; font-weight:900; letter-spacing:.18em; color:var(--gold); }
 
   /* ---------- CURRENT EPISODE HERO ---------- */
   .ep-hero{ position:relative; overflow:hidden; border-radius:24px; padding:18px;
@@ -799,25 +859,62 @@
 
 <!-- ============ 1. HOME / QUEST DASHBOARD ============ -->
 <section class="screen active" id="scr-home">
-  <div class="statusbar">
-    <div class="av-wrap" id="home-av">
-      <span class="lvl-badge">LVL <span id="h-lvl">5</span></span>
-      <div class="avatar">YOU</div>
-      <span class="av-pet" id="h-pet"></span>
+  <div class="crest">
+    <div class="crest-top">
+      <div class="crest-av" id="crest-av"></div>
+      <div class="grow" style="min-width:0">
+        <button class="crest-name" onclick="editName()">
+          <span id="home-uname">Fighter</span>
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;flex:none;opacity:.7" fill="none" stroke="#F59E0B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        </button>
+        <span class="crest-tier" id="crest-tier"></span>
+      </div>
+      <div class="crest-lvl"><b id="h-lvl">1</b><span>LEVEL</span></div>
     </div>
-    <div class="xp-mini">
-      <div class="t"><span>XP</span><span><span id="h-xp">90</span>/<span id="h-xpn">250</span></span></div>
-      <div class="pbar fill-p"><i id="h-xpbar" style="width:36%"></i></div>
+    <div class="crest-xp">
+      <div class="t"><span>XP TO NEXT LEVEL</span><span><span id="h-xp">0</span>/<span id="h-xpn">50</span></span></div>
+      <div class="bar"><i id="h-xpbar" style="width:0%"></i></div>
     </div>
-    <div class="pillstat" id="ps-flame"><span id="h-streak">7</span></div>
-    <div class="pillstat" id="ps-coin"><span id="h-coins">1,450</span></div>
+    <div class="crest-stats">
+      <div class="crest-stat"><b id="ps-flame"><span id="h-streak">1</span></b><span>DAY STREAK</span></div>
+      <div class="crest-stat"><b id="ps-coin"><span id="h-coins">0</span></b><span>COINS</span></div>
+      <div class="crest-stat"><b id="crest-reps">0</b><span>TOTAL REPS</span></div>
+    </div>
   </div>
 
+  <div class="quick-row">
+    <button class="quick gold" onclick="playCurrentEpisode()">
+      <div class="qi"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="#F59E0B"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
+      <b>Fight</b>
+    </button>
+    <button class="quick purple" onclick="nav('scr-arena')">
+      <div class="qi"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg></div>
+      <b>Duel</b>
+    </button>
+    <button class="quick" onclick="nav('scr-workout')">
+      <div class="qi"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"><path d="M2 12h3M19 12h3M5 8v8M19 8v8M8 12h8"/></svg></div>
+      <b>Train</b>
+    </button>
+  </div>
+
+  <div class="sect-head"><b>YOUR NEXT FIGHT</b><span class="ln"></span></div>
+  <div class="ep-hero" id="ep-hero">
+    <div class="eyebrow" id="hero-eyebrow">EPISODE 1 OF 18</div>
+    <div class="chap" id="hero-chap">Chapter 1 · Goblin Caves</div>
+    <div class="epname" id="hero-name">Goblin</div>
+    <div class="row2">
+      <div class="mon" id="hero-mon"></div>
+      <div class="grow"><div class="ep-meta" id="hero-meta"></div></div>
+    </div>
+    <button class="btn b-gold" onclick="playCurrentEpisode()">START EPISODE</button>
+    <button class="btn b-ghost b-sm" style="margin-top:8px" onclick="goToMapSmooth()">VIEW FULL MAP ›</button>
+  </div>
+
+  <div class="sect-head"><b>TODAY'S BOSS</b><span class="ln"></span></div>
   <div class="card boss-banner">
     <div class="row" style="gap:14px">
       <div class="boss-sprite float-slow" id="db-sprite"></div>
       <div class="grow">
-        <div class="boss-tag">TODAY'S BOSS</div>
         <div class="boss-nm hdr glow" id="db-name">Goblin Chief</div>
         <div class="hp-line">
           <div class="t"><span class="red">HP</span><span id="db-hp">60 / 60</span></div>
@@ -830,14 +927,16 @@
         </div>
       </div>
     </div>
+    <button class="btn b-red" style="margin-top:12px" onclick="fightDailyBoss()">CHALLENGE THE BOSS</button>
   </div>
 
-  <button class="btn b-cta hdr" style="font-size:17px;padding:18px" onclick="fightDailyBoss()">⚔️ START WORKOUT</button>
+  <div class="sect-head"><b>DIFFICULTY</b><span class="ln"></span></div>
+  <div class="card" id="diff-card-home"></div>
 
-  <div class="seclbl">Daily Quests</div>
+  <div class="sect-head"><b>DAILY QUESTS</b><span class="ln"></span></div>
   <div id="quest-list"></div>
 
-  <div class="seclbl">Today</div>
+  <div class="sect-head"><b>TODAY</b><span class="ln"></span></div>
   <div class="qstats">
     <div class="qstat"><div class="n" id="qs-reps">0</div><div class="l">Reps</div></div>
     <div class="qstat"><div class="n" id="qs-time">0:00</div><div class="l">Active</div></div>
@@ -1122,7 +1221,10 @@
         </button>
         <input type="file" id="pfp-file" accept="image/*" style="display:none" onchange="uploadPfp(event)">
       </div>
-      <div class="hdr" style="font-size:21px" id="prof-uname">Fighter</div>
+      <button onclick="editName()" style="display:flex;align-items:center;gap:8px;margin:0 auto">
+        <span class="hdr" style="font-size:21px" id="prof-uname">Fighter</span>
+        <svg viewBox="0 0 24 24" style="width:17px;height:17px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      </button>
       <span class="prof-title" id="p-title">ROOKIE</span>
       <div class="rank-elo" style="margin-top:8px;font-size:13px"><span id="p-elo">1000</span> ELO · LVL <span id="p-lvl">1</span></div>
     </div>
@@ -1180,10 +1282,10 @@
 <section class="screen fullflow active" id="scr-splash">
   <div class="splash">
     <div class="logo-big">
-      <svg viewBox="0 0 24 24" style="width:48px;height:48px" fill="#fff"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+      <svg viewBox="0 0 24 24" style="width:48px;height:48px" fill="#fff"><path d="M3 8l4.5 4L12 4l4.5 8L21 8v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="3" cy="6.6" r="1.7"/><circle cx="12" cy="2.6" r="1.7"/><circle cx="21" cy="6.6" r="1.7"/></svg>
     </div>
     <h1 class="hdr">Fit Royale</h1>
-    <p>Train · Fight · Level Up</p>
+    <p>Rise Through The Ranks</p>
   </div>
 </section>
 
@@ -1191,7 +1293,7 @@
 <section class="screen fullflow" id="scr-auth">
   <div class="authbox">
     <div class="logo-big">
-      <svg viewBox="0 0 24 24" style="width:32px;height:32px" fill="#fff"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+      <svg viewBox="0 0 24 24" style="width:32px;height:32px" fill="#fff"><path d="M3 8l4.5 4L12 4l4.5 8L21 8v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="3" cy="6.6" r="1.7"/><circle cx="12" cy="2.6" r="1.7"/><circle cx="21" cy="6.6" r="1.7"/></svg>
     </div>
     <div class="hdr" style="font-size:24px;text-align:center">Welcome, Fighter</div>
     <p class="dim" style="text-align:center;font-weight:800;font-size:12.5px;margin-top:4px">Your progress is saved to your account</p>
@@ -1219,6 +1321,15 @@
       <label>Password</label>
       <input id="in-pass" type="password" placeholder="••••••••" autocomplete="current-password">
     </div>
+    <button class="stay-row on" id="stay-row" onclick="toggleStay()">
+      <div class="stay-box">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+      </div>
+      <div style="text-align:left">
+        <b>Stay logged in</b>
+        <span id="stay-sub">This device only — skip the login screen next time</span>
+      </div>
+    </button>
     <div class="auth-err" id="auth-err"></div>
     <button class="btn b-purple" id="auth-go" onclick="doAuth()">LOG IN</button>
     <p class="fp-link" id="fp-link" onclick="goForgot()">Forgot your password?</p>
@@ -1527,13 +1638,13 @@
 <div id="loader">
   <div class="ld-logo">
     <span class="ld-ring"></span>
-    <svg viewBox="0 0 24 24" style="width:52px;height:52px" fill="#fff"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+    <svg viewBox="0 0 24 24" style="width:52px;height:52px" fill="#fff"><path d="M3 8l4.5 4L12 4l4.5 8L21 8v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="3" cy="6.6" r="1.7"/><circle cx="12" cy="2.6" r="1.7"/><circle cx="21" cy="6.6" r="1.7"/></svg>
   </div>
   <div class="ld-title hdr">Fit Royale</div>
   <div class="ld-tip" id="ld-tip">Waking the arena…</div>
   <div class="ld-track"><i id="ld-fill"></i></div>
   <div class="ld-pct" id="ld-pct">0%</div>
-  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 20.0</div>
+  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 22.0</div>
 </div>
 
 <div id="modal-layer"><div class="modal" id="modal-box"></div></div>
@@ -1849,25 +1960,27 @@ function goToMapSmooth(){
   },320);
 }
 function renderHome(){
-  if(!$('ps-flame').dataset.ico){ $('ps-flame').insertAdjacentHTML('afterbegin',ICO.flame(15)); $('ps-flame').dataset.ico=1;
-    $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(15)); $('ps-coin').dataset.ico=1; }
+  if($('ps-flame') && !$('ps-flame').dataset.ico){
+    $('ps-flame').insertAdjacentHTML('afterbegin',ICO.flame(14)); $('ps-flame').dataset.ico=1;
+    $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(14)); $('ps-coin').dataset.ico=1; }
   if(PROFILE){ $('home-uname').textContent=PROFILE.username; paintAvatars(); }
   if($('diff-card-home')) $('diff-card-home').innerHTML=diffPickerHTML();
   renderEpHero();
-  const cch=S.chapters[S.cur.c];
-  if($('camp-ico')){ $('camp-ico').innerHTML=mon(cch.icon,26);
-    $('camp-name').textContent=cch.name;
-    $('camp-sub').textContent='Chapter '+(S.cur.c+1)+' · Episode '+(S.cur.e+1)+'/18'; }
+  /* royale crest */
+  const cav=$('crest-av');
+  if(cav) cav.innerHTML = PROFILE?.avatar_url ? '<img src="'+PROFILE.avatar_url+'">' : mon(myAv(),42);
+  const t=tierOf(myElo());
+  const ct=$('crest-tier');
+  if(ct) ct.innerHTML = tierEmblem(t,14)+'<span style="color:'+t.col+'">'+t.n+'</span> · '+myElo()+' ELO';
+  if($('crest-reps')) $('crest-reps').textContent=((PROFILE?.total_reps)||0).toLocaleString('en-US');
   $('h-lvl').textContent=S.user.lvl;
   $('h-xp').textContent=S.user.xp; $('h-xpn').textContent=xpNeed();
   const xb=$('h-xpbar'); xb.style.width=(S.user.xp/xpNeed()*100)+'%';
   xb.classList.remove('xpbar-glow'); void xb.offsetWidth; xb.classList.add('xpbar-glow');
   $('h-streak').textContent=S.user.streak;
   $('h-coins').textContent=S.user.coins.toLocaleString('en-US');
-  $('h-pet').innerHTML=S.user.pet?mon(S.user.pet,20):'';
-  applyFrame($('home-av'));
   const b=S.dailyBoss;
-  $('db-name').textContent=b.done?b.name+' ✓ DEFEATED':b.name;
+  $('db-name').textContent=b.done?b.name+' — DEFEATED':b.name;
   $('db-hp').textContent=b.hp+' / '+b.max;
   $('db-bar').style.width=(b.hp/b.max*100)+'%';
   $('db-target').textContent=b.max;
@@ -1964,6 +2077,28 @@ function renderMap(){
     d+=` C ${x1} ${y1+45}, ${x2} ${y2-45}, ${x2} ${y2}`;
   }
   svg.innerHTML=`<path d="${d}" fill="none" stroke="rgba(245,158,11,.45)" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/>`;
+}
+function editName(){
+  SFX.click();
+  const cur=(PROFILE?.username||'').replace(/"/g,'&quot;');
+  openModal('<h3 class="hdr">Change your name</h3>'+
+    '<p style="margin-bottom:14px">This is what other fighters see on the leaderboard and in duels.</p>'+
+    '<input id="name-in" class="bio-box" style="text-align:center;font-size:17px;font-weight:900" '+
+      'maxlength="20" value="'+cur+'" placeholder="Your fighter name">'+
+    '<div class="auth-err" id="name-err" style="margin-top:8px"></div>'+
+    '<button class="btn b-gold" onclick="saveName()">SAVE NAME</button>'+
+    '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CANCEL</button>');
+  setTimeout(()=>{ const i=$('name-in'); if(i){ i.focus(); i.select(); } },80);
+}
+function saveName(){
+  const v=($('name-in')?.value||'').trim();
+  if(v.length<3){ $('name-err').textContent='Name needs at least 3 characters.'; SFX.err(); return; }
+  if(v.length>20){ $('name-err').textContent='Keep it under 20 characters.'; SFX.err(); return; }
+  if(PROFILE){ PROFILE.username=v; saveProfile(); }
+  if($('home-uname')) $('home-uname').textContent=v;
+  if($('prof-uname')) $('prof-uname').textContent=v;
+  closeModal(); SFX.ready(); burstAt(null,'#F59E0B',14);
+  toast('Name changed to '+v);
 }
 function armoryPopup(){
   SFX.click(); quake();
@@ -3499,14 +3634,25 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='20.0';
+const BUILD='22.0';
 console.log('[FitRoyale] build',BUILD);
 const SB_URL='https://yxtfhqkrhxpkaaexzvcn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dGZocWtyaHhwa2FhZXh6dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjg0ODgsImV4cCI6MjEwMzIwNDQ4OH0.y4dMu9spDHMZBNr3uAfzmNzHKxJCuujVY6QmqxNteOg';
 let sb=null, ME=null, PROFILE=null;
+const STAY_KEY='fr_stay';
+function stayLoggedIn(){
+  try{ return localStorage.getItem(STAY_KEY)!=='0'; }catch(e){ return true; }
+}
+/* When "stay logged in" is ON we persist to localStorage (survives closing the app).
+   When OFF we use sessionStorage, so the session dies with the tab/app. */
+const authStorage={
+  getItem(k){ try{ return (stayLoggedIn()?localStorage:sessionStorage).getItem(k); }catch(e){ return null; } },
+  setItem(k,v){ try{ (stayLoggedIn()?localStorage:sessionStorage).setItem(k,v); }catch(e){} },
+  removeItem(k){ try{ localStorage.removeItem(k); sessionStorage.removeItem(k); }catch(e){} },
+};
 try{
   sb=window.supabase?.createClient(SB_URL,SB_KEY,{
-    auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storage:window.localStorage }
+    auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storage:authStorage }
   });
 }catch(e){ sb=null; }
 let inRecovery = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
@@ -3519,6 +3665,36 @@ sb?.auth.onAuthStateChange((event)=>{
   }
 });
 
+function toggleStay(){
+  const on=!stayLoggedIn();
+  try{ localStorage.setItem(STAY_KEY, on?'1':'0'); }catch(e){}
+  paintStay();
+  SFX.click();
+  if(!on){
+    /* moving to session-only: shift any stored auth keys out of localStorage */
+    try{
+      Object.keys(localStorage).filter(k=>k.startsWith('sb-')).forEach(k=>{
+        sessionStorage.setItem(k, localStorage.getItem(k));
+        localStorage.removeItem(k);
+      });
+    }catch(e){}
+  } else {
+    try{
+      Object.keys(sessionStorage).filter(k=>k.startsWith('sb-')).forEach(k=>{
+        localStorage.setItem(k, sessionStorage.getItem(k));
+        sessionStorage.removeItem(k);
+      });
+    }catch(e){}
+  }
+}
+function paintStay(){
+  const r=$('stay-row'); if(!r) return;
+  const on=stayLoggedIn();
+  r.classList.toggle('on',on);
+  $('stay-sub').textContent = on
+    ? 'This device only — skip the login screen next time'
+    : "You'll be asked to log in again when you close the app";
+}
 let authMode='login';
 function authTab(m){
   authMode=m;
@@ -3651,7 +3827,7 @@ async function afterPasswordReset(){
   catch(e){ goFlow('scr-auth'); }
 }
 function backToLogin(){
-  authTab('login');
+  authTab('login'); paintStay();
   if(pendingSignupEmail) $('in-email').value=pendingSignupEmail;
   goFlow('scr-auth');
 }
@@ -3756,6 +3932,10 @@ function confirmLogout(){
 }
 async function logout(){
   try{ await sb?.auth.signOut(); }catch(e){}
+  try{
+    Object.keys(localStorage).filter(k=>k.startsWith('sb-')).forEach(k=>localStorage.removeItem(k));
+    Object.keys(sessionStorage).filter(k=>k.startsWith('sb-')).forEach(k=>sessionStorage.removeItem(k));
+  }catch(e){}
   location.reload();
 }
 function greetLine(){
