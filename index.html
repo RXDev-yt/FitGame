@@ -1435,6 +1435,8 @@
     <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#60A5FA" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4"/><circle cx="12" cy="17" r="1" fill="#60A5FA" stroke="none"/></svg> How to play <button class="claim" style="margin-left:auto" onclick="showHowToPlay()">OPEN</button></div>
     <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#8B5CF6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg> Account <span class="dim" style="margin-left:auto;font-size:12px" id="set-email">—</span></div>
     <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg> Membership <span class="own" style="margin-left:auto">FOUNDER</span></div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#10B981" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Progress saving
+      <span class="dim" style="margin-left:auto;font-size:12px" id="set-save">—</span></div>
     <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#60A5FA" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 3v6h-6"/></svg> App version
       <span class="dim" style="margin-left:auto;font-size:12px" id="set-build">—</span>
       <button class="claim" style="margin-left:8px" onclick="forceRefresh()">REFRESH</button></div>
@@ -3611,6 +3613,11 @@ function renderProfile(){
   setTxt('p-coins', S.user.coins.toLocaleString('en-US'));
   setTxt('set-email', ME?.email || '—');
   setTxt('set-build', 'Build '+BUILD);
+  const sv=$('set-save');
+  if(sv){
+    sv.textContent = lastSave.ok===true ? 'Saved ✓' : lastSave.ok===false ? 'On this device only' : 'Ready';
+    sv.style.color = lastSave.ok===true ? 'var(--green)' : lastSave.ok===false ? 'var(--gold)' : 'var(--dim)';
+  }
   if($('shop-frames')) renderShop('shop-frames',S.shop.frames,'frame');
   if($('shop-titles')) renderShop('shop-titles',S.shop.titles,'title');
   if($('shop-pets'))   renderShop('shop-pets',S.shop.pets,'pet');
@@ -3966,7 +3973,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='29.0';
+const BUILD='30.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4218,20 +4225,35 @@ async function loadProfile(){
   catch(e){ console.error('[FitRoyale] profile load failed:', e.message||e); }
 
   const local=loadLocalProfile();
+
+  /* Merge rule: start from defaults, layer the local backup, then layer the cloud row —
+     but NEVER let a null/empty cloud value erase a real local one, and if the local copy
+     is newer than the cloud row (a save that didn't reach the server), local wins. */
+  const isReal=v => v!==null && v!==undefined && v!=='';
+  const layer=(target,src)=>{ if(!src) return; Object.entries(src).forEach(([k,v])=>{ if(isReal(v)) target[k]=v; }); };
+
+  PROFILE={ ...DEFAULTS };
+  layer(PROFILE, local);
+
+  const localTs = Number(local?._ts||0);
+  const cloudTs = data?.updated_at ? Date.parse(data.updated_at) : 0;
+  const localIsNewer = localTs && localTs > (cloudTs||0);
+
   if(data){
-    /* DB row wins, but fill any column the DB doesn't have yet from the local backup */
-    PROFILE={ ...DEFAULTS, ...(local||{}), ...data };
-    Object.keys(DEFAULTS).forEach(k=>{
-      if(data[k]===undefined && local && local[k]!==undefined) PROFILE[k]=local[k];
-    });
-    /* a truthy local tutorial flag must never be lost to a stale/failed cloud write */
+    if(localIsNewer){
+      /* cloud is behind — only take fields the local copy genuinely lacks */
+      Object.entries(data).forEach(([k,v])=>{ if(isReal(v) && !isReal(PROFILE[k])) PROFILE[k]=v; });
+      console.warn('[FitRoyale] local profile is newer than cloud — keeping local, re-syncing');
+      setTimeout(()=>pushProfile(),400);
+    } else {
+      layer(PROFILE, data);
+    }
     if(local?.tutorial_done) PROFILE.tutorial_done=true;
-    if(local?.avatar_url && !data.avatar_url) PROFILE.avatar_url=local.avatar_url;
   } else {
-    PROFILE={ ...DEFAULTS, ...(local||{}) };
     await pushProfile();
   }
-  if(!PROFILE.username || ['Player','Fighter',''].includes(PROFILE.username)){
+  PROFILE.id=ME.id;
+  if(!isReal(PROFILE.username) || ['Player','Fighter'].includes(PROFILE.username)){
     PROFILE.username = emailName || 'Champion';
   }
   cacheProfileLocally();
@@ -4241,13 +4263,17 @@ async function loadProfile(){
 }
 let saveT=null;
 const PROFILE_COLS=['id','username','level','xp','coins','streak','pr','total_reps','tutorial_done',
-  'membership','elo','bio','avatar','avatar_url','duel_wins','bosses','difficulty','story_seen','offer_started'];
-let badCols=new Set();        /* columns the DB rejected — skipped on later saves */
+  'membership','elo','bio','avatar','avatar_url','duel_wins','bosses','difficulty','story_seen','offer_started','updated_at'];
+let badCols=new Set();
+let lastSave={ ok:null, msg:'Not saved yet', at:0 };        /* columns the DB rejected — skipped on later saves */
 let warnedSave=false;
 
 function localKey(){ return 'fr_profile_'+(ME?.id||'anon'); }
 function cacheProfileLocally(){
-  try{ localStorage.setItem(localKey(), JSON.stringify(PROFILE)); }catch(e){}
+  try{
+    if(PROFILE) PROFILE._ts=Date.now();
+    localStorage.setItem(localKey(), JSON.stringify(PROFILE));
+  }catch(e){}
 }
 function loadLocalProfile(){
   try{ const raw=localStorage.getItem(localKey()); return raw?JSON.parse(raw):null; }catch(e){ return null; }
@@ -4270,9 +4296,12 @@ async function pushProfile(attempt){
   const payload={};
   PROFILE_COLS.forEach(k=>{ if(k in PROFILE && !badCols.has(k)) payload[k]=PROFILE[k]; });
   payload.id=PROFILE.id;
+  payload.updated_at=new Date().toISOString();
   try{
     const { error } = await sb.from('profiles').upsert(payload);
     if(error) throw error;
+    lastSave={ ok:true, msg:'Saved to cloud', at:Date.now() };
+    const el=$('set-save'); if(el){ el.textContent='Saved ✓'; el.style.color='var(--green)'; }
   }catch(e){
     const msg=(e.message||e.details||'')+'';
     /* Postgres/PostgREST tells us exactly which column is missing — drop it and retry */
@@ -4284,6 +4313,8 @@ async function pushProfile(attempt){
       return pushProfile(attempt+1);
     }
     console.error('[FitRoyale] profile save failed:', msg);
+    lastSave={ ok:false, msg:msg.slice(0,90), at:Date.now() };
+    const el2=$('set-save'); if(el2){ el2.textContent='On this device only'; el2.style.color='var(--gold)'; }
     if(!warnedSave){
       warnedSave=true;
       toast('Cloud save issue — progress kept on this device');
