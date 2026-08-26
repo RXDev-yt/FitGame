@@ -772,6 +772,23 @@
     border:2px solid rgba(245,158,11,.5); display:flex; align-items:center; justify-content:center; animation:bob 2.2s infinite; }
   .posgate h4{ font-size:19px; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.5); }
   .posgate p{ font-size:12.5px; font-weight:800; color:var(--dim); max-width:24ch; }
+  .hold-circle{ position:relative; width:150px; height:150px; margin:6px auto 0;
+    display:flex; align-items:center; justify-content:center; touch-action:none; user-select:none;
+    -webkit-user-select:none; -webkit-tap-highlight-color:transparent; }
+  .hold-circle svg{ position:absolute; inset:0; width:150px; height:150px; transform:rotate(-90deg); }
+  .hold-circle .hc-track{ stroke:rgba(255,255,255,.12); }
+  .hold-circle .hc-count{ stroke:var(--gold); stroke-linecap:round;
+    transition:stroke-dashoffset 1s linear; filter:drop-shadow(0 0 8px rgba(245,158,11,.85)); }
+  .hold-circle .hc-hold{ stroke:var(--violet-light); stroke-linecap:round;
+    transition:stroke-dashoffset .06s linear; filter:drop-shadow(0 0 10px rgba(167,139,250,.95)); }
+  .hold-circle .hc-mid{ position:relative; z-index:2; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; width:112px; height:112px; border-radius:50%;
+    background:rgba(10,7,26,.75); border:1px solid rgba(255,255,255,.10); transition:transform .12s; }
+  .hold-circle.holding .hc-mid{ transform:scale(.93); background:rgba(30,18,66,.9); }
+  .hold-circle .hc-num{ font-size:44px; font-weight:900; line-height:1; color:var(--gold);
+    text-shadow:0 0 22px rgba(245,158,11,.8); }
+  .hold-circle .hc-lbl{ font-size:8.5px; font-weight:900; letter-spacing:.16em; color:var(--dim); margin-top:5px; }
+  .hold-circle.holding .hc-lbl{ color:var(--violet-light); }
   .prep-timer{ display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:4px; }
   .prep-ring{ position:relative; width:74px; height:74px; }
   .prep-ring svg{ width:74px; height:74px; transform:rotate(-90deg); }
@@ -1106,20 +1123,19 @@
       <h4 class="hdr" id="pg-title">Get into position</h4>
       <p id="pg-text">Prop your phone up, get on the floor facing the camera, arms extended. The fight starts when you're set.</p>
       <div class="cd" id="pg-cd" style="display:none">3</div>
-      <div class="prep-timer" id="prep-timer">
-        <div class="prep-ring">
-          <svg viewBox="0 0 74 74">
-            <circle class="track" cx="37" cy="37" r="32" fill="none" stroke-width="5"/>
-            <circle class="fill" id="prep-arc" cx="37" cy="37" r="32" fill="none" stroke-width="5"
-              stroke-dasharray="201" stroke-dashoffset="0"/>
-          </svg>
-          <b id="prep-num">10</b>
+      <div class="hold-circle" id="hold-circle">
+        <svg viewBox="0 0 150 150">
+          <circle class="hc-track" cx="75" cy="75" r="66" fill="none" stroke-width="7"/>
+          <circle class="hc-count" id="hc-count" cx="75" cy="75" r="66" fill="none" stroke-width="7"
+            stroke-dasharray="415" stroke-dashoffset="0"/>
+          <circle class="hc-hold" id="hc-hold" cx="75" cy="75" r="57" fill="none" stroke-width="5"
+            stroke-dasharray="358" stroke-dashoffset="358"/>
+        </svg>
+        <div class="hc-mid">
+          <div class="hc-num" id="hc-num">10</div>
+          <div class="hc-lbl" id="hc-lbl">HOLD TO SKIP</div>
         </div>
-        <div class="prep-note">Starting automatically…</div>
       </div>
-      <button class="hold-btn" id="prep-skip" style="max-width:250px">
-        <span class="fillbar" id="prep-fill"></span><span>HOLD TO START NOW</span>
-      </button>
     </div>
   </div>
 
@@ -1699,7 +1715,7 @@
   <div class="ld-tip" id="ld-tip">Waking the arena…</div>
   <div class="ld-track"><i id="ld-fill"></i></div>
   <div class="ld-pct" id="ld-pct">0%</div>
-  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 24.0</div>
+  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 25.0</div>
 </div>
 
 <div id="modal-layer"><div class="modal" id="modal-box"></div></div>
@@ -2351,7 +2367,6 @@ function endRest(){
   /* re-arm the pose gate so the next wave starts on your terms */
   if(PoseEngine.target){ PoseEngine.target.armed=false; PoseEngine.target.extSince=0; PoseEngine.target.phase='READY'; }
   B.gate=true;
-  const sk2=$('prep-skip'); if(sk2) sk2.style.display='flex';
   showGate(true,'Next wave','Get back into position — the next enemy is coming.');
   SFX.kill();
 }
@@ -2396,17 +2411,18 @@ let prepT=null, prepHoldT=null;
 function stopPrepTimer(){
   clearInterval(prepT); prepT=null;
   clearInterval(prepHoldT); prepHoldT=null;
-  const f=$('prep-fill'); if(f) f.style.width='0%';
+  const r=$('hc-hold'); if(r) r.style.strokeDashoffset='358';
+  const c=$('hold-circle'); if(c) c.classList.remove('holding');
+  const l=$('hc-lbl'); if(l) l.textContent='HOLD TO SKIP';
 }
 function startPrepTimer(){
   stopPrepTimer();
-  const PREP=10;
+  const PREP=10, C_LEN=415;
   let left=PREP;
-  const num=$('prep-num'), arc=$('prep-arc'), tw=$('prep-timer');
-  if(tw) tw.style.display='flex';
+  const num=$('hc-num'), arc=$('hc-count');
   const paint=()=>{
     if(num) num.textContent=left;
-    if(arc) arc.style.strokeDashoffset = String(201*(1-left/PREP));
+    if(arc) arc.style.strokeDashoffset=String(C_LEN*(1-left/PREP));
   };
   paint();
   prepT=setInterval(()=>{
@@ -2419,28 +2435,40 @@ function startPrepTimer(){
   bindPrepSkip();
 }
 function bindPrepSkip(){
-  const btn=$('prep-skip'), fill=$('prep-fill');
-  if(!btn||!fill) return;
-  if(btn.dataset.bound){ fill.style.width='0%'; return; }
-  btn.dataset.bound=1;
-  const HOLD=900;
+  const circ=$('hold-circle'), ring=$('hc-hold'), lbl=$('hc-lbl');
+  if(!circ||!ring) return;
+  if(circ.dataset.bound){ ring.style.strokeDashoffset='358'; return; }
+  circ.dataset.bound=1;
+  const HOLD=900, R_LEN=358;
   let started=0;
   const begin=(e)=>{
     e.preventDefault();
     if(!S.B || S.B.gate!==true) return;
     started=performance.now();
+    circ.classList.add('holding');
+    if(lbl) lbl.textContent='KEEP HOLDING…';
     clearInterval(prepHoldT);
     prepHoldT=setInterval(()=>{
-      const p=Math.min(100,(performance.now()-started)/HOLD*100);
-      fill.style.width=p+'%';
-      if(p>=100){ clearInterval(prepHoldT); fill.style.width='0%'; burstAt(btn,'#F59E0B',12); stopPrepTimer(); onInPosition(); }
+      const p=Math.min(1,(performance.now()-started)/HOLD);
+      ring.style.strokeDashoffset=String(R_LEN*(1-p));
+      if(p>=1){
+        clearInterval(prepHoldT);
+        circ.classList.remove('holding');
+        burstAt(circ,'#F59E0B',18); shockwave(circ); SFX.ready();
+        stopPrepTimer(); onInPosition();
+      }
     },30);
   };
-  const cancel=()=>{ clearInterval(prepHoldT); fill.style.width='0%'; };
-  btn.addEventListener('pointerdown',begin);
-  btn.addEventListener('pointerup',cancel);
-  btn.addEventListener('pointerleave',cancel);
-  btn.addEventListener('pointercancel',cancel);
+  const cancel=()=>{
+    clearInterval(prepHoldT);
+    circ.classList.remove('holding');
+    ring.style.strokeDashoffset=String(358);
+    if(lbl) lbl.textContent='HOLD TO SKIP';
+  };
+  circ.addEventListener('pointerdown',begin);
+  circ.addEventListener('pointerup',cancel);
+  circ.addEventListener('pointerleave',cancel);
+  circ.addEventListener('pointercancel',cancel);
 }
 function showGate(on,title,text){
   const g=$('posgate'); if(!g) return;
@@ -2455,8 +2483,6 @@ function showGate(on,title,text){
 function onInPosition(){
   const B=S.B; if(!B||!B.gate) return;
   stopPrepTimer();
-  const tw=$('prep-timer'); if(tw) tw.style.display='none';
-  const sk=$('prep-skip'); if(sk) sk.style.display='none';
   B.gate='counting';
   $('pg-title').textContent='Ready!';
   $('pg-text').textContent='Hold it…';
@@ -3621,7 +3647,7 @@ const PoseEngine={
     }
     this.target={ video, canvas, ctx:canvas.getContext('2d'),
       cfg:EX_CFG[exercise]||EX_CFG['Push-ups'], onRep, onStatus,
-      phase:'READY', lastRep:0, lowVisSince:0, armed:false, extSince:0, aMin:180, aMax:0, calib:false, lowSince:0, seenSince:0, jointName:(EX_CFG[exercise]||EX_CFG['Push-ups']).joint };
+      phase:'READY', lastRep:0, lowVisSince:0, armed:false, extSince:0, aMin:180, aMax:0, calib:false, lowSince:0, seenSince:0, lastAnchor:null, shakeUntil:0, downSince:0, upSince:0, downAt:0, jointName:(EX_CFG[exercise]||EX_CFG['Push-ups']).joint };
     this.cam=new Camera(video,{ onFrame:async()=>{ if(this.target) await this.pose.send({image:video}); },
       width:1280, height:720 });
     this.cam.start();
@@ -3742,16 +3768,30 @@ const PoseEngine={
       return;
     }
 
+    /* --- CAMERA-SHAKE REJECTION ---------------------------------------
+       If the PHONE moves, every landmark shifts together. If YOU move, the
+       joint angle changes while the torso anchor stays put. Compare them. */
+    const anchor = { x:(lm[11].x+lm[12].x+lm[23].x+lm[24].x)/4,
+                     y:(lm[11].y+lm[12].y+lm[23].y+lm[24].y)/4 };
+    if(t.lastAnchor){
+      const drift=Math.hypot(anchor.x-t.lastAnchor.x, anchor.y-t.lastAnchor.y);
+      /* a big whole-body jump in one frame = the phone was bumped, not a rep */
+      if(drift>0.055){ t.shakeUntil=now+700; }
+    }
+    t.lastAnchor=anchor;
+    const shaking = now < (t.shakeUntil||0);
+
     /* --- ADAPTIVE RANGE: learn the player's actual range of motion --- */
-    if(angle<t.aMin) t.aMin=angle;
-    if(angle>t.aMax) t.aMax=angle;
-    /* slowly relax the envelope so a bad frame can't poison it forever */
+    if(!shaking){
+      if(angle<t.aMin) t.aMin=angle;
+      if(angle>t.aMax) t.aMax=angle;
+    }
     t.aMin += 0.04; t.aMax -= 0.04;
     const range=t.aMax-t.aMin;
 
     t.onStatus('ai','AI · '+c.joint+' '+Math.round(angle)+'°');
+    if(shaking) return;                       /* ignore frames while the phone settles */
 
-    /* need a believable amount of movement before counting anything */
     const MIN_RANGE = curDiff()==='easy' ? 22 : curDiff()==='normal' ? 30 : curDiff()==='hard' ? 40 : 50;
     if(range < MIN_RANGE){
       if(!t.calib){ t.onStatus('load','Do one full rep so I can learn your range…'); }
@@ -3759,15 +3799,32 @@ const PoseEngine={
     }
     if(!t.calib){ t.calib=true; beep(880,.08); t.onStatus('ai','Range set — counting!'); }
 
-    /* thresholds sit inside the player's own range, so partial reps still count */
     const frac = curDiff()==='easy' ? 0.38 : curDiff()==='normal' ? 0.32 : 0.26;
     const downAt = t.aMin + range*frac;
     const upAt   = t.aMax - range*frac;
 
-    if(t.phase!=='DOWN' && angle<=downAt){ t.phase='DOWN'; }
-    else if(t.phase==='DOWN' && angle>=upAt){
-      if(now-t.lastRep>380){ t.lastRep=now; t.phase='READY'; t.onRep(); }
-    }
+    /* --- DWELL: you must HOLD each end briefly. A wobble spikes and vanishes;
+           a real rep sits at the bottom and at the top. ------------------- */
+    const DOWN_DWELL=180, UP_DWELL=140;
+    if(angle<=downAt){
+      t.downSince = t.downSince || now;
+      if(t.phase!=='DOWN' && now-t.downSince>=DOWN_DWELL){
+        t.phase='DOWN'; t.downAt=now;
+      }
+    } else { t.downSince=0; }
+
+    if(angle>=upAt){
+      t.upSince = t.upSince || now;
+      if(t.phase==='DOWN' && now-t.upSince>=UP_DWELL){
+        const repMs = now - (t.downAt||now);
+        /* a human rep takes at least ~0.45s and at most ~8s */
+        if(repMs>=450 && repMs<=8000 && now-t.lastRep>420){
+          t.lastRep=now; t.phase='READY'; t.upSince=0; t.downSince=0; t.onRep();
+        } else if(repMs>8000){
+          t.phase='READY'; t.upSince=0; t.downSince=0;   /* too slow, discard */
+        }
+      }
+    } else { t.upSince=0; }
   },
   stop(){
     const t=this.target;
@@ -3784,12 +3841,18 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='24.0';
+const BUILD='25.0';
 console.log('[FitRoyale] build',BUILD);
 const SB_URL='https://yxtfhqkrhxpkaaexzvcn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dGZocWtyaHhwa2FhZXh6dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjg0ODgsImV4cCI6MjEwMzIwNDQ4OH0.y4dMu9spDHMZBNr3uAfzmNzHKxJCuujVY6QmqxNteOg';
 let sb=null, ME=null, PROFILE=null;
 const STAY_KEY='fr_stay';
+function hasStoredSession(){
+  try{
+    const has=s=>Object.keys(s).some(k=>k.startsWith('sb-')&&k.includes('auth-token'));
+    return has(localStorage)||has(sessionStorage);
+  }catch(e){ return false; }
+}
 function stayLoggedIn(){
   try{ return localStorage.getItem(STAY_KEY)!=='0'; }catch(e){ return true; }
 }
@@ -4356,8 +4419,18 @@ async function boot(){
   const failsafe=setTimeout(()=>{
     console.warn('[FitRoyale] boot failsafe fired');
     ldDone();
-    if(!document.querySelector('.screen.active') || $('scr-splash').classList.contains('active')) goFlow('scr-auth');
-  }, 9000);
+    const stuck = !document.querySelector('.screen.active') || $('scr-splash').classList.contains('active');
+    if(!stuck) return;
+    /* NEVER kick a logged-in player to the login screen just because the network was slow */
+    if(hasStoredSession()){
+      goFlow('scr-splash');
+      openModal('<h3 class="hdr">Slow connection</h3><p>Still reaching the arena. Your login is saved.</p>'+
+        '<button class="btn b-purple" onclick="closeModal();location.reload()">RETRY</button>'+
+        '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal();goFlow(\'scr-auth\')">LOG IN INSTEAD</button>');
+    } else {
+      goFlow('scr-auth'); paintStay();
+    }
+  }, 12000);
   try{
     goFlow('scr-splash');
     const minSplash=new Promise(r=>setTimeout(r,1400));
@@ -4376,13 +4449,14 @@ async function boot(){
       ME=session.user;
       ldSet(75,'Loading your fighter…');
       try{ await loadProfile(); }catch(e){ console.error('[FitRoyale] loadProfile failed',e); }
-      try{ enterApp(); }catch(e){ console.error('[FitRoyale] enterApp failed',e); goFlow('scr-auth'); }
+      try{ enterApp(); }catch(e){ console.error('[FitRoyale] enterApp failed',e); document.body.classList.remove('locked'); nav('scr-home'); }
     } else {
       goFlow('scr-auth');
     }
   }catch(e){
     console.error('[FitRoyale] boot failed',e);
-    goFlow('scr-auth');
+    if(hasStoredSession() && ME){ document.body.classList.remove('locked'); nav('scr-home'); }
+    else { goFlow('scr-auth'); paintStay(); }
   }finally{
     clearTimeout(failsafe);
     ldDone();
