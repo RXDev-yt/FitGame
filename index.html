@@ -481,6 +481,36 @@
   .oauth-sep i{ flex:1; height:1px; background:var(--line); }
   .oauth-sep span{ font-size:11px; font-weight:900; color:var(--dim); letter-spacing:.1em; }
 
+  /* ---------- CURRENT EPISODE HERO ---------- */
+  .ep-hero{ position:relative; overflow:hidden; border-radius:24px; padding:18px;
+    background:linear-gradient(140deg,#2A1866,#16113A 60%,#0F172A);
+    border:1.5px solid rgba(139,92,246,.45); box-shadow:0 12px 34px rgba(0,0,0,.5); }
+  .ep-hero::before{ content:""; position:absolute; inset:0; pointer-events:none;
+    background:radial-gradient(240px 140px at 88% 8%, rgba(245,158,11,.25), transparent 65%); }
+  .ep-hero .eyebrow{ font-size:10px; font-weight:900; letter-spacing:.22em; color:var(--gold); }
+  .ep-hero .chap{ font-size:12px; font-weight:900; color:var(--dim); margin-top:2px; }
+  .ep-hero .epname{ font-size:23px; font-weight:900; line-height:1.15; margin-top:6px;
+    text-shadow:0 3px 0 rgba(0,0,0,.45); }
+  .ep-hero .row2{ display:flex; align-items:center; gap:14px; margin-top:12px; position:relative; z-index:1; }
+  .ep-hero .mon{ width:78px; height:78px; flex:none; border-radius:20px; background:rgba(0,0,0,.32);
+    display:flex; align-items:center; justify-content:center; border:1.5px solid rgba(255,255,255,.10);
+    animation:bob 3s ease-in-out infinite; }
+  .ep-meta{ display:flex; flex-wrap:wrap; gap:6px; }
+  .ep-meta span{ font-size:10.5px; font-weight:900; padding:5px 10px; border-radius:99px;
+    background:rgba(255,255,255,.10); }
+  .ep-meta span.hp{ color:#FCA5A5; } .ep-meta span.ex{ color:#A7F3D0; } .ep-meta span.bs{ color:#FDE68A; }
+  .ep-hero .btn{ margin-top:14px; position:relative; z-index:1; }
+  .ep-hero.pulse{ animation:heroPulse .5s cubic-bezier(.2,.9,.3,1.4); }
+  @keyframes heroPulse{ 40%{ transform:scale(1.02);} }
+
+  /* exercise clarity banner in battle */
+  .ex-banner{ display:flex; align-items:center; gap:10px; background:var(--card-2);
+    border:1.5px solid rgba(139,92,246,.4); border-radius:14px; padding:9px 12px; margin-bottom:8px; }
+  .ex-banner .eb-ico{ width:34px; height:34px; flex:none; border-radius:10px; background:rgba(139,92,246,.2);
+    display:flex; align-items:center; justify-content:center; }
+  .ex-banner b{ font-size:14px; display:block; line-height:1.15; }
+  .ex-banner span{ font-size:10.5px; font-weight:800; color:var(--dim); }
+
   /* ---------- RANK TIERS ---------- */
   .rank-card{ background:linear-gradient(135deg,var(--rc1),var(--rc2)); border-radius:22px; padding:20px;
     position:relative; overflow:hidden; text-align:center; box-shadow:0 10px 34px rgba(0,0,0,.45); }
@@ -887,6 +917,10 @@
       </div>
       <div class="hud-timer"><div class="t" id="b-timer">0:00</div><div class="l">TIME</div></div>
     </div>
+    <div class="ex-banner">
+      <div class="eb-ico" id="eb-ico"></div>
+      <div><b id="eb-name">Push-ups</b><span id="eb-tip">Chest to the floor, then push all the way up</span></div>
+    </div>
     <div class="hp-line">
       <div class="t"><span class="red" id="b-hplbl">HP</span><span id="b-hptxt">3 / 5</span></div>
       <div class="pbar fill-r"><i id="b-hpbar" style="width:60%"></i></div>
@@ -1123,8 +1157,8 @@
   </div>
 
   <div id="p-set" style="display:none">
-    <div class="set-row">🔊 Sound FX <button class="toggle on" id="set-sound" onclick="toggleSound()"><i></i></button></div>
-    <div class="set-row">🎯 Pose sensitivity
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#8B5CF6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 8.5a5 5 0 0 1 0 7"/></svg> Sound FX <button class="toggle on" id="set-sound" onclick="toggleSound()"><i></i></button></div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg> Pose sensitivity
       <div class="sens">
         <button onclick="setSens(1)" id="sn1">1</button>
         <button class="on" onclick="setSens(2)" id="sn2">2</button>
@@ -1136,9 +1170,9 @@
       Test camera on phone
       <button class="claim" style="margin-left:auto" onclick="openDevModal()">GUIDE</button>
     </div>
-    <div class="set-row">👤 Account <span class="dim" style="margin-left:auto;font-size:12px" id="set-email">—</span></div>
-    <div class="set-row">⭐ Membership <span class="own" style="margin-left:auto">FOUNDER ✓</span></div>
-    <div class="set-row">🚪 Log out <button class="claim" style="margin-left:auto;background:var(--red);color:#fff" onclick="confirmLogout()">SIGN OUT</button></div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#8B5CF6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg> Account <span class="dim" style="margin-left:auto;font-size:12px" id="set-email">—</span></div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg> Membership <span class="own" style="margin-left:auto">FOUNDER ✓</span></div>
+    <div class="set-row"><svg viewBox="0 0 24 24" style="width:19px;height:19px;flex:none" fill="none" stroke="#EF4444" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l-5-5 5-5M5 12h9"/></svg> Log out <button class="claim" style="margin-left:auto;background:var(--red);color:#fff" onclick="confirmLogout()">SIGN OUT</button></div>
   </div>
 </section>
 
@@ -1176,10 +1210,6 @@
     <div class="auth-tabs">
       <button class="auth-tab on" id="at-login" onclick="authTab('login')">Log in</button>
       <button class="auth-tab" id="at-signup" onclick="authTab('signup')">Sign up</button>
-    </div>
-    <div class="field" id="f-username" style="display:none">
-      <label>Username</label>
-      <input id="in-username" type="text" placeholder="IronPusher_CZ" maxlength="20" autocomplete="username">
     </div>
     <div class="field">
       <label>Email</label>
@@ -1471,7 +1501,7 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg>Duels</button>
   <button class="nv" data-s="scr-profile" onclick="nav('scr-profile')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Account</button>
-  <button class="nv lock" data-s="scr-inventory" onclick="nav('scr-inventory')">
+  <button class="nv lock" data-s="scr-inventory" onclick="armoryPopup()">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Gear</button>
 </nav>
 
@@ -1503,7 +1533,7 @@
   <div class="ld-tip" id="ld-tip">Waking the arena…</div>
   <div class="ld-track"><i id="ld-fill"></i></div>
   <div class="ld-pct" id="ld-pct">0%</div>
-  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 18.4</div>
+  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 20.0</div>
 </div>
 
 <div id="modal-layer"><div class="modal" id="modal-box"></div></div>
@@ -1740,6 +1770,8 @@ function routeFromUrl(){
 const MATCH_SCREENS=new Set(['scr-battle','scr-duel']);
 function goFlow(id){ /* flow screens without nav highlight */
   document.body.classList.toggle('in-match', MATCH_SCREENS.has(id));
+  /* auth / onboarding / paywall must never show the tab bar */
+  if(FLOW_SCREENS.has(id)) document.body.classList.add('locked');
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.remove('on'));
 }
@@ -1779,11 +1811,49 @@ function confetti(){
 }
 
 /* ================= HOME ================= */
+function exIcon(name,size){
+  const s=size||20;
+  if(name==='Sit-ups') return '<svg viewBox="0 0 24 24" style="width:'+s+'px;height:'+s+'px" fill="none" stroke="#10B981" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6.5" r="2.2"/><path d="M9 8.5l4 3 5-1M4 19h9l4-4M9 8.5L6 14l-2 5"/></svg>';
+  if(name==='Squats')  return '<svg viewBox="0 0 24 24" style="width:'+s+'px;height:'+s+'px" fill="none" stroke="#F59E0B" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2.2"/><path d="M12 7v4l-4 3 1.5 6M12 11l4 3-1.5 6M6 10h12"/></svg>';
+  return '<svg viewBox="0 0 24 24" style="width:'+s+'px;height:'+s+'px" fill="none" stroke="#8B5CF6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="8" r="2"/><path d="M7.5 9.5L14 12l5.5-1.5M4 16h7l4-3M7.5 9.5L6 14"/></svg>';
+}
+function currentEp(){ return S.chapters[S.cur.c]?.eps[S.cur.e]; }
+function renderEpHero(){
+  const e=currentEp(); if(!e || !$('ep-hero')) return;
+  const ch=S.chapters[S.cur.c];
+  $('hero-eyebrow').textContent = (e.boss?'BOSS · ':'')+'EPISODE '+(S.cur.e+1)+' OF 18';
+  $('hero-chap').textContent = 'Chapter '+(S.cur.c+1)+' · '+ch.name;
+  $('hero-name').textContent = e.name;
+  $('hero-mon').innerHTML = mon(e.sprite,58);
+  const hp=Math.max(1,Math.ceil(e.hp*D().hp));
+  $('hero-meta').innerHTML =
+    '<span class="hp">'+hp+' HP · '+hp+' reps</span>'+
+    '<span class="ex">'+e.exs[0]+'</span>'+
+    (e.waves>1?'<span>'+e.waves+' waves</span>':'')+
+    (e.boss?'<span class="bs">BOSS FIGHT</span>':'')+
+    '<span>'+D().name+'</span>';
+}
+function playCurrentEpisode(){
+  const hero=$('ep-hero');
+  if(hero){ hero.classList.remove('pulse'); void hero.offsetWidth; hero.classList.add('pulse'); }
+  SFX.kill(); flashScreen(); quake(); burstAt(hero,'#F59E0B',24); shockwave(hero);
+  setTimeout(()=>startEpisode(S.cur.c,S.cur.e),260);
+}
+function goToMapSmooth(){
+  SFX.click(); burstAt($('ep-hero'),'#8B5CF6',12);
+  S.viewC=S.cur.c;
+  nav('scr-campaign');
+  setTimeout(()=>{
+    const node=$('map-nodes')?.children[S.cur.e];
+    if(node) node.scrollIntoView({behavior:'smooth',block:'center'});
+  },320);
+}
 function renderHome(){
   if(!$('ps-flame').dataset.ico){ $('ps-flame').insertAdjacentHTML('afterbegin',ICO.flame(15)); $('ps-flame').dataset.ico=1;
     $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(15)); $('ps-coin').dataset.ico=1; }
   if(PROFILE){ $('home-uname').textContent=PROFILE.username; paintAvatars(); }
   if($('diff-card-home')) $('diff-card-home').innerHTML=diffPickerHTML();
+  renderEpHero();
   const cch=S.chapters[S.cur.c];
   if($('camp-ico')){ $('camp-ico').innerHTML=mon(cch.icon,26);
     $('camp-name').textContent=cch.name;
@@ -1853,6 +1923,10 @@ function switchChap(dir){
 function renderMap(){
   const ch=S.chapters[S.viewC], unlocked=chapUnlocked(S.viewC);
   if(unlocked) setTimeout(()=>maybeChapterStory(S.viewC),250);
+  if(S.viewC===S.cur.c) setTimeout(()=>{
+    const n=$('map-nodes')?.children[S.cur.e];
+    if(n) n.scrollIntoView({behavior:'smooth',block:'center'});
+  },140);
   const done=ch.eps.filter(e=>epStatus(e)==='done').length;
   $('ch-name').textContent=ch.name;
   $('ch-num').textContent='CHAPTER '+(S.viewC+1)+' / '+S.chapters.length;
@@ -1890,6 +1964,17 @@ function renderMap(){
     d+=` C ${x1} ${y1+45}, ${x2} ${y2-45}, ${x2} ${y2}`;
   }
   svg.innerHTML=`<path d="${d}" fill="none" stroke="rgba(245,158,11,.45)" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/>`;
+}
+function armoryPopup(){
+  SFX.click(); quake();
+  openModal('<div style="display:flex;justify-content:center;margin-bottom:6px">'+
+    '<svg viewBox="0 0 24 24" style="width:58px;height:58px" fill="none" stroke="#8B5CF6" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+
+    '<rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V6.5a4 4 0 0 1 8 0V10"/><circle cx="12" cy="15.5" r="1.6"/></svg></div>'+
+    '<h3 class="hdr">Armory</h3>'+
+    '<span class="soon-tag">UNDER CONSTRUCTION — COMING SOON</span>'+
+    '<p style="margin-top:12px;line-height:1.65">Forge armor, gloves and relics that make every rep hit harder.<br><br>'+
+    'Keep stacking coins — you\'ll be able to spend them here.</p>'+
+    '<button class="btn b-purple" onclick="closeModal()">GOT IT</button>');
 }
 function jumpToBoss(){
   const ch=S.chapters[S.viewC];
@@ -1979,7 +2064,13 @@ function makeBattle(cfg){
   S.B={ ...cfg, waveIdx:0, reps:0, sec:0, paused:false, timers:[], repTs:[], eHP:cfg.waves[0].hp,
         tracking:false, live:false, php:100, lastRepAt:0, gate:true };
   goFlow('scr-battle');
-  if($('b-diff')) $('b-diff').textContent=D().name.toUpperCase()+' · '+cfg.exercise.toUpperCase();
+  if($('b-diff')) $('b-diff').textContent=D().name.toUpperCase();
+  const EXTIP={ 'Push-ups':'Hands under shoulders, body straight, lower and press up',
+                'Sit-ups':'Lie back, then crunch up until your chest meets your knees',
+                'Squats':'Feet shoulder-width, sit down until thighs are level, stand tall' };
+  if($('eb-ico')){ $('eb-ico').innerHTML=exIcon(cfg.exercise,22);
+    $('eb-name').textContent=cfg.exercise;
+    $('eb-tip').textContent=(curDiff()==='easy'?'Easy mode: half-depth reps count. ':'')+(EXTIP[cfg.exercise]||''); }
   $('b-endset').style.display=cfg.endset?'block':'none';
   $('b-auto').textContent='▶'; $('b-auto').style.display='flex';
   $('b-reps').textContent='0';
@@ -2006,7 +2097,7 @@ async function startBattleTracking(){
   if(!camGranted){
     try{ const s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}}); s.getTracks().forEach(t=>t.stop()); camGranted=true; }
     catch(e){
-      openModal('<div class="em">📷</div><h3 class="hdr">Camera needed</h3><p>Fit Royale counts reps with the camera. Allow camera access for this site, then try again.</p><button class="btn b-purple" onclick="closeModal();quitBattle()">OK</button>');
+      openModal('<div style="display:flex;justify-content:center;margin-bottom:6px"><svg viewBox="0 0 24 24" style="width:54px;height:54px" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h2L9 4h6l1.5 2h2A2.5 2.5 0 0 1 21 8.5v9A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg></div><h3 class="hdr">Camera needed</h3><p>Fit Royale counts reps with the camera. Allow camera access for this site, then try again.</p><button class="btn b-purple" onclick="closeModal();quitBattle()">OK</button>');
       return;
     }
   }
@@ -2253,7 +2344,7 @@ function toggleBattleAuto(){
 function pauseBattle(){
   const B=S.B; if(!B) return;
   B.paused=true;
-  openModal(`<div class="em">⏸</div><h3 class="hdr">Paused</h3><p>Catch your breath, warrior.</p>
+  openModal(`<div style="display:flex;justify-content:center;margin-bottom:6px"><svg viewBox="0 0 24 24" style="width:54px;height:54px" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="5" width="3.6" height="14" rx="1.4"/><rect x="13.4" y="5" width="3.6" height="14" rx="1.4"/></svg></div><h3 class="hdr">Paused</h3><p>Catch your breath, warrior.</p>
     <button class="btn b-purple" onclick="resumeBattle()">RESUME</button>
     <button class="btn b-ghost" onclick="quitBattle()">QUIT (no rewards)</button>`);
 }
@@ -2276,15 +2367,15 @@ function fightDailyBoss(){
   makeBattle({ kind:'boss', exercise:'Push-ups', waves:[{name:b.name,sprite:b.sprite,hp:b.hp}], modeName:'Daily Boss' });
 }
 function startSpeedRun(){ S.B_origin='arena';
-  makeBattle({ kind:'speed', exercise:S.speedEx, target:S.speedTarget, waves:[{name:'Training Dummy',sprite:'🎯',hp:S.speedTarget}], modeName:'Speed Run' }); }
+  makeBattle({ kind:'speed', exercise:S.speedEx, target:S.speedTarget, waves:[{name:'Training Dummy',sprite:'dummy',hp:S.speedTarget}], modeName:'Speed Run' }); }
 function startHorde(){ S.B_origin='arena';
   makeBattle({ kind:'horde', exercise:S.speedEx, infinite:true, endset:true, waves:[nextHordeWave(0)], modeName:'Horde' }); }
 function startMax(){ S.B_origin='arena';
-  makeBattle({ kind:'max', exercise:S.speedEx, noHP:true, endset:true, waves:[{name:'Training Dummy',sprite:'🎯',hp:1}], modeName:'Max Reps' }); }
+  makeBattle({ kind:'max', exercise:S.speedEx, noHP:true, endset:true, waves:[{name:'Training Dummy',sprite:'dummy',hp:1}], modeName:'Max Reps' }); }
 
 function questProgress(ex){
   S.quests.forEach(q=>{ if(!q.claimed && (q.ex===ex||q.ex==='ANY') && q.prog<q.target){ q.prog++;
-    if(q.prog===q.target) toast('✅ Quest ready: '+q.name); } });
+    if(q.prog===q.target) toast('Quest ready: '+q.name); } });
 }
 
 /* ================= FINISH → VICTORY ================= */
@@ -2518,8 +2609,15 @@ const STORY={
       'Cut through the caves. Take the crown at Dragons Peak.',
     ],
   },
+  howItWorks:{
+    title:'How the fight works',
+    body:'<b>Your body is the controller.</b> The camera watches you and counts every clean rep — no tapping, no cheating.<br><br>'+
+         '<b>1 rep = 1 damage.</b> Empty the monster\'s health bar before it empties your stamina.<br><br>'+
+         '<b>Stop moving and you lose.</b> Rest too long and the monster strikes back. Keep the rhythm and you survive.<br><br>'+
+         '<b>14% of reps land as CRITS</b> for triple damage. Chain reps fast to build combos.',
+  },
   chapters:[
-    { t:'Chapter I — Goblin Caves',      s:'They breed in the dark under the old training grounds. Small, fast, endless. Everyone starts here. Most never leave.' },
+    { t:'Chapter I — Goblin Caves',      s:'They breed in the dark under the old training grounds. Small, fast, endless.<br><br>Everyone starts here. Most never leave. The ones who do come out with arms that finally know how to work.' },
     { t:'Chapter II — Crypt of Bones',   s:'The dead here trained too, once. Their discipline outlived their flesh. Now they test yours.' },
     { t:'Chapter III — Spiderfang Hollow',s:'Webs thick as rope. The Broodmother has been counting your reps since you entered. She is patient.' },
     { t:'Chapter IV — Ashfang Keep',     s:'A fortress built by warriors who lifted mountains. Its forge still burns. Its guards still remember how to break arms.' },
@@ -2528,7 +2626,7 @@ const STORY={
   ],
 };
 function showStoryModal(title,body,btn,cb){
-  openModal('<div class="em">📜</div><h3 class="hdr">'+title+'</h3><p style="line-height:1.7">'+body+'</p>'+
+  openModal('<div style="display:flex;justify-content:center;margin-bottom:6px"><svg viewBox="0 0 24 24" style="width:54px;height:54px" fill="none" stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9a3 3 0 0 1 3 3v12a3 3 0 0 0 3 3H8a3 3 0 0 1-3-3V6"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></div><h3 class="hdr">'+title+'</h3><p style="line-height:1.7">'+body+'</p>'+
     '<button class="btn b-gold" id="story-ok">'+(btn||'CONTINUE')+'</button>');
   $('story-ok').onclick=()=>{ closeModal(); SFX.click(); if(cb) cb(); };
 }
@@ -3051,7 +3149,7 @@ function renderLB(){
     el.className='lb-row'+(u.me?' me':'');
     el.innerHTML=`<div class="lb-pos">${i+1}</div>
       <div class="avatar">${u.name.slice(0,2).toUpperCase()}</div>
-      <div><b>${u.name}${u.me?' ⭐':''}</b><span class="sub">LVL ${u.me?S.user.lvl:u.lvl}</span></div>
+      <div><b>${u.name}${u.me?' ★':''}</b><span class="sub">LVL ${u.me?S.user.lvl:u.lvl}</span></div>
       <div class="lb-xp">${u.xp.toLocaleString('en-US')}</div>`;
     sc.appendChild(el);
     if(u.me) meRow=el;
@@ -3170,7 +3268,7 @@ function renderAnalytics(){
   if($('p-total')) $('p-total').textContent=(s.total||PROFILE?.total_reps||0).toLocaleString('en-US');
 }
 function toggleSound(){ S.sound=!S.sound; $('set-sound').classList.toggle('on',S.sound); if(S.sound) beep(660,.1); }
-function setSens(n){ S.sens=n; [1,2,3].forEach(k=>$('sn'+k).classList.toggle('on',k===n)); toast('🎯 Pose sensitivity: '+n); }
+function setSens(n){ S.sens=n; [1,2,3].forEach(k=>$('sn'+k).classList.toggle('on',k===n)); toast('Pose sensitivity: '+n); }
 
 /* ================= POSE ENGINE (MediaPipe) ================= */
 const POSE_CDN='https://cdn.jsdelivr.net/npm/@mediapipe/';
@@ -3401,7 +3499,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='18.4';
+const BUILD='20.0';
 console.log('[FitRoyale] build',BUILD);
 const SB_URL='https://yxtfhqkrhxpkaaexzvcn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dGZocWtyaHhwa2FhZXh6dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjg0ODgsImV4cCI6MjEwMzIwNDQ4OH0.y4dMu9spDHMZBNr3uAfzmNzHKxJCuujVY6QmqxNteOg';
@@ -3426,7 +3524,6 @@ function authTab(m){
   authMode=m;
   $('at-login').classList.toggle('on',m==='login');
   $('at-signup').classList.toggle('on',m==='signup');
-  $('f-username').style.display=m==='signup'?'block':'none';
   $('auth-go').textContent=m==='signup'?'CREATE ACCOUNT':'LOG IN';
   $('auth-err').textContent='';
 }
@@ -3434,13 +3531,11 @@ let pendingSignupEmail=null;
 async function doAuth(){
   if(!sb){ $('auth-err').textContent='Connection error — try again.'; return; }
   const email=$('in-email').value.trim(), pass=$('in-pass').value;
-  const uname=$('in-username').value.trim();
   if(!email||!pass){ $('auth-err').textContent='Fill in email and password.'; return; }
-  if(authMode==='signup' && uname.length<3){ $('auth-err').textContent='Username needs 3+ characters.'; return; }
   $('auth-go').textContent='…'; $('auth-err').textContent='';
   try{
     if(authMode==='signup'){
-      const { data, error } = await sb.auth.signUp({ email, password:pass, options:{ data:{ username:uname } } });
+      const { data, error } = await sb.auth.signUp({ email, password:pass });
       if(error) throw error;
       if(!data.session){
         pendingSignupEmail=email;
@@ -3543,7 +3638,7 @@ async function setNewPassword(){
     const { error } = await sb.auth.updateUser({ password:p1 });
     if(error) throw error;
     SFX.win(); confetti();
-    openModal('<div class="em">✅</div><h3 class="hdr">Password updated!</h3><p>You\'re signed in with your new password.</p><button class="btn b-purple" onclick="closeModal();afterPasswordReset()">CONTINUE</button>');
+    openModal('<div style="display:flex;justify-content:center;margin-bottom:6px"><svg viewBox="0 0 24 24" style="width:54px;height:54px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/></svg></div><h3 class="hdr">Password updated!</h3><p>You\'re signed in with your new password.</p><button class="btn b-purple" onclick="closeModal();afterPasswordReset()">CONTINUE</button>');
   }catch(e){
     $('np-err').textContent=(e.message||'Could not update password — the link may have expired. Request a new one.');
     SFX.err();
@@ -3654,7 +3749,7 @@ async function pushProfile(attempt){
 }
 function confirmLogout(){
   SFX.click();
-  openModal('<div class="em">🚪</div><h3 class="hdr">Sign out?</h3>'+
+  openModal('<div style="display:flex;justify-content:center;margin-bottom:6px"><svg viewBox="0 0 24 24" style="width:54px;height:54px" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l-5-5 5-5M5 12h9"/></svg></div><h3 class="hdr">Sign out?</h3>'+
     '<p>Your progress is saved to your account — you can sign back in any time.</p>'+
     '<button class="btn b-red" onclick="logout()">SIGN OUT</button>'+
     '<button class="btn b-ghost" style="margin-top:10px" onclick="closeModal()">STAY</button>');
@@ -3739,10 +3834,12 @@ function startTutorial(){
   if(PROFILE && !(PROFILE.story_seen||'').includes('intro')){
     const seen=(PROFILE.story_seen||'').split(',').filter(Boolean);
     seen.push('intro'); PROFILE.story_seen=seen.join(','); saveProfile();
-    showStoryModal('Your first fight',
-      'A goblin blocks the cave mouth. It has three points of life.<br><br>'+
-      'Three clean push-ups will end it. Get down, get straight, and start swinging.',
-      'FIGHT', ()=>beginTutorialFight());
+    showStoryModal(STORY.howItWorks.title, STORY.howItWorks.body, 'NEXT', ()=>{
+      showStoryModal('Your first fight',
+        'A goblin blocks the cave mouth. It has <b>three</b> points of life.<br><br>'+
+        'Three clean push-ups will end it. Get down, get straight, and start swinging.',
+        'FIGHT', ()=>beginTutorialFight());
+    });
     return;
   }
   beginTutorialFight();
