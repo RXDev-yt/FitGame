@@ -38,12 +38,12 @@
   h1,h2,h3,.hdr{ font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,0.45); letter-spacing:0.01em; }
 
   #app{ position:relative; width:100%; max-width:430px; height:100dvh; background:var(--bg-dark); overflow:hidden; box-shadow:0 0 90px rgba(139,92,246,0.22); }
-  .screen{ position:absolute; inset:0; overflow-y:auto; padding:18px 16px 108px; display:none; scrollbar-width:none; }
+  .screen{ position:absolute; inset:0; overflow-y:auto; padding:13px 14px 92px; display:none; scrollbar-width:none; }
   .screen::-webkit-scrollbar{ display:none; }
   .screen.active{ display:block; animation:si .2s ease; }
   @keyframes si{ from{opacity:0; transform:translateY(8px);} to{opacity:1;} }
 
-  .card{ background:var(--card-dark); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:20px; padding:16px; margin-bottom:13px; }
+  .card{ padding:14px; margin-bottom:10px; background:var(--card-dark); backdrop-filter:blur(8px); border:1px solid var(--line); border-radius:20px; padding:16px; margin-bottom:13px; }
   .row{ display:flex; align-items:center; }
   .grow{ flex:1; }
   .dim{ color:var(--dim); }
@@ -543,7 +543,7 @@
   .hello-lvl b{ display:block; font-size:20px; font-weight:900; color:var(--gold); line-height:1; }
   .hello-lvl span{ font-size:8px; font-weight:900; letter-spacing:.14em; color:var(--dim); }
 
-  .big-play{ display:block; width:100%; margin-top:14px; padding:20px 18px; border-radius:26px;
+  .big-play{ display:block; width:100%; margin-top:10px; padding:15px 16px; border-radius:22px;
     background:linear-gradient(135deg,#FBBF24,#F59E0B); color:#241703; text-align:left;
     box-shadow:0 12px 30px rgba(245,158,11,.42); position:relative; overflow:hidden;
     transition:transform .12s; }
@@ -556,8 +556,8 @@
   .big-play .bp-go{ display:inline-flex; align-items:center; gap:6px; margin-top:12px;
     background:rgba(0,0,0,.22); border-radius:99px; padding:9px 16px; font-size:14px; font-weight:900; }
 
-  .tiles{ display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-top:12px; }
-  .tile{ padding:16px 13px; border-radius:20px; background:var(--card-dark);
+  .tiles{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:9px; }
+  .tile{ padding:11px 12px; border-radius:16px; background:var(--card-dark);
     border:1.5px solid var(--line); text-align:left; transition:transform .12s; }
   .tile:active{ transform:scale(.96); }
   .tile .ti{ width:38px; height:38px; border-radius:12px; display:flex; align-items:center;
@@ -569,14 +569,14 @@
   .tile.help{ border-color:rgba(96,165,250,.45); } .tile.help .ti{ background:rgba(96,165,250,.18); }
   .tile.train{ border-color:rgba(245,158,11,.42); } .tile.train .ti{ background:rgba(245,158,11,.18); }
 
-  .today-strip{ display:flex; gap:9px; margin-top:14px; }
+  .today-strip{ display:flex; gap:7px; margin-top:9px; }
   .today-strip div{ flex:1; background:var(--card-dark); border:1px solid var(--line);
-    border-radius:16px; padding:11px 6px; text-align:center; }
+    border-radius:13px; padding:8px 6px; text-align:center; }
   .today-strip b{ display:block; font-size:19px; font-weight:900; line-height:1; }
   .today-strip span{ font-size:9px; font-weight:900; letter-spacing:.1em; color:var(--dim); }
 
   /* ---------- ROYALE HOME ---------- */
-  .crest{ position:relative; border-radius:26px; padding:16px 16px 14px; overflow:hidden;
+  .crest{ position:relative; border-radius:22px; padding:13px 14px 12px; overflow:hidden;
     background:linear-gradient(150deg,#3B2478 0%,#221650 45%,#141033 100%);
     border:1.5px solid rgba(245,158,11,.42);
     box-shadow:0 14px 40px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.10); }
@@ -621,7 +621,7 @@
   .quick.gold{ border-color:rgba(245,158,11,.45); box-shadow:0 0 18px rgba(245,158,11,.14); }
   .quick.purple{ border-color:rgba(139,92,246,.45); box-shadow:0 0 18px rgba(139,92,246,.14); }
 
-  .sect-head{ display:flex; align-items:center; gap:9px; margin:20px 0 10px; }
+  .sect-head{ display:flex; align-items:center; gap:9px; margin:14px 0 8px; }
   .sect-head .ln{ flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent); }
   .sect-head b{ font-size:11px; font-weight:900; letter-spacing:.18em; color:var(--gold); }
 
@@ -911,6 +911,14 @@
   .hex.frame.creature{ background:var(--red); }
   .hex.inner{ inset:3px; background:#0C1428; }
   .hex.inner svg{ width:46px; height:46px; }
+  #d-opp-video{ position:absolute; inset:3px; width:calc(100% - 6px); height:calc(100% - 6px);
+    object-fit:cover; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+    opacity:0; transition:opacity .3s ease; pointer-events:none; transform:scaleX(-1); }
+  #d-opp-video.live{ opacity:1; }
+  .live-cam-tag{ position:absolute; bottom:-14px; left:50%; transform:translateX(-50%);
+    font-size:7.5px; font-weight:900; letter-spacing:.1em; color:var(--green); opacity:0;
+    transition:opacity .3s; white-space:nowrap; }
+  #d-opp-video.live ~ .live-cam-tag{ opacity:1; }
   .rank-name{ font-weight:900; font-size:15px; text-shadow:0 2px 0 rgba(0,0,0,.5); white-space:nowrap;
     overflow:hidden; text-overflow:ellipsis; }
   .rank-elo{ font-size:11.5px; font-weight:900; color:#8FA3C8; letter-spacing:.02em; }
@@ -1152,6 +1160,7 @@
       <div class="bar"><i id="rank-fill" style="width:0%"></i></div>
     </div>
   </div>
+  <p class="dim" style="font-size:11px;font-weight:800;margin:10px 0 6px;text-align:center">Win Versus matches to earn rank points and climb this ladder</p>
   <div class="tier-row" id="tier-row"></div>
 
   <div class="sect-head"><b>WHO DO YOU WANT TO PLAY?</b><span class="ln"></span></div>
@@ -1311,6 +1320,8 @@
         <div class="hexwrap">
           <div class="hex frame creature"></div>
           <div class="hex inner" id="d-oav-big"></div>
+          <video id="d-opp-video" autoplay playsinline muted disablepictureinpicture></video>
+          <span class="live-cam-tag">● LIVE</span>
         </div>
         <div class="rank-name" id="d-oname">Opponent</div>
         <div class="rank-elo"><span id="d-oelo">1000</span> ELO</div>
@@ -1393,9 +1404,6 @@
 <section class="screen" id="scr-profile">
   <div class="topline">
     <div class="screen-title hdr">Me</div>
-    <button class="gear-btn" onclick="profTab('set')" aria-label="Settings">
-      <svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1A1.7 1.7 0 0 0 9 19.4a1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
-    </button>
   </div>
 
   <div class="ptabs">
@@ -1844,7 +1852,7 @@
     <div class="ld-tip" id="ld-tip"><span>Getting things ready…</span></div>
     <div class="ld-track"><i id="ld-fill"></i></div>
     <div class="ld-pct" id="ld-pct">0%</div>
-    <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.4">BUILD 37.0</div>
+    <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.4">BUILD 38.0</div>
   </div>
 </div>
 
@@ -1953,7 +1961,7 @@ CHAPTERS.forEach((c,ci)=>{
       hp: boss? (8+Math.round(g*1.1)) : (3+Math.floor(g*0.55)),
       waves: boss?1:(i>=6 && i%4===0 ? 2 : 1),
       stars: (ci===0&&i===0)?2:0,
-      exs: [['Push-ups'],['Sit-ups'],['Push-ups'],['Squats']][i%4],
+      exs: ['Push-ups'],
       drops: boss?'Chapter Crown · 80–120 coins':'Small Energy Potion · '+(5+g)+'–'+(15+g)+' coins',
     });
   }
@@ -2259,8 +2267,16 @@ function switchChap(dir){
   if(n<0||n>=S.chapters.length) return;
   S.viewC=n; renderMap();
 }
-function renderMap(){
+function renderMap(_retry){
   const ch=S.chapters[S.viewC], unlocked=chapUnlocked(S.viewC);
+  if(!ch){ console.error('[FitRoyale] renderMap: no chapter at', S.viewC); return; }
+  const wrapEl=$('map-wrap');
+  if(wrapEl && wrapEl.clientWidth===0 && !_retry){
+    /* container isn't measurable yet (mid-transition) — try again next frame instead of
+       silently rendering nothing */
+    requestAnimationFrame(()=>renderMap(true));
+    return;
+  }
   if(unlocked) setTimeout(()=>maybeChapterStory(S.viewC),250);
   if(S.viewC===S.cur.c) setTimeout(()=>{
     const n=$('map-nodes')?.children[S.cur.e];
@@ -2449,6 +2465,7 @@ function renderTierStrip(){
   });
 }
 function renderRankCard(){
+  try{
   const e=myElo(), t=tierOf(e), nx=nextTier(e);
   const card=$('rankcard'); if(!card) return;
   card.style.setProperty('--rc1',t.c1); card.style.setProperty('--rc2',t.c2);
@@ -2465,13 +2482,16 @@ function renderRankCard(){
     $('rank-fill').style.width='100%';
   }
   renderTierStrip();
+  }catch(err){ console.error('[FitRoyale] renderRankCard failed', err); }
 }
 function renderArena(){
+  try{
   renderRankCard();
   const e=myElo();
   if($('duel-elo')) $('duel-elo').textContent=e+' ELO';
   if($('duel-elo2')) $('duel-elo2').textContent=e;
   if($('duel-wins')) $('duel-wins').textContent=PROFILE?.duel_wins||0;
+  }catch(err){ console.error('[FitRoyale] renderArena failed', err); }
 }
 function renderWorkout2(){ if($('pr-show')) $('pr-show').textContent=S.user.pr;
   if($('diff-card')) $('diff-card').innerHTML=diffPickerHTML(); }
@@ -3325,6 +3345,73 @@ function resetDuelHud(){
 
 /* ================= REALTIME 1v1 (Supabase channels) ================= */
 const RT={ ch:null, code:null, host:false, opp:null, started:false, seeking:false, seekT:null };
+
+/* ================= LIVE OPPONENT VIDEO (WebRTC, signaled over the duel channel) =================
+   Both players already grant camera access for pose tracking — this reuses that same stream
+   as the outgoing video track, so no extra camera permission or connection is needed.
+   If the peer connection can't establish (strict NAT, no camera yet, etc.) this fails silently
+   and the match continues exactly as before with just the avatar shown — it never blocks play. */
+const RTCLink={
+  pc:null,
+  async ensureLocalStream(){
+    if(PoseEngine.stream && PoseEngine.stream.getVideoTracks().length) return PoseEngine.stream;
+    if(cams[0] && cams[0].getVideoTracks().length) return cams[0];
+    try{
+      const s=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user' }, audio:false });
+      cams.push(s);
+      return s;
+    }catch(e){ return null; }
+  },
+  async start(isHost){
+    if(!RT.ch || this.pc) return;
+    const stream=await this.ensureLocalStream();
+    if(!stream) return;
+    try{
+      const pc=new RTCPeerConnection({ iceServers:[{urls:'stun:stun.l.google.com:19302'}] });
+      this.pc=pc;
+      stream.getVideoTracks().forEach(t=>pc.addTrack(t,stream));
+      pc.ontrack=(e)=>{
+        const v=$('d-opp-video');
+        if(v){ v.srcObject=e.streams[0]; v.classList.add('live'); }
+      };
+      pc.onicecandidate=(e)=>{
+        if(e.candidate && RT.ch){ try{ RT.ch.send({ type:'broadcast', event:'rtc-ice', payload:{ candidate:e.candidate } }); }catch(err){} }
+      };
+      pc.onconnectionstatechange=()=>{
+        if(['failed','closed','disconnected'].includes(pc.connectionState)){
+          const v=$('d-opp-video'); if(v) v.classList.remove('live');
+        }
+      };
+      if(isHost){
+        const offer=await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        RT.ch.send({ type:'broadcast', event:'rtc-offer', payload:{ sdp:offer } });
+      }
+    }catch(e){ console.warn('[FitRoyale] live video unavailable', e); this.stop(); }
+  },
+  async onOffer(sdp){
+    if(!this.pc) await this.start(false);
+    if(!this.pc) return;
+    try{
+      await this.pc.setRemoteDescription(sdp);
+      const answer=await this.pc.createAnswer();
+      await this.pc.setLocalDescription(answer);
+      RT.ch.send({ type:'broadcast', event:'rtc-answer', payload:{ sdp:answer } });
+    }catch(e){ console.warn('[FitRoyale] offer handling failed', e); }
+  },
+  async onAnswer(sdp){
+    if(!this.pc) return;
+    try{ await this.pc.setRemoteDescription(sdp); }catch(e){}
+  },
+  async onIce(candidate){
+    if(!this.pc) return;
+    try{ await this.pc.addIceCandidate(candidate); }catch(e){}
+  },
+  stop(){
+    if(this.pc){ try{ this.pc.close(); }catch(e){} this.pc=null; }
+    const v=$('d-opp-video'); if(v){ v.srcObject=null; v.classList.remove('live'); }
+  },
+};
 const myUid=()=> ME?.id || ('guest-'+Math.random().toString(36).slice(2,9));
 function makeCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
 function openLobby(){ nav('scr-lobby'); }
@@ -3362,6 +3449,9 @@ function bindRoom(code,isHost){
    .on('broadcast',{event:'start'},({payload})=>{ beginRealDuel(payload.at); })
    .on('broadcast',{event:'rep'},({payload})=>{ onOppRep(payload.reps); })
    .on('broadcast',{event:'done'},()=>{ if(S.duel&&S.duel.running) endDuel(false); })
+   .on('broadcast',{event:'rtc-offer'},({payload})=>{ RTCLink.onOffer(payload.sdp); })
+   .on('broadcast',{event:'rtc-answer'},({payload})=>{ RTCLink.onAnswer(payload.sdp); })
+   .on('broadcast',{event:'rtc-ice'},({payload})=>{ RTCLink.onIce(payload.candidate); })
    .subscribe(async s=>{ if(s==='SUBSCRIBED') await ch.track({ name:PROFILE?.username||'Fighter', lvl:S.user.lvl, av:myAv(), elo:myElo(), t:Date.now() }); });
   RT.ch=ch;
 }
@@ -3387,6 +3477,10 @@ function beginRealDuel(at){
   if(RT.started) return; RT.started=true;
   /* warm the camera immediately so the stage shows video during the countdown */
   setTimeout(()=>{ if(S.duel && !S.duel.tracking) initCam('d-video','d-fb'); }, 60);
+  /* live opponent video: host kicks off the peer connection once cameras have had
+     a moment to warm up; the joiner responds automatically via the offer handler
+     already wired into the room channel. Fails silently if it can't connect. */
+  setTimeout(()=>{ if(RT.host) RTCLink.start(true); }, 900);
   S.B_origin='arena';
   S.duel={ opp:RT.opp?.name||'Fighter', oppLvl:RT.opp?.lvl||1, oppElo:RT.opp?.elo||1000, target:20, my:0, op:0, sec:0,
            running:false, timers:[], live:true, myTs:[] };
@@ -3404,7 +3498,7 @@ function playVsIntro(){
   $('vs-me-av').innerHTML=avHTML(myAv(),58);
   $('vs-me-name').textContent=PROFILE?.username||'You';
   $('vs-me-elo').textContent=myElo()+' ELO';
-  $('vs-op-av').innerHTML=mon(RT.opp?.av||'goblin',58);
+  $('vs-op-av').innerHTML=mon(RT.opp?.av || d.oppAv || 'goblin',58);
   $('vs-op-name').textContent=d.opp;
   $('vs-op-elo').textContent=(d.oppElo||1000)+' ELO';
   const v=$('vs-intro'); v.classList.remove('gone');
@@ -3437,6 +3531,7 @@ function onOppRep(n){
 }
 function leaveLobby(){
   try{ RT.ch?.unsubscribe(); }catch(e){}
+  RTCLink.stop();
   RT.ch=null; RT.code=null; RT.started=false; RT.opp=null;
   if(RT.seekT){ clearTimeout(RT.seekT); RT.seekT=null; }
   RT.seeking=false;
@@ -3466,29 +3561,31 @@ function findMatch(){
     })
    .subscribe(async s=>{ if(s==='SUBSCRIBED') await lob.track(mine); });
   RT.lob=lob;
-  /* nobody after 12s → bot fallback (only then) */
+  /* nobody after 10s → bot fallback (only then) */
   RT.seekT=setTimeout(()=>{
     if(!RT.seeking) return;
     RT.seeking=false;
     try{ lob.unsubscribe(); }catch(e){}
     toast('No human online — ranked bot matched to your ELO');
     queueDuel(true);
-  },6000);
+  },10000);
 }
 
 /* ================= BOT FALLBACK (only when nobody is online) ================= */
 const BOTS=['IronPusher99','VikingSquatter','FitKnight','RepLord_77','SquatWitch','PushCzar','FlexFalcon','PlankPirate'];
+const BOT_AVATARS=['goblin','troll','bone','ghoul','wraith','skelking','brood','warlord'];
 function queueDuel(fast){
   S.B_origin='arena';
   goFlow('scr-queue');
   $('q-search').style.display='block'; $('q-found').style.display='none';
   S.queueT=setTimeout(()=>{
     const name=BOTS[ri(0,BOTS.length-1)];
+    const av=BOT_AVATARS[ri(0,BOT_AVATARS.length-1)];
     const lvl=Math.max(1,S.user.lvl+ri(-2,2));           /* level ±2 of player */
-    S.duel={ opp:name, oppLvl:lvl, oppElo:Math.max(100, myElo()+ri(-90,90)), target:20, my:0, op:0, sec:0, running:false, timers:[],
+    S.duel={ opp:name, oppAv:av, oppLvl:lvl, oppElo:Math.max(100, myElo()+ri(-90,90)), target:20, my:0, op:0, sec:0, running:false, timers:[],
              tBase:S.user.avgRepSec, fatigued:false, myTs:[] };
     $('q-oname').textContent=name; $('q-olvl').textContent=lvl;
-    $('q-oav').textContent=name.slice(0,2).toUpperCase();
+    $('q-oav').innerHTML=mon(av,32);
     $('q-search').style.display='none'; $('q-found').style.display='block';
     beep(700,.14);
   },fast?600:4000);
@@ -3498,7 +3595,7 @@ function beginDuel(){
   const d=S.duel; if(!d) return;
   goFlow('scr-duel');
   $('d-oname').textContent=d.opp;
-  $('d-oav-big').innerHTML=mon(['goblin','troll','bone','ghoul'][ri(0,3)],56);
+  $('d-oav-big').innerHTML=mon(d.oppAv||['goblin','troll','bone','ghoul'][ri(0,3)],56);
   resetDuelHud();
   playVsIntro();
   d.tracking=false;
@@ -3548,10 +3645,10 @@ function duelTap(){
 /* Pace Emulation: T_rep = T_base + random(-0.4, +0.5); fatigue after 60%: +15–30% */
 function scheduleBotRep(){
   const d=S.duel; if(!d||!d.running||d.live) return;
-  let base=d.tBase;
-  if(d.op>=d.target*0.6 && !d.fatigued){ d.fatigued=true; d.fatigueMul=1+rnd(.15,.30); }
+  let base=d.tBase*0.92;    /* bots run ~8% faster than your own average — real competition, not a freebie */
+  if(d.op>=d.target*0.72 && !d.fatigued){ d.fatigued=true; d.fatigueMul=1+rnd(.08,.18); }
   if(d.fatigued) base*=d.fatigueMul;
-  const delay=Math.max(600,(base+rnd(-0.4,0.5))*1000);
+  const delay=Math.max(550,(base+rnd(-0.3,0.35))*1000);
   const t=setTimeout(()=>{
     const dd=S.duel; if(!dd||!dd.running) return;
     dd.op++; syncDuelUI();
@@ -3623,12 +3720,13 @@ function endDuel(win){
            reps:d.my, sec:d.sec, coins, win };
   S.duel=null; lastLead=0; RT.started=false; resetCombo();
   try{ RT.ch?.unsubscribe(); }catch(e){} RT.ch=null;
+  RTCLink.stop();
   $('rt-badge').style.display='none';
   saveProfile();
   showVictory();
   toast((win?'Victory! ':'Nice try! ')+(eloD>=0?'+':'')+eloD+' ELO · now '+myElo());
 }
-function abortDuel(){ killDuel(); nav('scr-arena'); }
+function abortDuel(){ killDuel(); RTCLink.stop(); nav('scr-arena'); }
 function killDuel(){ if(!S.duel) return; S.duel.running=false; S.duel.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.duel=null; lastLead=0; }
 
 /* ================= LEADERBOARD ================= */
@@ -4084,7 +4182,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='37.0';
+const BUILD='38.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4336,31 +4434,21 @@ async function loadProfile(){
   catch(e){ console.error('[FitRoyale] profile load failed:', e.message||e); }
 
   const local=loadLocalProfile();
-
-  /* Merge rule: start from defaults, layer the local backup, then layer the cloud row —
-     but NEVER let a null/empty cloud value erase a real local one, and if the local copy
-     is newer than the cloud row (a save that didn't reach the server), local wins. */
   const isReal=v => v!==null && v!==undefined && v!=='';
-  const layer=(target,src)=>{ if(!src) return; Object.entries(src).forEach(([k,v])=>{ if(isReal(v)) target[k]=v; }); };
 
-  PROFILE={ ...DEFAULTS };
-  layer(PROFILE, local);
-
-  const localTs = Number(local?._ts||0);
-  const cloudTs = data?.updated_at ? Date.parse(data.updated_at) : 0;
-  const localIsNewer = localTs && localTs > (cloudTs||0);
-
+  /* Cloud is authoritative whenever a cloud row exists — no timestamp racing.
+     Local storage is ONLY a fallback for brand-new accounts / offline first load.
+     (The previous "whichever copy is newer" system could treat a stale local
+     zero as valid and push it back over correct cloud progress — permanently
+     wiping real coins/reps. Simpler and safer to just trust the server.) */
   if(data){
-    if(localIsNewer){
-      /* cloud is behind — only take fields the local copy genuinely lacks */
-      Object.entries(data).forEach(([k,v])=>{ if(isReal(v) && !isReal(PROFILE[k])) PROFILE[k]=v; });
-      console.warn('[FitRoyale] local profile is newer than cloud — keeping local, re-syncing');
-      setTimeout(()=>pushProfile(),400);
-    } else {
-      layer(PROFILE, data);
-    }
-    if(local?.tutorial_done) PROFILE.tutorial_done=true;
+    PROFILE={ ...DEFAULTS, ...Object.fromEntries(Object.entries(data).filter(([,v])=>isReal(v))) };
+    if(local?.tutorial_done) PROFILE.tutorial_done=true;   /* a completed tutorial never regresses */
+  } else if(local){
+    PROFILE={ ...DEFAULTS, ...Object.fromEntries(Object.entries(local).filter(([,v])=>isReal(v))) };
+    await pushProfile();
   } else {
+    PROFILE={ ...DEFAULTS };
     await pushProfile();
   }
   PROFILE.id=ME.id;
