@@ -746,27 +746,69 @@
 
   /* ---------- LOADING SCREEN ---------- */
   #loader{ position:absolute; inset:0; z-index:200; display:flex; flex-direction:column; align-items:center;
-    justify-content:center; gap:16px; background:radial-gradient(circle at 50% 35%,#241458,#07040F);
-    transition:opacity .5s ease, visibility .5s; }
+    justify-content:center; gap:0; overflow:hidden;
+    background:linear-gradient(165deg,#2B1B6B 0%,#1A1246 45%,#0B0820 100%);
+    transition:opacity .55s ease, visibility .55s; }
   #loader.gone{ opacity:0; visibility:hidden; }
-  .ld-logo{ width:104px; height:104px; border-radius:30px; background:var(--grad-purple);
-    display:flex; align-items:center; justify-content:center; position:relative;
-    box-shadow:0 0 60px rgba(139,92,246,.7); animation:ldPulse 1.6s ease-in-out infinite; }
-  @keyframes ldPulse{ 50%{ transform:scale(1.08) rotate(-3deg); box-shadow:0 0 90px rgba(245,158,11,.7);} }
-  .ld-ring{ position:absolute; inset:-14px; border-radius:38px; border:2px solid rgba(245,158,11,.5);
-    animation:ldRing 1.8s ease-out infinite; }
-  @keyframes ldRing{ 0%{ transform:scale(.9); opacity:.9;} 100%{ transform:scale(1.35); opacity:0;} }
-  .ld-title{ font-size:30px; font-weight:900; letter-spacing:.02em; text-shadow:0 4px 0 rgba(0,0,0,.5),0 0 30px rgba(139,92,246,.6); }
-  .ld-tip{ font-size:12px; font-weight:800; color:var(--dim); max-width:26ch; text-align:center; min-height:34px;
-    animation:tipFade .5s ease; }
-  @keyframes tipFade{ from{ opacity:0; transform:translateY(6px);} }
-  .ld-track{ width:200px; height:7px; border-radius:99px; background:rgba(255,255,255,.10); overflow:hidden; }
-  .ld-track i{ display:block; height:100%; width:0%; border-radius:99px;
-    background:linear-gradient(90deg,var(--violet-light),var(--gold)); transition:width .4s ease;
-    box-shadow:0 0 14px rgba(245,158,11,.7); }
-  .ld-pct{ font-size:11px; font-weight:900; color:var(--gold); letter-spacing:.14em; }
+  /* drifting aurora behind everything */
+  #loader::before{ content:""; position:absolute; width:150%; height:60%; top:-10%; left:-25%;
+    background:radial-gradient(closest-side, rgba(139,92,246,.45), transparent 70%);
+    filter:blur(38px); animation:auroraA 9s ease-in-out infinite; }
+  #loader::after{ content:""; position:absolute; width:130%; height:55%; bottom:-8%; right:-20%;
+    background:radial-gradient(closest-side, rgba(245,158,11,.32), transparent 70%);
+    filter:blur(42px); animation:auroraB 11s ease-in-out infinite; }
+  @keyframes auroraA{ 50%{ transform:translate(8%,6%) scale(1.15);} }
+  @keyframes auroraB{ 50%{ transform:translate(-9%,-7%) scale(1.2);} }
 
-  /* ---------- EXTREME FX ---------- */
+  .ld-stage{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:18px; }
+
+  /* the little champion doing push-ups */
+  .ld-hero{ position:relative; width:190px; height:120px; }
+  .ld-hero svg{ width:190px; height:120px; overflow:visible; }
+  .ld-body{ transform-origin:150px 96px; animation:pushup 1.5s cubic-bezier(.45,0,.55,1) infinite; }
+  @keyframes pushup{ 0%,100%{ transform:translateY(0) rotate(0deg);} 50%{ transform:translateY(15px) rotate(1.5deg);} }
+  .ld-shadow{ transform-origin:center; animation:shadowPulse 1.5s cubic-bezier(.45,0,.55,1) infinite; }
+  @keyframes shadowPulse{ 0%,100%{ transform:scaleX(1); opacity:.30; } 50%{ transform:scaleX(.84); opacity:.5; } }
+  .ld-puff{ opacity:0; animation:puff 1.5s ease-out infinite; }
+  @keyframes puff{ 0%,44%{ opacity:0; transform:translate(0,0) scale(.5);} 55%{ opacity:.8; }
+    100%{ opacity:0; transform:translate(-26px,-16px) scale(1.5);} }
+
+  /* crown that pops each rep */
+  .ld-crown{ transform-origin:center bottom; animation:crownPop 1.5s cubic-bezier(.45,0,.55,1) infinite; }
+  @keyframes crownPop{ 0%,100%{ transform:translateY(0) scale(1);} 52%{ transform:translateY(-7px) scale(1.14);} }
+
+  .ld-title{ font-size:31px; font-weight:900; letter-spacing:.01em; position:relative;
+    background:linear-gradient(95deg,#FDE68A 10%,#FFF 40%,#C4B5FD 70%,#FDE68A 95%);
+    background-size:250% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:titleSheen 3.2s linear infinite;
+    filter:drop-shadow(0 3px 0 rgba(0,0,0,.4)); }
+  @keyframes titleSheen{ to{ background-position:250% 0; } }
+
+  .ld-tip{ font-size:12.5px; font-weight:800; color:#B9C4DA; max-width:27ch; text-align:center;
+    min-height:36px; line-height:1.5; }
+  .ld-tip span{ display:inline-block; animation:tipIn .45s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes tipIn{ from{ opacity:0; transform:translateY(8px);} }
+
+  .ld-track{ width:214px; height:9px; border-radius:99px; background:rgba(255,255,255,.10);
+    overflow:hidden; position:relative; box-shadow:inset 0 1px 3px rgba(0,0,0,.45); }
+  .ld-track i{ display:block; height:100%; width:0%; border-radius:99px; position:relative;
+    background:linear-gradient(90deg,#8B5CF6,#C4B5FD,#F59E0B);
+    transition:width .45s cubic-bezier(.3,.9,.4,1);
+    box-shadow:0 0 14px rgba(245,158,11,.8); }
+  .ld-track i::after{ content:""; position:absolute; inset:0; border-radius:99px;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);
+    animation:barShine 1.5s linear infinite; }
+  @keyframes barShine{ from{ transform:translateX(-100%);} to{ transform:translateX(230%);} }
+
+  .ld-pct{ font-size:11px; font-weight:900; color:var(--gold); letter-spacing:.2em; }
+
+  /* rising sparks */
+  .ld-spark{ position:absolute; bottom:-10px; border-radius:50%; pointer-events:none; z-index:1;
+    animation:rise linear infinite; }
+  @keyframes rise{ from{ transform:translateY(0) scale(1); opacity:0; }
+    12%{ opacity:.9; } to{ transform:translateY(-70vh) scale(.25); opacity:0; } }
+
+  /* ---------- EXTREME FX ---------- */  /* ---------- EXTREME FX ---------- */
   .spark{ position:absolute; width:7px; height:7px; border-radius:2px; pointer-events:none; z-index:66;
     animation:sparkFly .62s cubic-bezier(.15,.7,.3,1) forwards; }
   @keyframes sparkFly{ to{ transform:translate(var(--sx),var(--sy)) rotate(var(--sr)) scale(.2); opacity:0; } }
@@ -1802,15 +1844,46 @@
 
 <div id="flashlayer"></div>
 <div id="loader">
-  <div class="ld-logo">
-    <span class="ld-ring"></span>
-    <svg viewBox="0 0 24 24" style="width:52px;height:52px" fill="#fff"><path d="M3 8l4.5 4L12 4l4.5 8L21 8v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><circle cx="3" cy="6.6" r="1.7"/><circle cx="12" cy="2.6" r="1.7"/><circle cx="21" cy="6.6" r="1.7"/></svg>
+  <div class="ld-stage">
+    <div class="ld-hero">
+      <svg viewBox="0 0 190 120">
+        <!-- ground -->
+        <ellipse class="ld-shadow" cx="95" cy="106" rx="62" ry="7" fill="#000" opacity=".35"/>
+        <line x1="24" y1="106" x2="166" y2="106" stroke="rgba(255,255,255,.16)" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- effort puffs -->
+        <circle class="ld-puff" cx="44" cy="86" r="5" fill="rgba(255,255,255,.5)"/>
+        <circle class="ld-puff" cx="52" cy="92" r="3.5" fill="rgba(255,255,255,.35)" style="animation-delay:.2s"/>
+        <g class="ld-body">
+          <!-- back leg + front leg -->
+          <path d="M120 86 L156 100" stroke="#6D28D9" stroke-width="9" stroke-linecap="round"/>
+          <path d="M120 86 L150 102" stroke="#8B5CF6" stroke-width="9" stroke-linecap="round"/>
+          <!-- torso -->
+          <path d="M62 76 L124 86" stroke="#8B5CF6" stroke-width="17" stroke-linecap="round"/>
+          <!-- arm planted -->
+          <path d="M70 78 L66 102" stroke="#A78BFA" stroke-width="8.5" stroke-linecap="round"/>
+          <circle cx="66" cy="104" r="5.5" fill="#C4B5FD"/>
+          <!-- head -->
+          <circle cx="54" cy="72" r="15" fill="#FBBF24"/>
+          <circle cx="48" cy="70" r="2.6" fill="#1F1436"/>
+          <path d="M44 79 q7 5 13 1" stroke="#1F1436" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <circle cx="62" cy="78" r="3" fill="#F59E0B" opacity=".55"/>
+          <!-- crown -->
+          <g class="ld-crown">
+            <path d="M42 56 l4 -12 6 7 6 -11 6 11 6 -7 4 12 z" fill="#FCD34D" stroke="#F59E0B" stroke-width="1.5" stroke-linejoin="round"/>
+            <circle cx="44" cy="43" r="2" fill="#FDE68A"/>
+            <circle cx="54" cy="39" r="2" fill="#FDE68A"/>
+            <circle cx="64" cy="43" r="2" fill="#FDE68A"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="ld-title">Fit Royale</div>
+    <div class="ld-tip" id="ld-tip"><span>Getting things ready…</span></div>
+    <div class="ld-track"><i id="ld-fill"></i></div>
+    <div class="ld-pct" id="ld-pct">0%</div>
+    <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.45">BUILD 31.0</div>
   </div>
-  <div class="ld-title hdr">Fit Royale</div>
-  <div class="ld-tip" id="ld-tip">Waking the arena…</div>
-  <div class="ld-track"><i id="ld-fill"></i></div>
-  <div class="ld-pct" id="ld-pct">0%</div>
-  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 27.0</div>
 </div>
 
 <div id="modal-layer"><div class="modal" id="modal-box"></div></div>
@@ -3973,7 +4046,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='30.0';
+const BUILD='31.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4565,35 +4638,73 @@ function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show');
 
 /* ================= LOADING SCREEN ================= */
 const LD_TIPS=[
-  'Every clean rep is one point of damage.',
-  'Stall too long and your energy drains.',
-  '14% of your reps land as SUPER HITS for triple damage.',
-  'Harder difficulty means far more XP and coins.',
-  'Beat a friend in a live duel to climb the ELO ladder.',
-  'Bosses wait at the end of every 6th episode.',
+  'Every rep you do is one point of damage.',
+  'Keep moving — resting too long drains your energy.',
+  'Some reps land as SUPER HITS worth triple points!',
+  'Fast reps in a row build a combo streak.',
+  'Chill mode counts half push-ups. Perfect for starting out.',
+  'Big Matches wait at the end of every 6th episode.',
+  'Beat a friend in Versus to earn rank points.',
+  'The camera counts for you — no tapping needed.',
 ];
-let ldVal=0, ldTimer=null, ldTipTimer=null;
+let ldVal=0, ldTarget=0, ldRAF=null, ldTipTimer=null, ldSparkTimer=null;
+
 function ldSet(p,msg){
-  ldVal=Math.max(ldVal,Math.min(100,p));
-  $('ld-fill').style.width=ldVal+'%';
-  $('ld-pct').textContent=Math.round(ldVal)+'%';
-  if(msg) $('ld-tip').textContent=msg;
+  ldTarget=Math.max(ldTarget,Math.min(100,p));
+  if(msg) ldTip(msg);
+  if(!ldRAF) ldAnimate();
+}
+/* eased, never-jumpy progress */
+function ldAnimate(){
+  ldRAF=requestAnimationFrame(()=>{
+    ldRAF=null;
+    const diff=ldTarget-ldVal;
+    if(Math.abs(diff)<0.15){ ldVal=ldTarget; }
+    else ldVal += diff*0.08;              /* smooth ease toward the target */
+    const fill=$('ld-fill'), pct=$('ld-pct');
+    if(fill) fill.style.width=ldVal.toFixed(1)+'%';
+    if(pct) pct.textContent=Math.round(ldVal)+'%';
+    if(ldVal<ldTarget-0.15 || ldTarget<100) ldAnimate();
+  });
+}
+function ldTip(text){
+  const t=$('ld-tip'); if(!t) return;
+  t.innerHTML='<span>'+text+'</span>';   /* re-inserting re-triggers the fade-in */
+}
+function ldSparks(){
+  const host=$('loader'); if(!host) return;
+  ldSparkTimer=setInterval(()=>{
+    if(!host || host.classList.contains('gone')) return;
+    const s=document.createElement('i');
+    s.className='ld-spark';
+    const size=2+Math.random()*4;
+    const cols=['rgba(245,158,11,.9)','rgba(196,181,253,.9)','rgba(255,255,255,.7)'];
+    s.style.cssText='left:'+(Math.random()*100)+'%;width:'+size+'px;height:'+size+'px;'+
+      'background:'+cols[Math.floor(Math.random()*cols.length)]+';'+
+      'animation-duration:'+(3.5+Math.random()*3)+'s;animation-delay:'+(Math.random()*0.6)+'s;';
+    host.appendChild(s);
+    setTimeout(()=>s.remove(),7000);
+  },320);
 }
 function ldStart(){
+  ldVal=0; ldTarget=0;
   let i=Math.floor(Math.random()*LD_TIPS.length);
-  $('ld-tip').textContent=LD_TIPS[i];
-  ldTipTimer=setInterval(()=>{
-    i=(i+1)%LD_TIPS.length;
-    const t=$('ld-tip'); t.style.animation='none'; void t.offsetWidth; t.style.animation='';
-    t.textContent=LD_TIPS[i];
-  },2600);
-  ldTimer=setInterval(()=>{ if(ldVal<88) ldSet(ldVal+Math.random()*7); },260);
+  ldTip(LD_TIPS[i]);
+  ldTipTimer=setInterval(()=>{ i=(i+1)%LD_TIPS.length; ldTip(LD_TIPS[i]); },2800);
+  ldSparks();
+  /* gentle creep so it always feels alive, even on a slow network */
+  ldCreep=setInterval(()=>{ if(ldTarget<88) ldSet(ldTarget+2+Math.random()*5); },420);
 }
+let ldCreep=null;
 function ldDone(){
-  clearInterval(ldTimer); clearInterval(ldTipTimer);
-  ldVal=Math.max(ldVal,0);
-  ldSet(100,'Ready.');
-  setTimeout(()=>{ $('loader')?.classList.add('gone'); }, 420);
+  clearInterval(ldCreep); clearInterval(ldTipTimer); clearInterval(ldSparkTimer);
+  ldTip('Ready!');
+  ldSet(100);
+  setTimeout(()=>{
+    const l=$('loader');
+    if(l) l.classList.add('gone');
+    setTimeout(()=>{ if(l) l.querySelectorAll('.ld-spark').forEach(s=>s.remove()); },700);
+  }, 520);
 }
 
 /* ================= BOOT ================= */
