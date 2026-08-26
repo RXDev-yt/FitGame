@@ -1844,7 +1844,7 @@
     <div class="ld-tip" id="ld-tip"><span>Getting things ready…</span></div>
     <div class="ld-track"><i id="ld-fill"></i></div>
     <div class="ld-pct" id="ld-pct">0%</div>
-    <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.4">BUILD 36.0</div>
+    <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.4">BUILD 37.0</div>
   </div>
 </div>
 
@@ -3790,7 +3790,19 @@ function toggleSound(){ S.sound=!S.sound; $('set-sound').classList.toggle('on',S
 function setSens(n){ S.sens=n; [1,2,3].forEach(k=>$('sn'+k).classList.toggle('on',k===n)); toast('Pose sensitivity: '+n); }
 
 /* ================= POSE ENGINE (MediaPipe) ================= */
-const POSE_CDN='https://cdn.jsdelivr.net/npm/@mediapipe/';
+/* ---------------------------------------------------------------------
+   POSE TRACKING — MediaPipe Tasks Vision (PoseLandmarker)
+   The old "@mediapipe/pose" legacy package was officially discontinued
+   by Google in March 2023 and hasn't been updated since — that's almost
+   certainly why tracking was unreliable no matter how the thresholds
+   were tuned. This uses Google's current, actively maintained API.
+   The output is the SAME 33-point BlazePose landmark format, so all the
+   rep-counting/drawing logic below (checkRep, drawPose) is unchanged.
+--------------------------------------------------------------------- */
+const TASKS_VISION_VER='0.10.14';
+const WASM_URL='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+TASKS_VISION_VER+'/wasm';
+const MODEL_URL='https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+let _visionMod=null;
 const EX_CFG={
   /* enterA = "down"/contracted angle, exitA = "up"/extended angle, armA = hold-here-to-start */
   'Push-ups':{ L:[11,13,15], R:[12,14,16], enterA:100, exitA:140, armA:140, joint:'Elbow', plant:true  },
@@ -3802,7 +3814,7 @@ function getAngle(A,B,C){
   let d=Math.abs(r*180/Math.PI);
   return d>180?360-d:d;
 }
-function loadScript(src,ms){
+function loadScript(src,ms){   /* still used by other CDN scripts elsewhere in the app */
   return new Promise((res,rej)=>{
     const s=document.createElement('script');
     const to=setTimeout(()=>{ s.remove(); rej(new Error('timeout '+src)); },ms||9000);
@@ -3813,23 +3825,31 @@ function loadScript(src,ms){
   });
 }
 const PoseEngine={
-  state:'idle', pose:null, cam:null, stream:null,
-  target:null, /* {video,canvas,ctx,cfg,onRep,onStatus, phase, lastRep, lowVisSince} */
+  state:'idle', landmarker:null, stream:null, rafId:null,
+  target:null, /* {video,canvas,ctx,cfg,onRep,onStatus, phase, lastRep, lowVisSince, ...} */
   async load(){
     if(this.state==='ready') return true;
     if(this.state==='loading') return this._loadP;
     this.state='loading';
     this._loadP=(async()=>{
       try{
-        await loadScript(POSE_CDN+'camera_utils/camera_utils.js');
-        await loadScript(POSE_CDN+'pose/pose.js');
-        this.pose=new Pose({ locateFile:f=>POSE_CDN+'pose/'+f });
-        this.pose.setOptions({ modelComplexity:1, smoothLandmarks:true,
-          minDetectionConfidence:0.5, minTrackingConfidence:0.5 });
-        this.pose.onResults(r=>this.onResults(r));
+        if(!_visionMod){
+          _visionMod=await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@'+TASKS_VISION_VER);
+        }
+        const { PoseLandmarker, FilesetResolver } = _visionMod;
+        const files=await FilesetResolver.forVisionTasks(WASM_URL);
+        this.landmarker=await PoseLandmarker.createFromOptions(files, {
+          baseOptions:{ modelAssetPath:MODEL_URL, delegate:'GPU' },
+          runningMode:'VIDEO',
+          numPoses:1,
+        });
         this.state='ready';
         return true;
-      }catch(e){ this.state='failed'; return false; }
+      }catch(e){
+        console.error('[FitRoyale] pose model load failed', e);
+        this.state='failed';
+        return false;
+      }
     })();
     return this._loadP;
   },
@@ -3860,28 +3880,25 @@ const PoseEngine={
     video.play().catch(()=>{});
     video.classList.add('live');
     onStatus('load','Camera on — loading AI…');
-    /* a previous load stuck mid-flight must never block a fresh attempt forever */
     if(this.state==='loading'){
       if(!this._loadStartedAt) this._loadStartedAt=Date.now();
-      if(Date.now()-this._loadStartedAt>10000){ this.state='idle'; this._loadP=null; }
+      if(Date.now()-this._loadStartedAt>15000){ this.state='idle'; this._loadP=null; }
     }
     if(this.state==='idle') this._loadStartedAt=Date.now();
     let ok=false;
-    try{ ok = await withTimeout(this.load(), 11000, 'model load'); }
+    try{ ok = await withTimeout(this.load(), 16000, 'model load'); }
     catch(e){ this.state='failed'; ok=false; }
     if(!ok){
-      /* keep the live camera; just fall to tap mode */
       onStatus('tap','Tap mode — AI unavailable');
-      cams.push(this.stream); this.stream=null;   /* hand the stream to the plain-cam pool so it survives */
+      cams.push(this.stream); this.stream=null;
       return false;
     }
     this.target={ video, canvas, ctx:canvas.getContext('2d'),
       cfg:EX_CFG[exercise]||EX_CFG['Push-ups'], onRep, onStatus,
-      phase:'READY', lastRep:0, lowVisSince:0, armed:false, extSince:0, aMin:180, aMax:0, calib:false, lowSince:0, seenSince:0, lastAnchor:null, shakeUntil:0, downSince:0, upSince:0, downAt:0, jointName:(EX_CFG[exercise]||EX_CFG['Push-ups']).joint };
-    this.cam=new Camera(video,{ onFrame:async()=>{ if(this.target) await this.pose.send({image:video}); },
-      width:1280, height:720 });
-    this.cam.start();
-    this.target._firstResult=false;
+      phase:'READY', lastRep:0, lowVisSince:0, armed:false, extSince:0, aMin:180, aMax:0, calib:false,
+      lowSince:0, seenSince:0, downSince:0, upSince:0, downAt:0, _firstResult:false,
+      jointName:(EX_CFG[exercise]||EX_CFG['Push-ups']).joint };
+
     clearTimeout(this._resultWatchdog);
     this._resultWatchdog=setTimeout(()=>{
       if(this.target && !this.target._firstResult){
@@ -3894,18 +3911,27 @@ const PoseEngine={
         if(vId==='b-video' && S.B){ S.B.tracking=false; $('rep-mode-lbl').textContent='TAP = 1 REP'; $('b-auto').style.display='flex'; $('b-fb').style.display='none'; }
       }
     }, 15000);
+
+    /* manual per-frame loop — Tasks Vision VIDEO mode is a direct call, no callback wrapper needed */
+    const loop=()=>{
+      const t=this.target;
+      if(!t || !this.landmarker){ this.rafId=null; return; }
+      if(video.readyState>=2 && video.videoWidth){
+        try{
+          const res=this.landmarker.detectForVideo(video, performance.now());
+          const lm=res?.landmarks?.[0]||null;
+          if(!t._firstResult && lm){ t._firstResult=true; onStatus('ai','AI tracking ON'); }
+          this.drawPose(lm,t);
+          if(lm) this.checkRep(lm,t);
+          else this.lowVis(t);
+        }catch(e){ console.error('[FitRoyale] detectForVideo failed',e); }
+      }
+      this.rafId=requestAnimationFrame(loop);
+    };
+    this.rafId=requestAnimationFrame(loop);
     onStatus('load','Warming up the camera AI…');
     return true;
   },
-  onResults(res){
-    const t=this.target; if(!t) return;
-    if(!t._firstResult){ t._firstResult=true; t.onStatus('ai','AI tracking ON'); }
-    this.drawPose(res.poseLandmarks,t);
-    if(res.poseLandmarks) this.checkRep(res.poseLandmarks,t);
-    else this.lowVis(t);
-  },
-  /* Maps normalized landmarks through the SAME object-fit:cover crop the <video> uses,
-     so the skeleton is glued to the body instead of floating stretched over the box. */
   drawPose(lm,t){
     const {canvas,ctx,video}=t;
     const dpr=window.devicePixelRatio||1;
@@ -4046,8 +4072,8 @@ const PoseEngine={
   stop(){
     const t=this.target;
     this.target=null;
-    try{ this.cam?.stop(); }catch(e){}
-    this.cam=null;
+    clearTimeout(this._resultWatchdog);
+    if(this.rafId){ cancelAnimationFrame(this.rafId); this.rafId=null; }
     this.stream?.getTracks().forEach(tr=>tr.stop());
     this.stream=null;
     if(t){ try{ t.video.classList.remove('live'); t.video.srcObject=null; t.ctx.clearRect(0,0,t.canvas.width,t.canvas.height); }catch(e){} }
@@ -4058,7 +4084,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='36.0';
+const BUILD='37.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
