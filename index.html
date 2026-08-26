@@ -772,6 +772,15 @@
     border:2px solid rgba(245,158,11,.5); display:flex; align-items:center; justify-content:center; animation:bob 2.2s infinite; }
   .posgate h4{ font-size:19px; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.5); }
   .posgate p{ font-size:12.5px; font-weight:800; color:var(--dim); max-width:24ch; }
+  .prep-timer{ display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:4px; }
+  .prep-ring{ position:relative; width:74px; height:74px; }
+  .prep-ring svg{ width:74px; height:74px; transform:rotate(-90deg); }
+  .prep-ring .track{ stroke:rgba(255,255,255,.14); }
+  .prep-ring .fill{ stroke:var(--gold); stroke-linecap:round; transition:stroke-dashoffset 1s linear;
+    filter:drop-shadow(0 0 6px rgba(245,158,11,.8)); }
+  .prep-ring b{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:26px; font-weight:900; color:var(--gold); text-shadow:0 0 16px rgba(245,158,11,.7); }
+  .prep-note{ font-size:11px; font-weight:800; color:var(--dim); }
   .posgate .cd{ font-size:56px; font-weight:900; color:var(--gold); text-shadow:0 0 26px rgba(245,158,11,.7); }
   .dmg.crit{ color:#FF5A5A; font-size:30px; text-shadow:0 0 18px rgba(239,68,68,.95),0 2px 0 rgba(0,0,0,.5); }
   .critflash{ position:absolute; inset:0; z-index:7; pointer-events:none; background:radial-gradient(circle,rgba(239,68,68,.35),transparent 65%);
@@ -1097,6 +1106,20 @@
       <h4 class="hdr" id="pg-title">Get into position</h4>
       <p id="pg-text">Prop your phone up, get on the floor facing the camera, arms extended. The fight starts when you're set.</p>
       <div class="cd" id="pg-cd" style="display:none">3</div>
+      <div class="prep-timer" id="prep-timer">
+        <div class="prep-ring">
+          <svg viewBox="0 0 74 74">
+            <circle class="track" cx="37" cy="37" r="32" fill="none" stroke-width="5"/>
+            <circle class="fill" id="prep-arc" cx="37" cy="37" r="32" fill="none" stroke-width="5"
+              stroke-dasharray="201" stroke-dashoffset="0"/>
+          </svg>
+          <b id="prep-num">10</b>
+        </div>
+        <div class="prep-note">Starting automatically…</div>
+      </div>
+      <button class="hold-btn" id="prep-skip" style="max-width:250px">
+        <span class="fillbar" id="prep-fill"></span><span>HOLD TO START NOW</span>
+      </button>
     </div>
   </div>
 
@@ -1676,7 +1699,7 @@
   <div class="ld-tip" id="ld-tip">Waking the arena…</div>
   <div class="ld-track"><i id="ld-fill"></i></div>
   <div class="ld-pct" id="ld-pct">0%</div>
-  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 23.0</div>
+  <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.5">BUILD 24.0</div>
 </div>
 
 <div id="modal-layer"><div class="modal" id="modal-box"></div></div>
@@ -2328,6 +2351,7 @@ function endRest(){
   /* re-arm the pose gate so the next wave starts on your terms */
   if(PoseEngine.target){ PoseEngine.target.armed=false; PoseEngine.target.extSince=0; PoseEngine.target.phase='READY'; }
   B.gate=true;
+  const sk2=$('prep-skip'); if(sk2) sk2.style.display='flex';
   showGate(true,'Next wave','Get back into position — the next enemy is coming.');
   SFX.kill();
 }
@@ -2368,9 +2392,60 @@ function updateFormMeter(type,msg){
     m.classList.toggle('down', pct>55);
   } else { $('fm-deg').textContent='—'; }
 }
+let prepT=null, prepHoldT=null;
+function stopPrepTimer(){
+  clearInterval(prepT); prepT=null;
+  clearInterval(prepHoldT); prepHoldT=null;
+  const f=$('prep-fill'); if(f) f.style.width='0%';
+}
+function startPrepTimer(){
+  stopPrepTimer();
+  const PREP=10;
+  let left=PREP;
+  const num=$('prep-num'), arc=$('prep-arc'), tw=$('prep-timer');
+  if(tw) tw.style.display='flex';
+  const paint=()=>{
+    if(num) num.textContent=left;
+    if(arc) arc.style.strokeDashoffset = String(201*(1-left/PREP));
+  };
+  paint();
+  prepT=setInterval(()=>{
+    if(!S.B || S.B.gate!==true){ stopPrepTimer(); return; }
+    left--;
+    paint();
+    if(left<=3 && left>0) beep(520,.06);
+    if(left<=0){ stopPrepTimer(); onInPosition(); }
+  },1000);
+  bindPrepSkip();
+}
+function bindPrepSkip(){
+  const btn=$('prep-skip'), fill=$('prep-fill');
+  if(!btn||!fill) return;
+  if(btn.dataset.bound){ fill.style.width='0%'; return; }
+  btn.dataset.bound=1;
+  const HOLD=900;
+  let started=0;
+  const begin=(e)=>{
+    e.preventDefault();
+    if(!S.B || S.B.gate!==true) return;
+    started=performance.now();
+    clearInterval(prepHoldT);
+    prepHoldT=setInterval(()=>{
+      const p=Math.min(100,(performance.now()-started)/HOLD*100);
+      fill.style.width=p+'%';
+      if(p>=100){ clearInterval(prepHoldT); fill.style.width='0%'; burstAt(btn,'#F59E0B',12); stopPrepTimer(); onInPosition(); }
+    },30);
+  };
+  const cancel=()=>{ clearInterval(prepHoldT); fill.style.width='0%'; };
+  btn.addEventListener('pointerdown',begin);
+  btn.addEventListener('pointerup',cancel);
+  btn.addEventListener('pointerleave',cancel);
+  btn.addEventListener('pointercancel',cancel);
+}
 function showGate(on,title,text){
   const g=$('posgate'); if(!g) return;
   g.style.display=on?'flex':'none';
+  if(on) startPrepTimer(); else stopPrepTimer();
   const guide=$('pose-guide');
   if(guide) guide.classList.toggle('on', !!on && (S.B?.exercise==='Push-ups'));
   if(title) $('pg-title').textContent=title;
@@ -2379,6 +2454,9 @@ function showGate(on,title,text){
 }
 function onInPosition(){
   const B=S.B; if(!B||!B.gate) return;
+  stopPrepTimer();
+  const tw=$('prep-timer'); if(tw) tw.style.display='none';
+  const sk=$('prep-skip'); if(sk) sk.style.display='none';
   B.gate='counting';
   $('pg-title').textContent='Ready!';
   $('pg-text').textContent='Hold it…';
@@ -2535,7 +2613,7 @@ function pauseBattle(){
 }
 function resumeBattle(){ if(S.B) S.B.paused=false; closeModal(); }
 function quitBattle(){ closeModal(); killBattle(); nav(S.B_origin==='campaign'?'scr-campaign':S.B_origin==='home'?'scr-home':'scr-arena'); }
-function killBattle(){ if(!S.B) return; $('restgate')?.classList.remove('on'); const fm=$('form-meter'); if(fm) fm.style.display='none'; S.B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.B._dead=true; S.B=null; }
+function killBattle(){ if(!S.B) return; stopPrepTimer(); $('restgate')?.classList.remove('on'); const fm=$('form-meter'); if(fm) fm.style.display='none'; S.B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.B._dead=true; S.B=null; }
 
 /* launchers */
 function startEpisode(ci,i){
@@ -3638,11 +3716,11 @@ const PoseEngine={
 
     /* --- ARMING: forgiving. Any plausible starting position, held briefly. --- */
     if(!t.armed){
-      let looksReady = angle >= (c.armA - 35 + rm.arm);   /* generous */
+      let looksReady = angle >= (c.armA - 50 + rm.arm);   /* generous */
       if(c.plant){
         /* push-ups: just check the hands aren't way above the shoulders (i.e. standing) */
         const shY=lm[side[0]].y, wrY=lm[side[2]].y;
-        if(wrY < shY - 0.30) looksReady=false;
+        if(wrY < shY - 0.45) looksReady=false;
       }
       if(looksReady){
         if(!t.extSince) t.extSince=now;
@@ -3657,7 +3735,7 @@ const PoseEngine={
       }
       /* mercy: if we can see you clearly for 6s but never "armed", arm anyway */
       t.seenSince=t.seenSince||now;
-      if(now-t.seenSince>6000){
+      if(now-t.seenSince>4000){
         t.armed=true; t.aMin=angle; t.aMax=angle; t.calib=false;
         t.onStatus('ai','Tracking you — go!'); beep(700,.1);
       }
@@ -3706,7 +3784,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='23.0';
+const BUILD='24.0';
 console.log('[FitRoyale] build',BUILD);
 const SB_URL='https://yxtfhqkrhxpkaaexzvcn.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl4dGZocWtyaHhwa2FhZXh6dmNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2Mjg0ODgsImV4cCI6MjEwMzIwNDQ4OH0.y4dMu9spDHMZBNr3uAfzmNzHKxJCuujVY6QmqxNteOg';
