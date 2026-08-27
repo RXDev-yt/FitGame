@@ -2431,6 +2431,7 @@ async function renderArena(){
   const list=$('friends-list'); if(!list) return;
   if(!sb || !ME){ list.innerHTML=''; return; }
   try{
+    await healOneSidedFriendships();
     const { data, error } = await sb.from('friendships').select('*').eq('user_id', ME.id).order('created_at',{ascending:false});
     if(error) throw error;
     if(!data || !data.length){
@@ -2449,6 +2450,21 @@ async function renderArena(){
     console.error('[FitRoyale] renderArena (friends) failed', err);
     list.innerHTML='<div class="friends-empty"><p>Couldn\'t load your friends list — check your connection.</p></div>';
   }
+}
+/* fixes friendships added before the mutual-add system existed — if someone
+   has us in their list but we don't have them, silently complete our side */
+async function healOneSidedFriendships(){
+  try{
+    const [{ data: mine }, { data: theirs }] = await Promise.all([
+      sb.from('friendships').select('friend_id').eq('user_id', ME.id),
+      sb.from('friendships').select('user_id').eq('friend_id', ME.id),
+    ]);
+    const mineSet=new Set((mine||[]).map(r=>r.friend_id));
+    const missing=(theirs||[]).map(r=>r.user_id).filter(id=>!mineSet.has(id));
+    for(const id of missing){
+      await sb.rpc('complete_mutual_friend',{ other_id:id });
+    }
+  }catch(e){ console.error('[FitRoyale] healOneSidedFriendships failed', e); }
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 
@@ -3991,7 +4007,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='48.0';
+const BUILD='49.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
