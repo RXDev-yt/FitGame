@@ -589,6 +589,30 @@
     background:radial-gradient(circle at 35% 30%, #FDE68A, #F59E0B 55%, #B45309);
     display:flex; align-items:center; justify-content:center;
     box-shadow:0 4px 14px rgba(245,158,11,.4), inset 0 -3px 6px rgba(0,0,0,.25); }
+  .coop-strip{ display:flex; align-items:center; gap:8px; background:rgba(139,92,246,.14);
+    border:1px solid rgba(139,92,246,.35); border-radius:12px; padding:7px 11px; margin-top:8px; }
+  .coop-strip .fav{ width:22px; height:22px; border-radius:50%; flex:none; overflow:hidden; background:#1A1440; }
+  .coop-strip .fav img{ width:100%; height:100%; object-fit:cover; }
+  .coop-strip span{ font-size:11.5px; font-weight:800; color:#D8CCFF; }
+  .friend-card{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px;
+    background:var(--card-dark); border:1.5px solid var(--line); margin-bottom:9px; }
+  .friend-card .fav{ width:44px; height:44px; border-radius:50%; flex:none; overflow:hidden;
+    background:#1A1440; display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,.1); }
+  .friend-card .fav img{ width:100%; height:100%; object-fit:cover; }
+  .friend-card b{ font-size:14.5px; font-weight:900; display:block; }
+  .friend-card span{ font-size:11px; font-weight:800; color:var(--dim); }
+  .friend-card button{ margin-left:auto; flex:none; background:var(--violet-light); color:#fff;
+    font-size:11.5px; font-weight:900; padding:9px 14px; border-radius:11px; }
+  .friends-empty{ text-align:center; padding:26px 16px; }
+  .friends-empty p{ font-size:13px; font-weight:800; color:var(--dim); }
+  .qr-wrap{ display:flex; align-items:center; justify-content:center; background:#fff; border-radius:16px;
+    padding:16px; margin:14px auto; width:200px; height:200px; }
+  .qr-wrap canvas, .qr-wrap img{ width:100%; height:100%; }
+  .scan-frame{ position:relative; width:100%; aspect-ratio:1; border-radius:18px; overflow:hidden;
+    background:#000; margin-top:12px; }
+  .scan-frame video{ width:100%; height:100%; object-fit:cover; }
+  .scan-frame::after{ content:""; position:absolute; inset:14%; border:3px solid rgba(139,92,246,.85);
+    border-radius:16px; pointer-events:none; box-shadow:0 0 0 999px rgba(0,0,0,.35); }
   .today-strip{ display:flex; gap:7px; margin-top:9px; }
   .today-strip div{ flex:1; background:var(--card-dark); border:1px solid var(--line);
     border-radius:13px; padding:8px 6px; text-align:center; }
@@ -805,8 +829,8 @@
 
   .ld-track{ width:190px; height:6px; border-radius:99px; background:rgba(255,255,255,.10); overflow:hidden; }
   .ld-track i{ display:block; height:100%; width:0%; border-radius:99px;
-    background:linear-gradient(90deg,#8B5CF6,#F59E0B);
-    transition:width .4s cubic-bezier(.3,.9,.4,1); box-shadow:0 0 10px rgba(245,158,11,.6); }
+    background:#FCD34D;
+    transition:width .4s cubic-bezier(.3,.9,.4,1); box-shadow:0 0 10px rgba(252,211,77,.7); }
 
   .ld-pct{ font-size:10.5px; font-weight:900; color:#8D96B8; letter-spacing:.16em; }
 
@@ -1049,9 +1073,6 @@
     <button class="tpill" onclick="pickEx(this,'Squats')">Squats</button>
   </div>
 
-  <div class="sect-head"><b>HOW HARD?</b><span class="ln"></span></div>
-  <div class="card" id="diff-card"></div>
-
   <div class="sect-head"><b>CHOOSE A MODE</b><span class="ln"></span></div>
   <div class="big-card gold">
     <div class="bc-top">
@@ -1117,7 +1138,7 @@
     </button>
     <button class="tile vs" onclick="nav('scr-arena')">
       <div class="ti"><svg viewBox="0 0 24 24" style="width:22px;height:22px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.8-3 3.3-4.8 6.5-4.8s5.7 1.8 6.5 4.8"/><circle cx="17.5" cy="9" r="2.4"/></svg></div>
-      <b>Versus</b><span>Play a friend</span>
+      <b>Friends</b><span>Train together</span>
     </button>
     <button class="tile train" onclick="nav('scr-workout')">
       <div class="ti"><svg viewBox="0 0 24 24" style="width:22px;height:22px" fill="none" stroke="#F59E0B" stroke-width="2.3" stroke-linecap="round"><path d="M2 12h3M19 12h3M5 8v8M19 8v8M8 12h8"/></svg></div>
@@ -1165,52 +1186,26 @@
 </section>
 
 <!-- ============ 4. ARENA HUB ============ -->
+<!-- ============ FRIENDS (placeholder — co-op build coming) ============ -->
 <section class="screen" id="scr-arena">
   <div class="page-head">
     <div class="ph-ico" style="background:rgba(16,185,129,.18)">
       <svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.8-3 3.3-4.8 6.5-4.8s5.7 1.8 6.5 4.8"/><circle cx="17.5" cy="9" r="2.4"/></svg>
     </div>
-    <div><b>Versus</b><span>Race someone, rep for rep</span></div>
+    <div><b>Friends</b><span>Train together</span></div>
   </div>
 
-  <div class="rank-card" id="rankcard" style="--rc1:#8C5A2B;--rc2:#5B3617;margin-bottom:12px">
-    <div class="rank-emblem" id="rank-emblem"></div>
-    <div class="rank-tier" id="rank-tier">BRONZE</div>
-    <div class="rank-sub"><span id="rank-elo-n">1000</span> RANK POINTS</div>
-    <div class="rank-prog">
-      <div class="t"><span id="rank-cur">BRONZE</span><span id="rank-nxt">SILVER 900</span></div>
-      <div class="bar"><i id="rank-fill" style="width:0%"></i></div>
-    </div>
-  </div>
-  <p class="dim" style="font-size:11px;font-weight:800;margin:10px 0 6px;text-align:center">Win Versus matches to earn rank points and climb this ladder</p>
-  <div class="tier-row" id="tier-row"></div>
-
-  <div class="sect-head"><b>WHO DO YOU WANT TO PLAY?</b><span class="ln"></span></div>
-
-  <div class="big-card purple">
+  <button class="big-card purple" style="width:100%;text-align:left" onclick="openAddFriend()">
     <div class="bc-top">
-      <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.8-3 3.3-4.8 6.5-4.8s5.7 1.8 6.5 4.8"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.7 14.4c2.6.2 4.7 1.8 5.5 4.4"/></svg></div>
-      <div class="grow"><b>A Friend</b><p>Make a room and share the code</p></div>
+      <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg></div>
+      <div class="grow"><b>Add a Friend</b><p>Share a link or scan a QR code</p></div>
     </div>
-    <button class="btn b-purple" onclick="openLobby()">PLAY WITH FRIEND</button>
-  </div>
+  </button>
 
-  <div class="big-card gold">
-    <div class="bc-top">
-      <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/></svg></div>
-      <div class="grow"><b>Someone Online</b><p>Win to earn rank points</p></div>
-    </div>
-    <button class="btn b-gold" onclick="findMatch()">FIND SOMEONE TO PLAY</button>
-  </div>
-
-  <div class="today-strip" style="margin-top:16px">
-    <div><b id="duel-elo2">1000</b><span>RANK POINTS</span></div>
-    <div><b id="duel-wins">0</b><span>WINS</span></div>
-  </div>
-  <div style="display:none"><span id="duel-elo"></span></div>
+  <div class="sect-head"><b>YOUR FRIENDS</b><span class="ln"></span></div>
+  <div id="friends-list"></div>
 </section>
 
-<!-- ============ 2. BATTLE ============ -->
 <section class="screen" id="scr-battle">
   <div class="combat-hud" id="c-hud">
     <div class="creature-line">
@@ -1220,6 +1215,10 @@
         <div class="e-meta"><span id="b-wave">Wave 1/3</span> · <span id="b-diff" style="color:var(--gold)">NORMAL</span></div>
       </div>
       <div class="hud-timer"><div class="t" id="b-timer">0:00</div><div class="l">TIME</div></div>
+    </div>
+    <div class="coop-strip" id="coop-strip" style="display:none">
+      <div class="fav" id="coop-pav"></div>
+      <span>Fighting together with <b id="coop-pname">Friend</b></span>
     </div>
     <div class="ex-banner">
       <div class="eb-ico" id="eb-ico"></div>
@@ -1302,95 +1301,6 @@
 </section>
 
 <!-- ============ 1v1 QUEUE ============ -->
-<section class="screen" id="scr-queue">
-  <div class="queue-box" id="q-search">
-    <div class="radar"><span class="c">⚔️</span></div>
-    <div class="hdr" style="font-size:19px">Searching for opponent…</div>
-    <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">Matching you with a player near your pace</p>
-    <button class="btn b-ghost" style="max-width:200px;margin:26px auto 0" onclick="cancelQueue()">Cancel</button>
-  </div>
-  <div class="queue-box found-card" id="q-found" style="display:none">
-    <div class="hdr" style="font-size:15px;color:var(--green);margin-bottom:14px">OPPONENT FOUND!</div>
-    <div class="av-wrap" style="display:inline-block">
-      <span class="lvl-badge">LVL <span id="q-olvl">5</span></span>
-      <div class="avatar" id="q-oav" style="width:72px;height:72px;font-size:22px">IP</div>
-    </div>
-    <div class="hdr" style="font-size:19px;margin-top:10px" id="q-oname">IronPusher99</div>
-    <p class="dim" style="font-weight:800;font-size:12px;margin-top:4px">Ranked Duel · First to 20 push-ups</p>
-    <button class="btn b-gold" style="max-width:230px;margin:22px auto 0" onclick="beginDuel()">FIGHT!</button>
-  </div>
-</section>
-
-<!-- ============ 5. DUEL SPLIT SCREEN ============ -->
-<section class="screen" id="scr-duel">
-  <div class="rank-hud">
-    <div class="rank-label">RANKED MATCH</div>
-    <div class="rank-top">
-      <div class="rank-side">
-        <div class="hexwrap">
-          <div class="hex frame"></div>
-          <div class="hex inner" id="d-me-av"></div>
-        </div>
-        <div class="rank-name" id="d-me-name">You</div>
-        <div class="rank-elo"><span id="d-me-elo">1000</span> ELO</div>
-      </div>
-      <div class="rank-mid">
-        <div class="tl">TIME</div>
-        <div class="tv" id="d-timer">0:00</div>
-      </div>
-      <div class="rank-side r">
-        <div class="hexwrap">
-          <div class="hex frame creature"></div>
-          <div class="hex inner" id="d-oav-big"></div>
-          <video id="d-opp-video" autoplay playsinline muted disablepictureinpicture></video>
-          <span class="live-cam-tag">● LIVE</span>
-        </div>
-        <div class="rank-name" id="d-oname">Opponent</div>
-        <div class="rank-elo"><span id="d-oelo">1000</span> ELO</div>
-      </div>
-    </div>
-    <div class="tug-row">
-      <div class="tug-num me" id="d-myreps">0</div>
-      <div class="tug-bar"><i id="d-tug"></i><span class="tug-knob" id="d-knob" style="left:50%"></span></div>
-      <div class="tug-num op" id="d-oreps">0</div>
-    </div>
-  </div>
-
-  <div class="duel-stage">
-    <div class="vs-intro gone" id="vs-intro">
-      <div class="vs-card">
-        <div class="vs-fighter">
-          <div class="hexwrap"><div class="hex frame"></div><div class="hex inner" id="vs-me-av"></div></div>
-          <b id="vs-me-name">You</b><span id="vs-me-elo">1000 ELO</span>
-        </div>
-        <div class="vs-clash hdr">VS</div>
-        <div class="vs-fighter right">
-          <div class="hexwrap"><div class="hex frame creature"></div><div class="hex inner" id="vs-op-av"></div></div>
-          <b id="vs-op-name">Rival</b><span id="vs-op-elo">1000 ELO</span>
-        </div>
-      </div>
-    </div>
-    <video id="d-video" autoplay playsinline muted disablepictureinpicture controlslist="nodownload noplaybackrate nofullscreen"></video>
-    <canvas class="pose-canvas" id="d-canvas"></canvas>
-    <div class="vp-fallback" id="d-fb" style="display:none"><span style="font-size:54px;opacity:.4">🧍</span></div>
-    <button class="duel-tapzone" id="d-tapzone" onclick="duelTap()" aria-label="Tap to count rep"></button>
-    <span class="stage-tag" id="d-track">Loading AI…</span>
-    <button class="stage-tag" id="d-skip-ai" style="right:12px;left:auto;top:44px;bottom:auto;display:none;background:rgba(239,68,68,.75)" onclick="forceDuelTapMode()">SKIP — TAP MODE</button>
-    <span class="rt-badge" id="rt-badge" style="display:none">● LIVE OPPONENT</span>
-    <span class="lead-float" id="d-lead">EVEN</span>
-    <div class="combo" id="d-combo">
-      <div class="combo-n" id="d-combo-n">2</div>
-      <div class="combo-lbl" id="d-combo-l">COMBO</div>
-    </div>
-  </div>
-
-  <div class="row" style="gap:10px;margin-top:10px">
-    <button class="btn b-ghost" style="flex:1" onclick="abortDuel()">LEAVE</button>
-    <span class="chip" style="flex:none" id="d-hint">First to 20 reps wins</span>
-  </div>
-</section>
-
-<!-- ============ 7. VICTORY ============ -->
 <section class="screen" id="scr-victory">
   <div class="vic-stars" id="v-stars"><span><svg viewBox="0 0 24 24" style="width:36px;height:36px" fill="#F59E0B"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg></span><span><svg viewBox="0 0 24 24" style="width:36px;height:36px" fill="#F59E0B"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg></span><span><svg viewBox="0 0 24 24" style="width:36px;height:36px" fill="#F59E0B"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg></span></div>
   <div class="vic-h hdr" id="v-head">VICTORY!</div>
@@ -1422,10 +1332,11 @@
 
 <!-- ============ 6. LEADERBOARD ============ -->
 <section class="screen" id="scr-ranks">
-  <div class="card season-head">
-    <div class="boss-tag">SEASON 4</div>
-    <div class="lg hdr">Gladiator League</div>
-    <div class="dim" style="font-size:11.5px;font-weight:900;margin-top:3px">Resets in <span id="season-cd" class="gold">6d 11:59:59</span></div>
+  <div class="page-head">
+    <div class="ph-ico" style="background:rgba(245,158,11,.18)">
+      <svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg>
+    </div>
+    <div><b>Leaderboard</b><span>Everyone's XP, all in one place</span></div>
   </div>
   <div class="podium" id="podium"></div>
   <div id="lb-scroll"></div>
@@ -1456,7 +1367,6 @@
         <span class="hdr" style="font-size:22px" id="prof-uname">Champion</span>
         <svg viewBox="0 0 24 24" style="width:17px;height:17px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
       </button>
-      <div class="crest-tier" id="p-tier" style="margin-top:8px"></div>
       <p class="dim" style="font-size:11px;font-weight:800;margin-top:10px">Tap your name or the camera to change them</p>
     </div>
 
@@ -1466,7 +1376,7 @@
       <div><b id="p-streak">1</b><span>DAY STREAK</span></div>
     </div>
     <div class="today-strip" style="margin-top:9px">
-      <div><b id="p-elo">1000</b><span>RANK POINTS</span></div>
+      <div><b id="p-pr">0</b><span>MAX REPS PR</span></div>
       <div><b id="p-coins">0</b><span>COINS</span></div>
     </div>
 
@@ -1747,71 +1657,11 @@
 </section>
 
 <!-- ============ DUEL LOBBY ============ -->
-<section class="screen" id="scr-lobby">
-  <div class="topline">
-    <button class="back-btn" onclick="leaveLobby()">‹ Back</button>
-    <div class="screen-title hdr">1v1 Duel</div>
-    <span style="width:44px"></span>
-  </div>
-
-  <div class="card" style="text-align:center">
-    <div class="ob-title hdr" style="font-size:18px">Fight a friend</div>
-    <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">Create a room and send them the code</p>
-    <button class="btn b-gold" style="margin-top:14px" onclick="hostRoom()">CREATE ROOM</button>
-  </div>
-
-  <div class="card">
-    <div class="dim" style="font-size:11px;font-weight:900;letter-spacing:.12em;text-align:center">HAVE A CODE?</div>
-    <input class="code-in" id="join-code" maxlength="5" placeholder="ABCDE" style="margin:12px 0">
-    <button class="btn b-purple" onclick="joinRoom()">JOIN ROOM</button>
-  </div>
-
-  <div class="card" style="text-align:center">
-    <div class="dim" style="font-size:12.5px;font-weight:800">No friend around?</div>
-    <button class="btn b-ghost" style="margin-top:11px" onclick="findMatch()">FIND RANDOM OPPONENT</button>
-  </div>
-</section>
-
-<!-- ============ ROOM WAITING ============ -->
-<section class="screen" id="scr-room">
-  <div class="topline">
-    <button class="back-btn" onclick="leaveLobby()">‹ Leave</button>
-    <div class="screen-title hdr">Duel Room</div>
-    <span style="width:44px"></span>
-  </div>
-
-  <div class="card" style="text-align:center">
-    <div class="dim" style="font-size:11.5px;font-weight:900;letter-spacing:.12em">ROOM CODE — SHARE THIS</div>
-    <div class="code-box" id="room-code">-----</div>
-    <button class="btn b-ghost b-sm" style="margin:0 auto" onclick="shareCode()">COPY CODE</button>
-  </div>
-
-  <div class="card">
-    <div class="lobby-players">
-      <div class="lobby-p in" id="lp-me">
-        <div class="avatar" id="lp-me-av">ME</div>
-        <b id="lp-me-name">You</b>
-        <span class="dim" style="font-size:10.5px;font-weight:800"><span class="live-dot"></span> Ready</span>
-      </div>
-      <div class="vs-badge">VS</div>
-      <div class="lobby-p" id="lp-opp">
-        <div class="avatar" id="lp-opp-av">?</div>
-        <b id="lp-opp-name">Waiting…</b>
-        <span class="dim" style="font-size:10.5px;font-weight:800" id="lp-opp-state">Not joined</span>
-      </div>
-    </div>
-    <button class="btn b-gold" id="room-start" onclick="hostStart()" style="display:none">START DUEL</button>
-    <p class="dim" style="text-align:center;font-size:11.5px;font-weight:800;margin-top:10px" id="room-hint">
-      Send the code to your friend — the duel starts when they join.</p>
-  </div>
-</section>
-
-<!-- ============ PAYWALL (unskippable) ============ -->
 <section class="screen fullflow" id="scr-paywall">
   <div class="paywrap">
     <div style="text-align:center;margin-bottom:16px">
       <div class="hdr" style="font-size:25px">Unlock the full arena</div>
-      <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">108 episodes · ranked duels · AI tracking</p>
+      <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">108 episodes · co-op with friends · AI tracking</p>
     </div>
 
     <div class="plan-row">
@@ -1874,7 +1724,7 @@
   <button class="nv" data-s="scr-campaign" onclick="nav('scr-campaign')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3zM9 7v13M15 4v13"/></svg>Map</button>
   <button class="nv" data-s="scr-arena" onclick="nav('scr-arena')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l8 8M3 3v4M3 3h4M21 3l-8 8M21 3v4M21 3h-4M7 17l-3 3M17 17l3 3M6 14l4 4M18 14l-4 4"/></svg>Versus</button>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c.8-3 3.3-4.8 6.5-4.8s5.7 1.8 6.5 4.8"/><circle cx="17.5" cy="9" r="2.4"/><path d="M15.7 14.4c2.6.2 4.7 1.8 5.5 4.4"/></svg>Friends</button>
   <button class="nv" data-s="scr-profile" onclick="nav('scr-profile')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Me</button>
   <button class="nv lock" data-s="scr-inventory" onclick="armoryPopup()">
@@ -2069,9 +1919,26 @@ const NAMES=['IronPusher99','VikingSquatter','FitKnight','RepLord','SquatWitch',
   S.lb.push(mk(9850,'L'),mk(9310,'L'),mk(8720,'L'));                    /* legendary 1-3 */
   for(let i=0;i<40;i++) S.lb.push(mk(ri(1200,7800),'C'));               /* competitive 4-50 */
   for(let i=0;i<25;i++) S.lb.push(mk(ri(80,1100),'B'));                 /* community 51+ */
-  S.lb.push({ name:'You', lvl:S.user.lvl, xp:2140, me:true, tier:'C' });
+  S.lb.push({ name:'You', lvl:S.user.lvl, xp:S.user.totalXp||0, me:true, tier:'C' });
   S.lb.sort((a,b)=>b.xp-a.xp);
 })();
+/* real players get merged in once we're logged in and can query the leaderboard view */
+async function refreshRealPlayers(){
+  if(!sb || !ME) return;
+  try{
+    const { data, error } = await sb.from('public_leaderboard').select('*').limit(200);
+    if(error) throw error;
+    S.lb = S.lb.filter(u=>u.bot);   /* drop any previously-merged real rows before re-merging */
+    (data||[]).forEach(p=>{
+      if(p.id===ME.id) return;   /* the live "me" row below always reflects current state */
+      S.lb.push({ name:p.username||'Player', lvl:p.level||1, xp:p.total_xp||0, tier:'C', real:true, avatar:p.avatar, avatarUrl:p.avatar_url });
+    });
+    const meRow=S.lb.find(u=>u.me);
+    if(meRow){ meRow.lvl=S.user.lvl; meRow.xp=S.user.totalXp||0; }
+    S.lb.sort((a,b)=>b.xp-a.xp);
+    if($('scr-ranks')?.classList.contains('active')) renderLB();
+  }catch(err){ console.error('[FitRoyale] leaderboard fetch failed', err); }
+}
 
 /* ================= AUDIO ================= */
 let AC=null;
@@ -2149,7 +2016,7 @@ function nav(id, opts){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
   ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
-     'scr-ranks':renderLB,'scr-profile':renderProfile,'scr-workout':renderWorkout })[id]?.();
+     'scr-ranks':renderRanksPage,'scr-profile':renderProfile,'scr-workout':renderWorkout })[id]?.();
   updateUrl(id, opts);
 }
 function updateUrl(id, opts){
@@ -2172,7 +2039,7 @@ window.addEventListener('popstate', e=>{
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));
   document.querySelectorAll('.nv').forEach(n=>n.classList.toggle('on',n.dataset.s===id));
   ({ 'scr-home':renderHome,'scr-campaign':renderMap,'scr-arena':renderArena,
-     'scr-ranks':renderLB,'scr-profile':renderProfile })[id]?.();
+     'scr-ranks':renderRanksPage,'scr-profile':renderProfile })[id]?.();
   routing=false;
 });
 function routeFromUrl(){
@@ -2188,12 +2055,7 @@ function goFlow(id){ /* flow screens without nav highlight */
   document.querySelectorAll('.nv').forEach(n=>n.classList.remove('on'));
 }
 function cleanupFlows(dest){
-  if(dest!=='scr-room'&&dest!=='scr-duel'&&dest!=='scr-lobby'&&dest!=='scr-victory'&&dest!=='scr-queue'){
-    try{ RT.ch?.unsubscribe(); }catch(e){} try{ RT.lob?.unsubscribe(); }catch(e){}
-    RT.ch=null; RT.lob=null; RT.seeking=false; if(RT.seekT){clearTimeout(RT.seekT);RT.seekT=null;}
-  }
   if(S.B && dest!=='scr-battle' && dest!=='scr-victory') killBattle();
-  if(S.duel && dest!=='scr-duel' && dest!=='scr-victory') killDuel();
   if(S.queueT){ clearTimeout(S.queueT); S.queueT=null; }
   stopCams();
 }
@@ -2521,8 +2383,6 @@ function openDrawer(ci,i){
     <div class="ex-chips">${e.exs.map(x=>`<span class="exchip">${x}</span>`).join('')}</div>
     <div class="dim" style="font-size:11px;font-weight:900;letter-spacing:.1em">POSSIBLE DROPS</div>
     <div class="drops">${e.drops}</div>
-    <div class="dim" style="font-size:11px;font-weight:900;letter-spacing:.1em">DIFFICULTY</div>
-    ${diffPickerHTML()}
     ${st==='lock'
       ? '<button class="btn b-ghost" disabled>🔒 Clear previous episodes first</button>'
       : `<button class="btn ${e.boss?'b-red':'b-purple'}" onclick="startEpisode(${ci},${i})">${e.stars>0?'REPLAY':'START'} EPISODE</button>`}`;
@@ -2530,49 +2390,265 @@ function openDrawer(ci,i){
 }
 function closeDrawer(){ $('drawer')?.classList.remove('open'); }
 
-/* ================= ARENA ================= */
-function renderTierStrip(){
-  const w=$('tier-row'); if(!w) return;
-  const e=myElo(), cur=tierOf(e);
-  w.innerHTML='';
-  TIERS.forEach(t=>{
-    const el=document.createElement('div');
-    el.className='tier-chip'+(t.n===cur.n?' on':(e>t.min?' done':''));
-    el.innerHTML='<b style="color:'+t.col+'">'+t.n+'</b><span>'+t.min+'+</span>';
-    w.appendChild(el);
-  });
-}
-function renderRankCard(){
+/* ================= FRIENDS (placeholder — co-op build in progress) ================= */
+/* ================= FRIENDS ================= */
+async function renderArena(){
+  const list=$('friends-list'); if(!list) return;
+  if(!sb || !ME){ list.innerHTML=''; return; }
   try{
-  const e=myElo(), t=tierOf(e), nx=nextTier(e);
-  const card=$('rankcard'); if(!card) return;
-  card.style.setProperty('--rc1',t.c1); card.style.setProperty('--rc2',t.c2);
-  $('rank-emblem').innerHTML=tierEmblem(t,88);
-  $('rank-tier').textContent=t.n;
-  $('rank-elo-n').textContent=e;
-  $('rank-cur').textContent=t.n;
-  if(nx){
-    $('rank-nxt').textContent=nx.n+' '+nx.min;
-    const span=nx.min-t.min, into=e-t.min;
-    $('rank-fill').style.width=Math.max(4,Math.min(100,into/span*100))+'%';
-  } else {
-    $('rank-nxt').textContent='MAX TIER';
-    $('rank-fill').style.width='100%';
+    const { data, error } = await sb.from('friendships').select('*').eq('user_id', ME.id).order('created_at',{ascending:false});
+    if(error) throw error;
+    if(!data || !data.length){
+      list.innerHTML='<div class="friends-empty"><p>No friends yet — tap "Add a Friend" above to invite someone.</p></div>';
+      return;
+    }
+    list.innerHTML=data.map(f=>{
+      const av = f.friend_avatar_url ? '<img src="'+f.friend_avatar_url+'">' : mon(f.friend_avatar||'goblin',26);
+      return '<div class="friend-card">'+
+        '<div class="fav">'+av+'</div>'+
+        '<div class="grow"><b>'+escapeHtml(f.friend_username||'Friend')+'</b><span>Level '+(f.friend_level||1)+'</span></div>'+
+        '<button onclick="startCoop(\''+f.friend_id+'\',\''+escapeHtml(f.friend_username||'Friend').replace(/'/g,"\\'")+'\',\''+(f.friend_avatar||'goblin')+'\',\''+(f.friend_avatar_url||'')+'\')">PLAY TOGETHER</button>'+
+      '</div>';
+    }).join('');
+  }catch(err){
+    console.error('[FitRoyale] renderArena (friends) failed', err);
+    list.innerHTML='<div class="friends-empty"><p>Couldn\'t load your friends list — check your connection.</p></div>';
   }
-  renderTierStrip();
-  }catch(err){ console.error('[FitRoyale] renderRankCard failed', err); }
 }
-function renderArena(){
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+function myInviteLink(){
+  const base = location.origin + location.pathname;
+  const params = new URLSearchParams({
+    addfriend: ME?.id||'',
+    n: PROFILE?.username || 'Champion',
+    a: PROFILE?.avatar || 'goblin',
+    au: PROFILE?.avatar_url || '',
+    l: S.user.lvl || 1,
+  });
+  return base + '?' + params.toString();
+}
+async function shareInviteLink(){
+  const link=myInviteLink();
+  if(navigator.share){
+    try{ await navigator.share({ title:'Join me on Fit Royale', text:'Add me as a friend on Fit Royale!', url:link }); return; }
+    catch(e){ /* user cancelled share sheet — fall through to copy */ }
+  }
+  try{ await navigator.clipboard.writeText(link); toast('Invite link copied — send it to a friend!'); }
+  catch(e){ toast('Your link: '+link); }
+}
+
+function openAddFriend(){
+  SFX.click();
+  openModal(
+    '<h3 class="hdr">Add a Friend</h3>'+
+    '<p class="dim" style="font-size:12.5px;font-weight:800;margin-top:6px">Share your link, or show them your QR code to scan.</p>'+
+    '<button class="btn b-purple" style="margin-top:14px" onclick="shareInviteLink()">SHARE MY INVITE LINK</button>'+
+    '<div class="qr-wrap" id="my-qr"></div>'+
+    '<button class="btn b-gold" onclick="openQrScanner()">SCAN A FRIEND\'S QR CODE</button>'+
+    '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CLOSE</button>'
+  );
+  renderMyQr();
+}
+let _qrLibP=null;
+function loadQrLib(){
+  if(window.qrcode) return Promise.resolve();
+  if(_qrLibP) return _qrLibP;
+  _qrLibP=loadScript('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js', 8000);
+  return _qrLibP;
+}
+async function renderMyQr(){
+  const host=$('my-qr'); if(!host) return;
+  host.innerHTML='<span class="dim" style="font-size:11px;font-weight:800;color:#888">Loading…</span>';
   try{
-  renderRankCard();
-  const e=myElo();
-  if($('duel-elo')) $('duel-elo').textContent=e+' ELO';
-  if($('duel-elo2')) $('duel-elo2').textContent=e;
-  if($('duel-wins')) $('duel-wins').textContent=PROFILE?.duel_wins||0;
-  }catch(err){ console.error('[FitRoyale] renderArena failed', err); }
+    await loadQrLib();
+    const qr=window.qrcode(0,'M');
+    qr.addData(myInviteLink());
+    qr.make();
+    host.innerHTML=qr.createSvgTag({ cellSize:5, margin:2 });
+  }catch(e){
+    console.error('[FitRoyale] QR generation failed', e);
+    host.innerHTML='<span class="dim" style="font-size:11px;font-weight:800;color:#888">QR unavailable — use the link instead</span>';
+  }
 }
+
+let _jsQrP=null;
+function loadJsQr(){
+  if(window.jsQR) return Promise.resolve();
+  if(_jsQrP) return _jsQrP;
+  _jsQrP=loadScript('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js', 8000);
+  return _jsQrP;
+}
+let _scanStream=null, _scanRAF=null;
+async function openQrScanner(){
+  SFX.click();
+  openModal(
+    '<h3 class="hdr">Scan a QR Code</h3>'+
+    '<p class="dim" style="font-size:12px;font-weight:800;margin-top:6px" id="scan-status">Loading scanner…</p>'+
+    '<div class="scan-frame"><video id="scan-video" autoplay playsinline muted></video></div>'+
+    '<button class="btn b-ghost" style="margin-top:12px" onclick="stopQrScan();closeModal()">CANCEL</button>'
+  );
+  try{
+    await loadJsQr();
+    const video=$('scan-video');
+    _scanStream=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'environment' } });
+    video.srcObject=_scanStream;
+    await video.play();
+    setTxt('scan-status','Point your camera at the QR code');
+    const canvas=document.createElement('canvas');
+    const ctx=canvas.getContext('2d');
+    const tick=()=>{
+      if(!_scanStream) return;
+      if(video.readyState===video.HAVE_ENOUGH_DATA){
+        canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+        ctx.drawImage(video,0,0,canvas.width,canvas.height);
+        const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+        const code=window.jsQR(img.data,img.width,img.height);
+        if(code?.data){ handleScannedLink(code.data); return; }
+      }
+      _scanRAF=requestAnimationFrame(tick);
+    };
+    tick();
+  }catch(e){
+    console.error('[FitRoyale] QR scan failed to start', e);
+    setTxt('scan-status','Camera unavailable — try sharing the link instead');
+  }
+}
+function stopQrScan(){
+  if(_scanRAF){ cancelAnimationFrame(_scanRAF); _scanRAF=null; }
+  if(_scanStream){ _scanStream.getTracks().forEach(t=>t.stop()); _scanStream=null; }
+}
+function handleScannedLink(text){
+  stopQrScan();
+  try{
+    const url=new URL(text);
+    const p=url.searchParams;
+    if(!p.get('addfriend')){ toast('That QR code isn\'t a Fit Royale invite'); closeModal(); return; }
+    closeModal();
+    confirmAddFriend(p.get('addfriend'), p.get('n'), p.get('a'), p.get('au'), p.get('l'));
+  }catch(e){
+    toast('Couldn\'t read that QR code');
+    closeModal();
+  }
+}
+async function confirmAddFriend(uid,name,avatar,avatarUrl,level){
+  if(!uid || uid===ME?.id) return;
+  const av = avatarUrl ? '<img src="'+avatarUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : mon(avatar||'goblin',40);
+  openModal(
+    '<h3 class="hdr">Add friend?</h3>'+
+    '<div style="display:flex;align-items:center;gap:12px;margin:16px 0">'+
+      '<div style="width:52px;height:52px;flex:none">'+av+'</div>'+
+      '<div><b style="font-size:16px;display:block">'+escapeHtml(name||'A player')+'</b><span class="dim" style="font-size:12px;font-weight:800">Level '+(level||1)+'</span></div>'+
+    '</div>'+
+    '<button class="btn b-purple" onclick="doAddFriend(\''+uid+'\',\''+escapeHtml(name||'Friend').replace(/'/g,"\\'")+'\',\''+(avatar||'goblin')+'\',\''+(avatarUrl||'')+'\','+(level||1)+')">ADD FRIEND</button>'+
+    '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">NOT NOW</button>'
+  );
+}
+/* ================= CO-OP (shared fight with a friend) ================= */
+let COOP=null; /* { ch, friendId, friendName, friendAv, isHost, ready, joinedAt } */
+
+function coopChannelName(a,b){ return 'coop-'+[a,b].sort().join('-'); }
+
+function startCoop(friendId,friendName,friendAv,friendAvUrl){
+  if(!sb || !ME){ toast('Connection error'); return; }
+  SFX.click();
+  stopCoop();
+  const joinedAt=Date.now();
+  COOP={ ch:null, friendId, friendName, friendAv, friendAvUrl, isHost:false, ready:false, joinedAt, partnerHere:false };
+  const ch=sb.channel(coopChannelName(ME.id,friendId), { config:{ presence:{ key:ME.id }, broadcast:{ self:false } } });
+  COOP.ch=ch;
+  ch.on('presence',{event:'sync'},()=>{
+    const st=ch.presenceState();
+    const others=Object.entries(st).filter(([k])=>k!==ME.id).map(([,v])=>v[0]);
+    if(others.length){
+      const partner=others[0];
+      COOP.partnerHere=true;
+      COOP.isHost = COOP.joinedAt <= (partner.joinedAt||Infinity);
+      updateCoopWaitModal();
+      if(COOP.isHost) maybeStartCoopBattle();
+    } else {
+      COOP.partnerHere=false;
+      updateCoopWaitModal();
+    }
+  });
+  ch.on('broadcast',{event:'coop-start'},({payload})=>{ beginCoopBattle(payload.ci,payload.i,payload.at); });
+  ch.on('broadcast',{event:'coop-dmg'},({payload})=>{ applyPartnerDmg(payload.dmg,payload.crit); });
+  ch.on('broadcast',{event:'coop-victory'},()=>{ if(S.B && S.B.coop && !S.B._dead) finishBattle(true); });
+  ch.on('broadcast',{event:'coop-leave'},()=>{
+    if(S.B?.coop){ toast(COOP.friendName+' left the fight'); }
+    else toast(COOP.friendName+' isn\'t ready right now');
+  });
+  ch.subscribe(async s=>{ if(s==='SUBSCRIBED') await ch.track({ joinedAt }); });
+  openCoopWaitModal();
+}
+function openCoopWaitModal(){
+  const av = COOP.friendAvUrl ? '<img src="'+COOP.friendAvUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : mon(COOP.friendAv||'goblin',44);
+  openModal(
+    '<h3 class="hdr">Waiting for '+escapeHtml(COOP.friendName)+'</h3>'+
+    '<div style="width:70px;height:70px;margin:16px auto" id="coop-wait-av">'+av+'</div>'+
+    '<p class="dim" id="coop-wait-status" style="font-size:12.5px;font-weight:800;text-align:center">Ask them to tap "Play Together" on your name too</p>'+
+    '<button class="btn b-ghost" style="margin-top:16px" onclick="stopCoop();closeModal()">CANCEL</button>'
+  );
+}
+function updateCoopWaitModal(){
+  const el=$('coop-wait-status'); if(!el) return;
+  el.textContent = COOP.partnerHere ? (COOP.isHost ? 'Found them — starting your episode…' : 'Found them — waiting for them to start…') : 'Ask them to tap "Play Together" on your name too';
+}
+let _coopStartLock=false;
+function maybeStartCoopBattle(){
+  if(_coopStartLock || !COOP?.isHost) return;
+  _coopStartLock=true;
+  const e=currentEp();
+  if(!e){ toast('No episode to play'); stopCoop(); return; }
+  const at=Date.now()+2600;
+  COOP.ch.send({ type:'broadcast', event:'coop-start', payload:{ ci:S.cur.c, i:S.cur.e, at } });
+  beginCoopBattle(S.cur.c,S.cur.e,at);
+}
+function beginCoopBattle(ci,i,at){
+  closeModal();
+  const e=S.chapters[ci]?.eps[i]; if(!e){ toast('Could not load that episode'); return; }
+  const dm=D().hp;
+  const waves=[]; for(let w=0;w<e.waves;w++) waves.push({ name:e.name+(e.waves>1?' '+(w+1):''), sprite:e.sprite, hp:Math.max(1,Math.ceil(e.hp*dm/e.waves)) });
+  S.B_origin='arena';
+  makeBattle({ kind:'episode', chap:ci, ep:i, exercise:e.exs[0], waves, modeName:'Co-op', coop:{ friendId:COOP.friendId, friendName:COOP.friendName, isHost:COOP.isHost } });
+  const strip=$('coop-strip');
+  if(strip){
+    strip.style.display='flex';
+    setHTML('coop-pav', COOP.friendAvUrl ? '<img src="'+COOP.friendAvUrl+'">' : mon(COOP.friendAv||'goblin',18));
+    setTxt('coop-pname', COOP.friendName);
+  }
+}
+function applyPartnerDmg(dmg,crit){
+  const B=S.B; if(!B||!B.coop||B.paused||B._dead) return;
+  B.eEnergy=Math.max(0,B.eEnergy-dmg);
+  const hud=$('c-hud'); if(hud){ hud.classList.remove('hit','shake-hard'); void hud.offsetWidth; hud.classList.add(crit?'shake-hard':'hit'); }
+  syncCreatureHUD();
+  if(B.eEnergy<=0 && !B._dead){ finishBattle(true); }
+}
+function stopCoop(){
+  if(COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-leave', payload:{} }); }catch(e){} try{ COOP.ch.unsubscribe(); }catch(e){} }
+  COOP=null; _coopStartLock=false;
+  const strip=$('coop-strip'); if(strip) strip.style.display='none';
+}
+
+async function doAddFriend(uid,name,avatar,avatarUrl,level){
+  if(!sb || !ME) return;
+  try{
+    const { error } = await sb.from('friendships').upsert({
+      user_id: ME.id, friend_id: uid, friend_username: name,
+      friend_avatar: avatar, friend_avatar_url: avatarUrl||null, friend_level: level||1,
+    }, { onConflict:'user_id,friend_id' });
+    if(error) throw error;
+    closeModal(); SFX.ready(); confetti();
+    toast('Added '+name+' as a friend!');
+    renderArena();
+  }catch(e){
+    console.error('[FitRoyale] add friend failed', e);
+    toast('Could not add friend — try again');
+  }
+}
+
 function renderWorkout(){ if($('pr-show')) $('pr-show').textContent=S.user.pr;
-  if($('diff-card')) $('diff-card').innerHTML=diffPickerHTML();
   refreshRecordChips(); }
 function pickTarget(el,t){ S.speedTarget=t; document.querySelectorAll('#sr-targets .tpill').forEach(p=>p.classList.toggle('sel',p===el)); refreshRecordChips(); }
 function pickEx(el,x){ S.speedEx=x; document.querySelectorAll('#sr-ex .tpill').forEach(p=>p.classList.toggle('sel',p===el)); }
@@ -2901,6 +2977,7 @@ function battleRep(){
   if(!B.noEnergy){
     const crit=Math.random()<0.14, dmg=crit?3:1;
     B.eEnergy=Math.max(0,B.eEnergy-dmg);
+    if(B.coop && COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-dmg', payload:{ dmg, crit } }); }catch(e){} }
     const hud=$('c-hud'); hud.classList.remove('hit','shake-hard'); void hud.offsetWidth;
     hud.classList.add(crit?'shake-hard':'hit');
     const d=document.createElement('div'); d.className='dmg'+(crit?' crit':''); d.textContent=crit?'SUPER HIT!':'-1';
@@ -2922,7 +2999,10 @@ function battleRep(){
         B.waveIdx++; B.eEnergy=B.waves[B.waveIdx].hp;
         syncCreatureHUD(true); startRest(B.waves[B.waveIdx].name,B.waves[B.waveIdx].sprite); return;
       }
-      else { finishBattle(true); return; }
+      else {
+        if(B.coop && COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-victory', payload:{} }); }catch(e){} }
+        finishBattle(true); return;
+      }
     }
   } else if(B.reps===S.user.pr+1){ toast('🔥 NEW RECORD TERRITORY!'); beep(900,.15); }
   if(B.target && B.reps>=B.target){ finishBattle(true); return; }
@@ -2948,7 +3028,7 @@ function pauseBattle(){
     <button class="btn b-ghost" onclick="quitBattle()">LEAVE (no rewards)</button>`);
 }
 function resumeBattle(){ if(S.B) S.B.paused=false; closeModal(); }
-function quitBattle(){ closeModal(); killBattle(); nav(S.B_origin==='campaign'?'scr-campaign':S.B_origin==='home'?'scr-home':'scr-arena'); }
+function quitBattle(){ closeModal(); if(S.B?.coop) stopCoop(); killBattle(); nav(S.B_origin==='campaign'?'scr-campaign':S.B_origin==='home'?'scr-home':'scr-arena'); }
 function killBattle(){ if(!S.B) return; stopPrepTimer(); $('restgate')?.classList.remove('on'); const fm=$('form-meter'); if(fm) fm.style.display='none'; S.B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.B._dead=true; S.B=null; }
 
 /* launchers */
@@ -2981,9 +3061,12 @@ function questProgress(ex){
 let vicCtx=null;
 function finishBattle(win){
   const B=S.B; if(!B) return;
+  if(B._dead) return;   /* guard against double-fire from both a local kill and a partner's victory broadcast */
+  B._dead=true;
   B.timers.forEach(t=>{clearInterval(t);clearTimeout(t);});
   $('restgate')?.classList.remove('on');
   stopCams();
+  const coopStrip=$('coop-strip'); if(coopStrip) coopStrip.style.display='none';
   const reps=B.reps, sec=Math.max(1,B.sec);
   let stars=0, headline='VICTORY!', bonusXP=0, bonusC=0, newPR=false, unlockedName=null, unlockedMeta=null;
   if(B.kind==='speed'){ const pace=sec/Math.max(1,reps); stars=pace<2?3:pace<3?2:1; bonusC=30;
@@ -3114,33 +3197,6 @@ function heat28(){
   return out;
 }
 
-/* ================= RANK TIERS ================= */
-const TIERS=[
-  { n:'BRONZE',   min:0,    c1:'#8C5A2B', c2:'#5B3617', ico:'medal',  col:'#CD7F32' },
-  { n:'SILVER',   min:900,  c1:'#9AA7B8', c2:'#5F6C7D', ico:'medal',  col:'#C0C0C0' },
-  { n:'GOLD',     min:1100, c1:'#E0A526', c2:'#9A6B0C', ico:'medal',  col:'#F59E0B' },
-  { n:'PLATINUM', min:1300, c1:'#4FD1C5', c2:'#1F7A70', ico:'shield', col:'#4FD1C5' },
-  { n:'DIAMOND',  min:1500, c1:'#60A5FA', c2:'#1D4ED8', ico:'star',   col:'#60A5FA' },
-  { n:'MASTER',   min:1800, c1:'#A78BFA', c2:'#6D28D9', ico:'crown',  col:'#A78BFA' },
-  { n:'CHAMPION', min:2100, c1:'#F87171', c2:'#991B1B', ico:'crown',  col:'#F87171' },
-];
-function tierOf(elo){
-  let t=TIERS[0];
-  for(const x of TIERS){ if(elo>=x.min) t=x; }
-  return t;
-}
-function nextTier(elo){ return TIERS.find(x=>x.min>elo)||null; }
-function tierEmblem(t,size){
-  const s=size||80;
-  return '<svg viewBox="0 0 100 100" style="width:'+s+'px;height:'+s+'px">'+
-    '<defs><linearGradient id="tg'+t.n+'" x1="0" y1="0" x2="0" y2="1">'+
-    '<stop offset="0" stop-color="'+t.c1+'"/><stop offset="1" stop-color="'+t.c2+'"/></linearGradient></defs>'+
-    '<path d="M50 6 L88 24 V54 C88 74 70 88 50 95 C30 88 12 74 12 54 V24 Z" fill="url(#tg'+t.n+')" stroke="rgba(255,255,255,.55)" stroke-width="3"/>'+
-    '<path d="M50 18 L76 30 V54 C76 68 64 78 50 84 C36 78 24 68 24 54 V30 Z" fill="rgba(255,255,255,.14)"/>'+
-    '<path d="M50 32 l6.5 14.5 15.5 1.6 -11.7 10.4 3.4 15.3 L50 65.6 36.3 73.8 39.7 58.5 28 48.1 43.5 46.5 Z" fill="#fff" opacity=".92"/>'+
-    '</svg>';
-}
-
 /* ================= COIN FLY ================= */
 function flyCoins(fromEl,amount){
   const app=$('app'), r=app.getBoundingClientRect();
@@ -3264,7 +3320,6 @@ const DIFFS={
   hard:      { name:'Tough',      hp:1.4, xp:1.5, coin:1.5, drain:5.0, col:'#F59E0B', desc:'Tougher enemies, better rewards' },
   nightmare: { name:'Super', hp:2.0, xp:2.2, coin:2.2, drain:7.0, col:'#EF4444', desc:'Very hard! Huge XP and coins.' },
 };
-const DIFF_KEYS=['easy','normal','hard','nightmare'];
 /* how forgiving the rep depth is per difficulty.
    enter = how far DOWN you must go, exit = how far UP you must return.
    Easy lets a half-depth push-up count; Nightmare demands full lockout. */
@@ -3275,22 +3330,8 @@ const DIFF_REP={
   nightmare: { enter:-12, exit:+8,  arm:+8,  vis:0.06  },
 };
 function repMod(){ return DIFF_REP[curDiff()] || DIFF_REP.normal; }
-function curDiff(){ return DIFFS[PROFILE?.difficulty] ? PROFILE.difficulty : 'easy'; }
+function curDiff(){ return 'normal'; }
 function D(){ return DIFFS[curDiff()]; }
-function setDiff(k){
-  if(!DIFFS[k]) return;
-  if(PROFILE){ PROFILE.difficulty=k; saveProfile(); }
-  document.querySelectorAll('.diff-pick').forEach(b=>b.classList.toggle('on',b.dataset.d===k));
-  document.querySelectorAll('.diff-note').forEach(n=>{ n.textContent=DIFFS[k].desc+' · '+Math.round(DIFFS[k].xp*100)+'% XP'; });
-  SFX.click(); burstAt(null);
-}
-function diffPickerHTML(){
-  return '<div class="diff-row">'+DIFF_KEYS.map(k=>{
-    const d=DIFFS[k];
-    return '<button class="diff-pick'+(curDiff()===k?' on':'')+'" data-d="'+k+'" style="--dc:'+d.col+'" onclick="setDiff(\''+k+'\')">'
-      +'<b>'+d.name+'</b><span>'+Math.round(d.xp*100)+'% XP</span></button>';
-  }).join('')+'</div><p class="diff-note dim">'+D().desc+' · '+Math.round(D().xp*100)+'% XP</p>';
-}
 
 /* ================= PROFILE PHOTO UPLOAD ================= */
 function uploadPfp(ev, isOnboarding){
@@ -3365,7 +3406,7 @@ const BADGES=[
   { id:'boss',   name:'Big Match Star',  desc:'Win a big match',         ico:()=>ICO.skull(26),  has:()=>(PROFILE?.bosses||0)>=1 },
   { id:'duel',   name:'Duelist',      desc:'Win a live duel',     ico:()=>ICO.swords(26), has:()=>(PROFILE?.duel_wins||0)>=1 },
   { id:'lvl10',  name:'Veteran',      desc:'Reach level 10',      ico:()=>ICO.star(26),   has:()=>S.user.lvl>=10 },
-  { id:'elo1200',name:'Ranked',       desc:'Hit 1200 ELO',        ico:()=>ICO.flame(26),  has:()=>myElo()>=1200 },
+  { id:'reps500',name:'Iron Will',    desc:'500 lifetime reps',   ico:()=>ICO.flame(26),  has:()=>(PROFILE?.total_reps||0)>=500 },
   { id:'streak7',name:'Unbroken',     desc:'7-day streak',        ico:()=>ICO.coin(26),   has:()=>S.user.streak>=7 },
 ];
 function renderBadges(){
@@ -3414,433 +3455,25 @@ function renderAvPicker(){
     w.appendChild(b);
   });
 }
-function myElo(){ return PROFILE?.elo ?? 1000; }
-function applyElo(win,live){
-  if(!PROFILE) return 0;
-  const delta = live ? (win?25:-15) : (win?14:-10);
-  PROFILE.elo = Math.max(0,(PROFILE.elo??1000)+delta);
-  saveProfile();
-  return delta;
-}
-function resetDuelHud(){
-  const d=S.duel; if(!d) return;
-  resetCombo();
-  $('d-me-name').textContent=PROFILE?.username||'You';
-  $('d-me-elo').textContent=myElo();
-  $('d-me-av').innerHTML=avHTML(myAv(),46);
-  $('d-oname').textContent=d.opp;
-  $('d-oelo').textContent=d.oppElo||1000;
-  $('d-timer').textContent='0:00'; $('d-timer').classList.remove('low');
-  d.my=d.my||0; d.op=d.op||0;
-  syncDuelUI(); setLead();
-}
-
-/* ================= REALTIME 1v1 (Supabase channels) ================= */
-const RT={ ch:null, code:null, host:false, opp:null, started:false, seeking:false, seekT:null };
-
-/* ================= LIVE OPPONENT VIDEO (WebRTC, signaled over the duel channel) =================
-   Both players already grant camera access for pose tracking — this reuses that same stream
-   as the outgoing video track, so no extra camera permission or connection is needed.
-   If the peer connection can't establish (strict NAT, no camera yet, etc.) this fails silently
-   and the match continues exactly as before with just the avatar shown — it never blocks play. */
-const RTCLink={
-  pc:null,
-  async ensureLocalStream(){
-    if(PoseEngine.stream && PoseEngine.stream.getVideoTracks().length) return PoseEngine.stream;
-    if(cams[0] && cams[0].getVideoTracks().length) return cams[0];
-    try{
-      const s=await navigator.mediaDevices.getUserMedia({ video:{ facingMode:'user' }, audio:false });
-      cams.push(s);
-      return s;
-    }catch(e){ return null; }
-  },
-  async start(isHost){
-    if(!RT.ch || this.pc) return;
-    const stream=await this.ensureLocalStream();
-    if(!stream) return;
-    try{
-      const pc=new RTCPeerConnection({ iceServers:[{urls:'stun:stun.l.google.com:19302'}] });
-      this.pc=pc;
-      stream.getVideoTracks().forEach(t=>pc.addTrack(t,stream));
-      pc.ontrack=(e)=>{
-        const v=$('d-opp-video');
-        if(v){ v.srcObject=e.streams[0]; v.classList.add('live'); }
-      };
-      pc.onicecandidate=(e)=>{
-        if(e.candidate && RT.ch){ try{ RT.ch.send({ type:'broadcast', event:'rtc-ice', payload:{ candidate:e.candidate } }); }catch(err){} }
-      };
-      pc.onconnectionstatechange=()=>{
-        if(['failed','closed','disconnected'].includes(pc.connectionState)){
-          const v=$('d-opp-video'); if(v) v.classList.remove('live');
-        }
-      };
-      if(isHost){
-        const offer=await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        RT.ch.send({ type:'broadcast', event:'rtc-offer', payload:{ sdp:offer } });
-      }
-    }catch(e){ console.warn('[FitRoyale] live video unavailable', e); this.stop(); }
-  },
-  async onOffer(sdp){
-    if(!this.pc) await this.start(false);
-    if(!this.pc) return;
-    try{
-      await this.pc.setRemoteDescription(sdp);
-      const answer=await this.pc.createAnswer();
-      await this.pc.setLocalDescription(answer);
-      RT.ch.send({ type:'broadcast', event:'rtc-answer', payload:{ sdp:answer } });
-    }catch(e){ console.warn('[FitRoyale] offer handling failed', e); }
-  },
-  async onAnswer(sdp){
-    if(!this.pc) return;
-    try{ await this.pc.setRemoteDescription(sdp); }catch(e){}
-  },
-  async onIce(candidate){
-    if(!this.pc) return;
-    try{ await this.pc.addIceCandidate(candidate); }catch(e){}
-  },
-  stop(){
-    if(this.pc){ try{ this.pc.close(); }catch(e){} this.pc=null; }
-    const v=$('d-opp-video'); if(v){ v.srcObject=null; v.classList.remove('live'); }
-  },
-};
-const myUid=()=> ME?.id || ('guest-'+Math.random().toString(36).slice(2,9));
-function makeCode(){ const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<5;i++) s+=A[Math.floor(Math.random()*A.length)]; return s; }
-function openLobby(){ nav('scr-lobby'); }
-
-function bindRoom(code,isHost){
-  RT.code=code; RT.host=isHost; RT.opp=null; RT.started=false;
-  $('room-code').textContent=code;
-  $('lp-me-name').textContent=PROFILE?.username||'You';
-  $('lp-me-av').textContent=(PROFILE?.username||'ME').slice(0,2).toUpperCase();
-  $('lp-opp').classList.remove('in');
-  $('lp-opp-name').textContent='Waiting…'; $('lp-opp-av').textContent='?';
-  $('lp-opp-state').textContent='Not joined';
-  $('room-start').style.display='none';
-  $('room-hint').textContent=isHost?'Send the code to your friend — the duel starts the instant they join.':'Joined! Starting as soon as the host is ready…';
-  goFlow('scr-room');
-
-  const ch=sb.channel('duel-'+code,{ config:{ presence:{ key:myUid() }, broadcast:{ self:false } } });
-  ch.on('presence',{event:'sync'},()=>{
-      const st=ch.presenceState(); const others=[];
-      Object.entries(st).forEach(([k,v])=>{ if(k!==myUid()) others.push(v[0]); });
-      if(others.length){
-        RT.opp=others[0];
-        $('lp-opp').classList.add('in');
-        $('lp-opp-name').textContent=RT.opp.name||'Fighter';
-        $('lp-opp-av').innerHTML=avHTML(RT.opp.av,34);
-        $('lp-opp-state').innerHTML='<span class="live-dot"></span> Ready · LVL '+(RT.opp.lvl||1);
-        beep(700,.1);
-        /* instant join: the host auto-starts the moment both players are present —
-           no manual button, no waiting on each other */
-        if(RT.host && !RT.started){
-          $('room-hint').textContent='Opponent found — starting now!';
-          setTimeout(()=>{ if(RT.host && RT.opp && !RT.started) hostStart(); }, 500);
-        }
-      } else {
-        RT.opp=null; $('lp-opp').classList.remove('in');
-        $('lp-opp-name').textContent='Waiting…'; $('lp-opp-state').textContent='Not joined';
-      }
-    })
-   .on('broadcast',{event:'start'},({payload})=>{ beginRealDuel(payload.at); })
-   .on('broadcast',{event:'rep'},({payload})=>{ onOppRep(payload.reps); })
-   .on('broadcast',{event:'done'},()=>{ if(S.duel&&S.duel.running) endDuel(false); })
-   .on('broadcast',{event:'rtc-offer'},({payload})=>{ RTCLink.onOffer(payload.sdp); })
-   .on('broadcast',{event:'rtc-answer'},({payload})=>{ RTCLink.onAnswer(payload.sdp); })
-   .on('broadcast',{event:'rtc-ice'},({payload})=>{ RTCLink.onIce(payload.candidate); })
-   .subscribe(async s=>{ if(s==='SUBSCRIBED') await ch.track({ name:PROFILE?.username||'Fighter', lvl:S.user.lvl, av:myAv(), elo:myElo(), t:Date.now() }); });
-  RT.ch=ch;
-}
-function hostRoom(){ if(!sb){ toast('Connection error'); return; } bindRoom(makeCode(),true); }
-function joinRoom(){
-  const c=$('join-code').value.trim().toUpperCase();
-  if(c.length<5){ toast('Enter the 5-letter code'); return; }
-  if(!sb){ toast('Connection error'); return; }
-  bindRoom(c,false);
-}
-function shareCode(){
-  const c=RT.code||'';
-  try{ navigator.clipboard.writeText(c); toast('Code '+c+' copied — send it to your friend'); }
-  catch(e){ toast('Your code is '+c); }
-}
-function hostStart(){
-  if(!RT.ch||!RT.opp) return;
-  const at=Date.now()+3200;
-  RT.ch.send({ type:'broadcast', event:'start', payload:{ at } });
-  beginRealDuel(at);
-}
-function beginRealDuel(at){
-  if(RT.started) return; RT.started=true;
-  /* NOTE: camera is acquired exactly once, by PoseEngine.start() inside
-     startDuelTracking() when the countdown ends — deliberately NOT warmed up
-     here beforehand. A second concurrent getUserMedia() call on the same
-     video element (which an early initCam() warm-up would cause) hangs
-     indefinitely on many devices, especially iOS — that was silently
-     breaking every duel's AI tracking while solo battles (single camera
-     request only) worked fine. */
-  S.B_origin='arena';
-  S.duel={ opp:RT.opp?.name||'Fighter', oppLvl:RT.opp?.lvl||1, oppElo:RT.opp?.elo||1000, target:20, my:0, op:0, sec:0,
-           running:false, timers:[], live:true, myTs:[] };
-  goFlow('scr-duel');
-  $('rt-badge').style.display='block';
-  $('d-oname').textContent=S.duel.opp;
-  $('d-oav-big').innerHTML=mon(RT.opp?.av||'goblin',46);
-  $('d-oelo').textContent=RT.opp?.elo||1000;
-  resetDuelHud();
-  playVsIntro();
-  d_countdown(at);
-}
-function playVsIntro(){
-  const d=S.duel; if(!d) return;
-  $('vs-me-av').innerHTML=avHTML(myAv(),58);
-  $('vs-me-name').textContent=PROFILE?.username||'You';
-  $('vs-me-elo').textContent=myElo()+' ELO';
-  $('vs-op-av').innerHTML=mon(RT.opp?.av || d.oppAv || 'goblin',58);
-  $('vs-op-name').textContent=d.opp;
-  $('vs-op-elo').textContent=(d.oppElo||1000)+' ELO';
-  const v=$('vs-intro'); v.classList.remove('gone');
-  SFX.ready(); quake();
-  setTimeout(()=>{ flashScreen(); burstAt(null,'#F59E0B',22); }, 380);
-  setTimeout(()=>{ v.classList.add('gone'); }, 1700);
-}
-function d_countdown(at){
-  const d=S.duel;
-  const tick=setInterval(()=>{
-    const left=Math.ceil((at-Date.now())/1000);
-    if(left>0){ $('d-timer').textContent=left; $('d-hint').textContent='Get in position!'; }
-    else{
-      clearInterval(tick);
-      $('d-timer').textContent='0:00'; $('d-hint').textContent='GO!'; beep(880,.16);
-      d.running=true;
-      startDuelTracking(d);
-      const clock=setInterval(()=>{ if(!S.duel) return; S.duel.sec++; S.user.activeSec++; $('d-timer').textContent=fmt(S.duel.sec); },1000);
-      d.timers.push(clock);
-    }
-  },200);
-  d.timers.push(tick);
-}
-function onOppRep(n){
-  const d=S.duel; if(!d||!d.running) return;
-  d.op=n; syncDuelUI(); pump('d-oreps');
-  const os=document.querySelectorAll('.rank-side')[1]; if(os){ os.classList.remove('hitme'); void os.offsetWidth; os.classList.add('hitme'); }
-  setLead(); beep(300,.05,'sine');
-  if(d.op>=d.target) endDuel(false);
-}
-function leaveLobby(){
-  try{ RT.ch?.unsubscribe(); }catch(e){}
-  RTCLink.stop();
-  stopCams();
-  RT.ch=null; RT.code=null; RT.started=false; RT.opp=null;
-  if(RT.seekT){ clearTimeout(RT.seekT); RT.seekT=null; }
-  RT.seeking=false;
-  nav('scr-arena');
-}
-/* random matchmaking: wait in shared lobby, pair with earliest waiting player, bot only if truly nobody */
-function findMatch(){
-  if(!sb){ queueDuel(); return; }
-  RT.seeking=true;
-  goFlow('scr-queue');
-  $('q-search').style.display='block'; $('q-found').style.display='none';
-  const myCode=makeCode(), mine={ code:myCode, name:PROFILE?.username||'Fighter', lvl:S.user.lvl, t:Date.now() };
-  const lob=sb.channel('fr-lobby',{ config:{ presence:{ key:myUid() } } });
-  lob.on('presence',{event:'sync'},()=>{
-      if(!RT.seeking) return;
-      const st=lob.presenceState(); const others=[];
-      Object.entries(st).forEach(([k,v])=>{ if(k!==myUid()&&v[0]?.code) others.push(v[0]); });
-      if(!others.length) return;
-      others.sort((a,b)=>a.t-b.t);
-      const first=others[0];
-      RT.seeking=false; clearTimeout(RT.seekT);
-      try{ lob.unsubscribe(); }catch(e){}
-      /* earliest waiter hosts; the other joins their code */
-      if(first.t < mine.t) bindRoom(first.code,false);
-      else bindRoom(myCode,true);
-      toast('Opponent found — '+(first.name||'Fighter')+'!');
-    })
-   .subscribe(async s=>{ if(s==='SUBSCRIBED') await lob.track(mine); });
-  RT.lob=lob;
-  /* nobody after 10s → bot fallback (only then) */
-  RT.seekT=setTimeout(()=>{
-    if(!RT.seeking) return;
-    RT.seeking=false;
-    try{ lob.unsubscribe(); }catch(e){}
-    toast('No human online — ranked bot matched to your ELO');
-    queueDuel(true);
-  },10000);
-}
-
-/* ================= BOT FALLBACK (only when nobody is online) ================= */
-const BOTS=['IronPusher99','VikingSquatter','FitKnight','RepLord_77','SquatWitch','PushCzar','FlexFalcon','PlankPirate'];
-const BOT_AVATARS=['goblin','troll','bone','ghoul','wraith','skelking','brood','warlord'];
-function queueDuel(fast){
-  S.B_origin='arena';
-  goFlow('scr-queue');
-  $('q-search').style.display='block'; $('q-found').style.display='none';
-  S.queueT=setTimeout(()=>{
-    const name=BOTS[ri(0,BOTS.length-1)];
-    const av=BOT_AVATARS[ri(0,BOT_AVATARS.length-1)];
-    const lvl=Math.max(1,S.user.lvl+ri(-2,2));           /* level ±2 of player */
-    S.duel={ opp:name, oppAv:av, oppLvl:lvl, oppElo:Math.max(100, myElo()+ri(-90,90)), target:20, my:0, op:0, sec:0, running:false, timers:[],
-             tBase:S.user.avgRepSec, fatigued:false, myTs:[] };
-    $('q-oname').textContent=name; $('q-olvl').textContent=lvl;
-    $('q-oav').innerHTML=mon(av,32);
-    $('q-search').style.display='none'; $('q-found').style.display='block';
-    beep(700,.14);
-  },fast?600:4000);
-}
-function cancelQueue(){ clearTimeout(S.queueT); S.queueT=null; nav('scr-arena'); }
-function beginDuel(){
-  const d=S.duel; if(!d) return;
-  goFlow('scr-duel');
-  $('d-oname').textContent=d.opp;
-  $('d-oav-big').innerHTML=mon(d.oppAv||['goblin','troll','bone','ghoul'][ri(0,3)],56);
-  resetDuelHud();
-  playVsIntro();
-  d.tracking=false;
-  $('d-hint').textContent='Tap anywhere = 1 rep';
-  $('d-tapzone').style.pointerEvents='auto';
-  acquireWake();
-  startDuelTracking(d);
-  d.running=true;
-  const clock=setInterval(()=>{ if(!S.duel) return; S.duel.sec++; S.user.activeSec++; $('d-timer').textContent=fmt(S.duel.sec); },1000);
-  d.timers.push(clock);
-  scheduleBotRep();
-}
-async function startDuelTracking(d){
-  const skipBtn=$('d-skip-ai');
-  if(skipBtn){ skipBtn.style.display='none'; clearTimeout(window._duelSkipT);
-    window._duelSkipT=setTimeout(()=>{ if(S.duel===d && !d.tracking) skipBtn.style.display='block'; },2500); }
-  const ok=await PoseEngine.start('d-video','d-canvas','Push-ups',
-    ()=>{ if(S.duel===d && S.duel.running) duelRep(); },
-    (type,msg)=>setTrackPill('d-track',null,type,msg));
-  clearTimeout(window._duelSkipT);
-  if(skipBtn) skipBtn.style.display='none';
-  if(S.duel!==d){ if(ok) PoseEngine.stop(); return; }
-  if(ok){
-    d.tracking=true;
-    $('d-hint').textContent='AI is counting your reps';
-    $('d-tapzone').style.pointerEvents='none';
-    if(RT.host) RTCLink.start(true);   /* camera is warm now — safe to reuse it for the video call */
-  } else {
-    initCam('d-video','d-fb');
-    if(RT.host) RTCLink.start(true);   /* falls back to its own request if AI tracking never got a camera */
-  }
-}
-function forceDuelTapMode(){
-  const d=S.duel; if(!d) return;
-  clearTimeout(window._duelSkipT);
-  try{ PoseEngine.stop(); }catch(e){}
-  d.tracking=false;
-  $('d-skip-ai').style.display='none';
-  $('d-hint').textContent='Tap anywhere = 1 rep';
-  $('d-tapzone').style.pointerEvents='auto';
-  setTrackPill('d-track',null,'tap','Tap mode — tap screen per rep');
-  initCam('d-video','d-fb');
-  SFX.click();
-}
-function duelTap(){
-  const d=S.duel; if(!d||!d.running||d.tracking) return;
-  duelRep();
-}
-/* Pace Emulation: T_rep = T_base + random(-0.4, +0.5); fatigue after 60%: +15–30% */
-function scheduleBotRep(){
-  const d=S.duel; if(!d||!d.running||d.live) return;
-  let base=d.tBase*0.92;    /* bots run ~8% faster than your own average — real competition, not a freebie */
-  if(d.op>=d.target*0.72 && !d.fatigued){ d.fatigued=true; d.fatigueMul=1+rnd(.08,.18); }
-  if(d.fatigued) base*=d.fatigueMul;
-  const delay=Math.max(550,(base+rnd(-0.3,0.35))*1000);
-  const t=setTimeout(()=>{
-    const dd=S.duel; if(!dd||!dd.running) return;
-    dd.op++; syncDuelUI();
-    setLead(); beep(300,.05,'sine');
-    if(dd.op>=dd.target){ endDuel(false); return; }
-    scheduleBotRep();
-  },delay);
-  d.timers.push(t);
-}
-/* combo: consecutive reps within a window; only visible while you're landing damage */
-let comboN=0, comboT=null, comboHide=null;
-const COMBO_WINDOW=4200;
-function hitCombo(){
-  comboN++;
-  clearTimeout(comboT); clearTimeout(comboHide);
-  const box=$('d-combo'), n=$('d-combo-n'), l=$('d-combo-l');
-  if(!box) return;
-  if(comboN>=2){
-    n.textContent='x'+comboN;
-    l.textContent = comboN>=10 ? 'UNSTOPPABLE' : comboN>=6 ? 'ON FIRE' : 'COMBO';
-    box.classList.toggle('hot',comboN>=6);
-    box.classList.add('show');
-    box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
-    if(comboN>=6) burstAt(box,'#FF7A45',10);
-  }
-  /* combo expires if you stop repping */
-  comboT=setTimeout(()=>{ comboN=0; hideCombo(); }, COMBO_WINDOW);
-  /* popup fades shortly after each hit — it's a damage flash, not a permanent HUD */
-  comboHide=setTimeout(hideCombo, 1100);
-}
-function hideCombo(){ const b=$('d-combo'); if(b) b.classList.remove('show'); }
-function resetCombo(){ comboN=0; clearTimeout(comboT); clearTimeout(comboHide); hideCombo(); }
-
-function duelRep(){
-  const d=S.duel; if(!d||!d.running) return;
-  d.my++; recordPace(d.myTs);
-  if(d.live&&RT.ch){ try{ RT.ch.send({ type:'broadcast', event:'rep', payload:{ reps:d.my } }); }catch(e){} }
-  d.tBase=S.user.avgRepSec;                     /* bot keeps matching player pace */
-  S.user.todayReps++; S.user.cal=Math.round(S.user.cal+0.35);
-  questProgress('Push-ups');
-  syncDuelUI(); pump('d-myreps');
-  hitCombo();
-  burstAt($('d-myreps'),'#F59E0B',9);
-  SFX.rep(); setLead();
-  if(d.my>=d.target){ if(d.live&&RT.ch){ try{ RT.ch.send({type:'broadcast',event:'done',payload:{}}); }catch(e){} } endDuel(true); }
-}
-let lastLead=0;
-function setLead(){
-  const d=S.duel; if(!d) return;
-  const diff=d.my-d.op, tag=$('d-lead');
-  tag.classList.remove('ahead','behind','flash');
-  if(diff>0){ tag.textContent='+'+diff+' Reps Ahead'; tag.classList.add('ahead'); }
-  else if(diff<0){ tag.textContent=diff+' Reps Behind'; tag.classList.add('behind'); }
-  else tag.textContent='EVEN';
-  const tb=document.querySelector('.tug-bar');
-  if(tb){ tb.classList.toggle('lead-me',diff>0); tb.classList.toggle('lead-op',diff<0); }
-  const lead=Math.sign(diff);
-  if(lead!==lastLead){ void tag.offsetWidth; tag.classList.add('flash'); lastLead=lead; }
-}
-function endDuel(win){
-  const d=S.duel; if(!d) return;
-  d.running=false; d.timers.forEach(t=>{clearInterval(t);clearTimeout(t);});
-  stopCams();
-  const xp=win?150:50, coins=win?60:15;
-  addXP(xp); addCoins(coins, $('d-myreps'));
-  const eloD=applyElo(win, !!d.live);
-  if(win&&PROFILE){ PROFILE.duel_wins=(PROFILE.duel_wins||0)+1; }
-  vicCtx={ origin:'arena', headline:win?'VICTORY!':'DEFEAT', stars:win?3:1,
-           reps:d.my, sec:d.sec, coins, xp, win };
-  S.duel=null; lastLead=0; RT.started=false; resetCombo();
-  try{ RT.ch?.unsubscribe(); }catch(e){} RT.ch=null;
-  RTCLink.stop();
-  $('rt-badge').style.display='none';
-  saveProfile();
-  showVictory();
-  toast((win?'Victory! ':'Nice try! ')+(eloD>=0?'+':'')+eloD+' ELO · now '+myElo());
-}
-function abortDuel(){ killDuel(); RTCLink.stop(); stopCams(); nav('scr-arena'); }
-function killDuel(){ if(!S.duel) return; S.duel.running=false; S.duel.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.duel=null; lastLead=0; }
 
 /* ================= LEADERBOARD ================= */
+function lbAvatar(u,size){
+  if(u.avatarUrl) return '<img src="'+u.avatarUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';
+  if(u.real && u.avatar) return mon(u.avatar,size);
+  return u.name.slice(0,2).toUpperCase();
+}
+function renderRanksPage(){ renderLB(); refreshRealPlayers(); }
 function renderLB(){
   /* podium */
   const pod=$('podium'); pod.innerHTML='';
   const order=[1,0,2], cls=['p2','p1','p3'], crowns=[ICO.medal(20,'#CBD5E1'),ICO.crown(24),ICO.medal(20,'#B45309')];
   order.forEach((idx,k)=>{
-    const u=S.lb[idx];
+    const u=S.lb[idx]; if(!u) return;
     const el=document.createElement('div');
     el.className='pod '+cls[k];
     el.innerHTML=`<div class="crown">${crowns[k]}</div>
-      <div class="avatar">${u.name.slice(0,2).toUpperCase()}</div>
-      <div class="nm">${u.name}</div><div class="pts">${u.xp.toLocaleString('en-US')} XP</div>
+      <div class="avatar">${lbAvatar(u,30)}</div>
+      <div class="nm">${escapeHtml(u.name)}</div><div class="pts">${u.xp.toLocaleString('en-US')} XP</div>
       <div class="stand">${idx+1}</div>`;
     pod.appendChild(el);
   });
@@ -3852,29 +3485,21 @@ function renderLB(){
     const el=document.createElement('div');
     el.className='lb-row'+(u.me?' me':'');
     el.innerHTML=`<div class="lb-pos">${i+1}</div>
-      <div class="avatar">${u.name.slice(0,2).toUpperCase()}</div>
-      <div><b>${u.name}${u.me?' ★':''}</b><span class="sub">LVL ${u.me?S.user.lvl:u.lvl}</span></div>
+      <div class="avatar">${lbAvatar(u,26)}</div>
+      <div><b>${escapeHtml(u.name)}${u.me?' ★':''}</b><span class="sub">LVL ${u.me?S.user.lvl:u.lvl}</span></div>
       <div class="lb-xp">${u.xp.toLocaleString('en-US')}</div>`;
     sc.appendChild(el);
     if(u.me) meRow=el;
   });
   if(meRow) setTimeout(()=>meRow.scrollIntoView({block:'center',behavior:'smooth'}),150);
 }
-/* season countdown */
+/* Simulated Leaderboard Populator: bots slowly gain XP over time so the board feels alive */
 setInterval(()=>{
-  const el=$('season-cd'); if(!el) return;
-  let s=Math.max(0,Math.floor((S.seasonEnd-Date.now())/1000));
-  const d=Math.floor(s/86400); s%=86400;
-  const h=Math.floor(s/3600); s%=3600;
-  const m=Math.floor(s/60);
-  el.textContent=`${d}d ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
-},1000);
-/* Simulated Leaderboard Populator: session-scaled version of ΔXP=rnd(50,200) every 4-6h */
-setInterval(()=>{
-  const cands=S.lb.filter(u=>u.bot&&u.tier==='C');
-  for(let k=0;k<3;k++){ const u=cands[ri(0,cands.length-1)]; u.xp+=ri(15,60); }
+  const cands=S.lb.filter(u=>u.bot);
+  for(let k=0;k<4;k++){ const u=cands[ri(0,cands.length-1)]; if(u) u.xp+=ri(15,60); }
   S.lb.sort((a,b)=>b.xp-a.xp);
-  if($('scr-ranks').classList.contains('active')){
+  const rk=$('scr-ranks');
+  if(rk?.classList.contains('active')){
     renderLB();
     document.querySelectorAll('#lb-scroll .lb-row').forEach((r,i)=>{ if(Math.random()<.08) r.classList.add('moved'); });
     setTimeout(()=>document.querySelectorAll('.moved').forEach(r=>r.classList.remove('moved')),900);
@@ -3893,11 +3518,9 @@ function setTxt(id,v){ const e=$(id); if(e) e.textContent=v; }
 function setHTML(id,v){ const e=$(id); if(e) e.innerHTML=v; }
 function renderProfile(){
   setTxt('prof-uname', PROFILE?.username || 'Champion');
-  setTxt('p-elo', myElo());
   setTxt('p-lvl', S.user.lvl);
   setTxt('p-title', S.user.title);
-  const t=tierOf(myElo());
-  setHTML('p-tier', tierEmblem(t,16)+'<span style="color:'+t.col+'">'+t.n+'</span>');
+  setTxt('p-pr', S.user.pr||0);
   paintAvatars(); renderAvPicker(); renderBadges();
   const bi=$('bio-in');
   if(bi && document.activeElement!==bi){
@@ -4116,11 +3739,10 @@ const PoseEngine={
     this._resultWatchdog=setTimeout(()=>{
       if(this.target && !this.target._firstResult){
         console.warn('[FitRoyale] pose model produced no results in time — falling back to tap mode');
-        const vId=video.id, fbId=vId==='d-video'?'d-fb':'b-fb';
+        const vId=video.id, fbId='b-fb';
         onStatus('tap','Tap mode — AI unavailable');
         try{ this.stop(); }catch(e){}
         initCam(vId, fbId);
-        if(vId==='d-video' && S.duel){ S.duel.tracking=false; $('d-hint').textContent='Tap anywhere = 1 rep'; $('d-tapzone').style.pointerEvents='auto'; }
         if(vId==='b-video' && S.B){ S.B.tracking=false; $('rep-mode-lbl').textContent='TAP = 1 REP'; $('b-auto').style.display='flex'; $('b-fb').style.display='none'; }
       }
     }, 15000);
@@ -4318,7 +3940,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='41.0';
+const BUILD='45.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4735,6 +4357,7 @@ function startOnboarding(){
   obStep(1);
   goFlow('scr-onboard');
 }
+let pendingAddFriend=null;
 function enterApp(){
   const uname=PROFILE?.username||'Fighter';
   document.querySelectorAll('.hello .name, .prof-name').forEach(e=>{});
@@ -4746,6 +4369,11 @@ function enterApp(){
   setTimeout(()=>{ try{ paintAvatars(); renderHome(); }catch(e){console.error(e);} },60);
   setTimeout(()=>toast(greetLine()+', '+(PROFILE?.username||'Champion')+'!'),500);
   setTimeout(()=>toast('Running Build '+BUILD),2200);
+  refreshRealPlayers();
+  if(pendingAddFriend?.uid){
+    const pf=pendingAddFriend; pendingAddFriend=null;
+    setTimeout(()=>confirmAddFriend(pf.uid,pf.n,pf.a,pf.au,pf.l), 1400);
+  }
 }
 /* ---- Tutorial: one wave, then unskippable paywall ---- */
 function startTutorial(){
@@ -4850,7 +4478,7 @@ async function acquireWake(){
 }
 function releaseWake(){ try{ wakeLock?.release(); }catch(e){} wakeLock=null; }
 document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible' && (S.B||S.duel)) acquireWake();
+  if(document.visibilityState==="visible" && S.B) acquireWake();
 });
 
 /* ================= DEV TESTING MODAL ================= */
@@ -4987,6 +4615,13 @@ function ldDone(){
 document.body.classList.add('locked');
 async function boot(){
   ldStart();
+  /* someone opened a friend-invite link — capture it now and clean the URL,
+     act on it once they're actually logged in (see enterApp) */
+  if(location.search.includes('addfriend=')){
+    const p=new URLSearchParams(location.search);
+    pendingAddFriend={ uid:p.get('addfriend'), n:p.get('n'), a:p.get('a'), au:p.get('au'), l:p.get('l') };
+    history.replaceState(null,'',location.pathname);
+  }
   /* Stripe redirects back here after checkout. This client-side check is
      good enough for beta, but isn't tamper-proof — someone could edit the
      URL by hand. For a real launch, verify payment via a Stripe webhook
