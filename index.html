@@ -574,6 +574,21 @@
   .tile.help{ border-color:rgba(96,165,250,.45); } .tile.help .ti{ background:rgba(96,165,250,.18); }
   .tile.train{ border-color:rgba(245,158,11,.42); } .tile.train .ti{ background:rgba(245,158,11,.18); }
 
+  .rec-chip{ display:inline-flex; align-items:center; gap:5px; margin-top:9px; padding:6px 12px;
+    border-radius:99px; background:rgba(245,158,11,.14); border:1px solid rgba(245,158,11,.35);
+    font-size:11.5px; font-weight:900; color:#FCD34D; }
+  .rec-chip.red{ background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.32); color:#FCA5A5; }
+  .vic-rows{ text-align:left; }
+  .vrow{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .vrow:last-child{ border-bottom:none; }
+  .vrow span{ font-size:13.5px; font-weight:800; color:var(--dim); flex:1; }
+  .vrow b{ font-size:14.5px; font-weight:900; }
+  .card.gold{ border-color:rgba(245,158,11,.4); background:rgba(245,158,11,.08); }
+  .stats-hero-top{ display:flex; align-items:center; gap:13px; }
+  .stats-medal{ width:56px; height:56px; flex:none; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #FDE68A, #F59E0B 55%, #B45309);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 14px rgba(245,158,11,.4), inset 0 -3px 6px rgba(0,0,0,.25); }
   .today-strip{ display:flex; gap:7px; margin-top:9px; }
   .today-strip div{ flex:1; background:var(--card-dark); border:1px solid var(--line);
     border-radius:13px; padding:8px 6px; text-align:center; }
@@ -1036,6 +1051,7 @@
       <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="#F59E0B"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
       <div class="grow"><b>Speed Run</b><p>Hit your target as fast as you can</p></div>
     </div>
+    <div class="rec-chip" id="sr-record">🏆 No record yet</div>
     <div class="target-pills" id="sr-targets" style="margin-top:11px">
       <button class="tpill sel" onclick="pickTarget(this,10)">10 reps</button>
       <button class="tpill" onclick="pickTarget(this,25)">25 reps</button>
@@ -1049,6 +1065,7 @@
       <div class="bc-ico"><svg viewBox="0 0 24 24" style="width:24px;height:24px" fill="none" stroke="#10B981" stroke-width="2.2" stroke-linecap="round"><path d="M2 9c2-3 4-3 6 0s4 3 6 0 4-3 6 0M2 16c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg></div>
       <div class="grow"><b>Endless Waves</b><p>Creatures keep coming — how far can you go?</p></div>
     </div>
+    <div class="rec-chip red" id="horde-record">🏆 No record yet</div>
     <button class="btn b-purple" onclick="startHorde()">START</button>
   </div>
 
@@ -1370,6 +1387,13 @@
 <section class="screen" id="scr-victory">
   <div class="vic-stars" id="v-stars"><span><svg viewBox="0 0 24 24" style="width:36px;height:36px" fill="#F59E0B"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg></span><span><svg viewBox="0 0 24 24" style="width:36px;height:36px" fill="#F59E0B"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg></span><span><svg viewBox="0 0 24 24" style="width:36px;height:36px" fill="#F59E0B"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg></span></div>
   <div class="vic-h hdr" id="v-head">VICTORY!</div>
+
+  <div class="card gold" id="v-unlock" style="display:none;text-align:left;display:flex;align-items:center;gap:11px">
+    <svg viewBox="0 0 24 24" style="width:22px;height:22px;flex:none" fill="none" stroke="#F59E0B" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    <div><span class="dim" style="font-size:10px;font-weight:900;letter-spacing:.1em;display:block">EPISODE UNLOCKED</span>
+    <b id="v-unlock-name" style="font-size:14.5px">—</b></div>
+  </div>
+
   <div class="card" style="text-align:left">
     <div class="t row" style="justify-content:space-between;font-size:11px;font-weight:900;margin-bottom:5px">
       <span>LEVEL <span id="v-lvl">5</span></span><span id="v-xptxt">90/250 XP</span>
@@ -1377,11 +1401,13 @@
     <div class="pbar fill-g"><i id="v-xpbar" style="width:36%"></i></div>
     <div id="v-lvlup" style="display:none"><span class="lvlup-flash">🎉 LEVEL UP!</span></div>
   </div>
-  <div class="vic-grid">
-    <div class="qstat"><div class="n" id="v-reps">0</div><div class="l">Reps</div></div>
-    <div class="qstat"><div class="n" id="v-time">0:00</div><div class="l">Active time</div></div>
-    <div class="qstat"><div class="n green" id="v-acc">96%</div><div class="l">Form accuracy</div></div>
-    <div class="qstat"><div class="n gold" id="v-coins">+0</div><div class="l">Coins</div></div>
+
+  <div class="card vic-rows">
+    <div class="vrow"><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round"><path d="M6 12h2m8 0h2M8 8l-2-2m12 0l-2 2M8 16l-2 2m12 0l-2-2"/><rect x="8" y="8" width="8" height="8" rx="1.5"/></svg><span>Reps</span><b id="v-reps">0</b></div>
+    <div class="vrow"><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg><span>XP Gained</span><b class="gold" id="v-xp">+0</b></div>
+    <div class="vrow"><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#60A5FA" stroke-width="2.2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg><span>Duration</span><b id="v-time">0:00</b></div>
+    <div class="vrow"><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#10B981" stroke-width="2.2"><path d="M12 3a9 9 0 1 0 9 9M12 3v6l4 2"/></svg><span>Form accuracy</span><b class="green" id="v-acc">96%</b></div>
+    <div class="vrow"><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#FCD34D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg><span>Coins</span><b class="gold" id="v-coins">+0</b></div>
   </div>
   <button class="btn b-purple" onclick="victoryContinue()">CONTINUE</button>
   <button class="btn b-ghost" style="margin-top:10px" onclick="toast('📸 Workout card copied — ready to share!')">SHARE WORKOUT CARD</button>
@@ -1451,7 +1477,37 @@
   </div>
 
   <div id="p-ana" style="display:none">
-    <div class="card"><b style="font-size:13.5px">Reps this week</b><div class="chart" id="ana-chart"></div></div>
+    <div class="card stats-hero">
+      <div class="stats-hero-top">
+        <div class="stats-medal" id="sh-medal"></div>
+        <div class="grow" style="min-width:0">
+          <b id="sh-name" style="font-size:19px;display:block">Champion</b>
+          <span class="own" id="sh-title" style="margin-top:4px;display:inline-block">GLADIATOR</span>
+        </div>
+      </div>
+      <div class="crest-xp" style="margin-top:12px">
+        <div class="t"><span>LEVEL <span id="sh-lvl">1</span></span><span id="sh-xptxt">0/50 XP</span></div>
+        <div class="bar"><i id="sh-xpbar" style="width:0%"></i></div>
+      </div>
+      <div class="dim" style="font-size:11px;font-weight:800;margin-top:8px" id="sh-badges">🏅 Achievements · 0/24</div>
+    </div>
+
+    <div class="today-strip">
+      <div><b id="sh-streak">1</b><span>DAY STREAK</span></div>
+      <div><b id="sh-totxp">0</b><span>TOTAL XP</span></div>
+    </div>
+
+    <div class="sect-head"><b>LIFETIME</b><span class="ln"></span></div>
+    <div class="today-strip">
+      <div><b id="sh-totreps">0</b><span>TOTAL REPS</span></div>
+      <div><b id="sh-pr">0</b><span>MAX REPS PR</span></div>
+    </div>
+    <div class="today-strip" style="margin-top:8px">
+      <div><b id="sh-wins">0</b><span>DUEL WINS</span></div>
+      <div><b id="sh-bosses">0</b><span>BIG MATCHES WON</span></div>
+    </div>
+
+    <div class="card" style="margin-top:14px"><b style="font-size:13.5px">Reps this week</b><div class="chart" id="ana-chart"></div></div>
     <div class="card"><b style="font-size:13.5px">What you've been doing</b><div style="margin-top:11px" id="ana-dist"></div></div>
     <div class="card"><b style="font-size:13.5px">Last 4 weeks</b><div class="heat" id="ana-heat" style="margin-top:11px"></div></div>
   </div>
@@ -1781,6 +1837,12 @@
       <h4>Monthly</h4>
       <div class="price" id="pl-month">149 Kč</div>
       <div class="per">per month · cancel anytime</div>
+    </div>
+
+    <div class="plan" onclick="choosePlan('weekly')">
+      <h4>Weekly</h4>
+      <div class="price" id="pl-week">49 Kč</div>
+      <div class="per">per week · try it out first</div>
     </div>
 
     <div class="pay-feat" style="margin-top:18px">
@@ -2134,7 +2196,7 @@ function cleanupFlows(dest){
 const xpNeed=()=>S.user.lvl*50;
 let pendingLvlUps=0;
 function addXP(n){
-  S.user.xp+=n; pendingLvlUps=0;
+  S.user.xp+=n; S.user.totalXp=(S.user.totalXp||0)+n; pendingLvlUps=0;
   while(S.user.xp>=xpNeed()){ S.user.xp-=xpNeed(); S.user.lvl++; pendingLvlUps++; }
 }
 function addCoins(n,fromEl){ S.user.coins+=n; if(n>0) flyCoins(fromEl,n); }
@@ -2503,9 +2565,10 @@ function renderArena(){
   if($('duel-wins')) $('duel-wins').textContent=PROFILE?.duel_wins||0;
   }catch(err){ console.error('[FitRoyale] renderArena failed', err); }
 }
-function renderWorkout2(){ if($('pr-show')) $('pr-show').textContent=S.user.pr;
-  if($('diff-card')) $('diff-card').innerHTML=diffPickerHTML(); }
-function pickTarget(el,t){ S.speedTarget=t; document.querySelectorAll('#sr-targets .tpill').forEach(p=>p.classList.toggle('sel',p===el)); }
+function renderWorkout(){ if($('pr-show')) $('pr-show').textContent=S.user.pr;
+  if($('diff-card')) $('diff-card').innerHTML=diffPickerHTML();
+  refreshRecordChips(); }
+function pickTarget(el,t){ S.speedTarget=t; document.querySelectorAll('#sr-targets .tpill').forEach(p=>p.classList.toggle('sel',p===el)); refreshRecordChips(); }
 function pickEx(el,x){ S.speedEx=x; document.querySelectorAll('#sr-ex .tpill').forEach(p=>p.classList.toggle('sel',p===el)); }
 
 /* ================= BATTLE ENGINE ================= */
@@ -2916,23 +2979,32 @@ function finishBattle(win){
   $('restgate')?.classList.remove('on');
   stopCams();
   const reps=B.reps, sec=Math.max(1,B.sec);
-  let stars=0, headline='VICTORY!', bonusXP=0, bonusC=0, newPR=false;
+  let stars=0, headline='VICTORY!', bonusXP=0, bonusC=0, newPR=false, unlockedName=null, unlockedMeta=null;
   if(B.kind==='speed'){ const pace=sec/Math.max(1,reps); stars=pace<2?3:pace<3?2:1; bonusC=30;
+    if(win){
+      const rk='speed'+(B.target||S.speedTarget||10);
+      const prev=getRecord(rk);
+      if(!prev || sec<prev){ setRecord(rk, sec); newPR=true; headline='NEW RECORD!'; }
+    }
     S.quests.forEach(q=>{ if(q.id==='q2'&&!q.claimed&&q.prog<q.target){ q.prog++; } }); }
   else if(B.kind==='episode'){
     const e=S.chapters[B.chap].eps[B.ep]; const pace=sec/Math.max(1,reps);
     stars=pace<2.2?3:pace<3.2?2:1;
     e.stars=Math.max(e.stars,stars);
     if(B.chap===S.cur.c && B.ep===S.cur.e){
-      if(S.cur.e<17){ S.cur.e++; }
-      else if(S.cur.c<S.chapters.length-1){ S.cur.c++; S.cur.e=0; S.viewC=S.cur.c; toast('🏆 Chapter cleared! '+S.chapters[S.cur.c].name+' unlocked!'); }
+      if(S.cur.e<17){ S.cur.e++; unlockedName=S.chapters[B.chap].eps[S.cur.e]?.name; unlockedMeta=S.chapters[B.chap].name+' · Episode '+(S.cur.e+1); }
+      else if(S.cur.c<S.chapters.length-1){ S.cur.c++; S.cur.e=0; S.viewC=S.cur.c; toast('🏆 Chapter cleared! '+S.chapters[S.cur.c].name+' unlocked!');
+        unlockedName=S.chapters[S.cur.c].name; unlockedMeta='Chapter '+(S.cur.c+1); }
       else { toast('👑 Campaign complete — you beat every chapter!'); }
     }
     saveCampaign();
     bonusC=15+(B.chap*18+B.ep)*3; bonusXP=e.boss?80:25;
   }
   else if(B.kind==='boss'){ stars=3; if(PROFILE) PROFILE.bosses=(PROFILE.bosses||0)+1; S.dailyBoss.done=true; S.dailyBoss.hp=0; bonusXP=S.dailyBoss.rwXP; bonusC=S.dailyBoss.rwCoins; }
-  else if(B.kind==='horde'){ stars=Math.min(3,1+Math.floor(B.waveIdx/2)); headline='SURVIVED '+B.waveIdx+' WAVE'+(B.waveIdx===1?'':'S')+'!'; bonusC=B.waveIdx*12; }
+  else if(B.kind==='horde'){ stars=Math.min(3,1+Math.floor(B.waveIdx/2)); headline='SURVIVED '+B.waveIdx+' WAVE'+(B.waveIdx===1?'':'S')+'!'; bonusC=B.waveIdx*12;
+    const prev=getRecord('horde');
+    if(!prev || B.waveIdx>prev){ setRecord('horde', B.waveIdx); newPR=true; }
+  }
   else if(B.kind==='tutorial'){
     stars=3; headline='FIRST WIN!'; bonusXP=50; bonusC=50;
     if(PROFILE){ PROFILE.tutorial_done=true; saveProfile(); }   /* never replay the tutorial */
@@ -2942,7 +3014,7 @@ function finishBattle(win){
   const dm=D();
   const coins=Math.round((reps*2+bonusC)*dm.coin), xp=Math.round((reps*10+bonusXP)*dm.xp);
   addXP(xp); addCoins(coins, $('b-reps'));
-  vicCtx={ origin:S.B_origin, headline, stars, reps, sec, coins, win:true, newPR };
+  vicCtx={ origin:S.B_origin, headline, stars, reps, sec, coins, xp, win:true, newPR, unlockedName, unlockedMeta };
   S.B=null;
   if(PROFILE){ PROFILE.total_reps=(PROFILE.total_reps||0)+reps; }
   saveProfile();
@@ -2958,6 +3030,12 @@ function showVictory(){
   $('v-time').textContent=fmt(v.sec);
   $('v-acc').textContent=ri(90,99)+'%';
   $('v-coins').textContent='+'+v.coins;
+  setTxt('v-xp', '+'+(v.xp||0));
+  const uc=$('v-unlock');
+  if(uc){
+    if(v.unlockedName){ uc.style.display='flex'; setTxt('v-unlock-name', v.unlockedName+(v.unlockedMeta?' · '+v.unlockedMeta:'')); }
+    else uc.style.display='none';
+  }
   $('v-lvl').textContent=S.user.lvl;
   $('v-xptxt').textContent=S.user.xp+'/'+xpNeed()+' XP';
   $('v-lvlup').style.display=pendingLvlUps?'block':'none';
@@ -2980,6 +3058,22 @@ function victoryContinue(){
 
 /* ================= REAL STATS TRACKING ================= */
 function statsKey(){ return 'fr_stats_'+(ME?.id||'anon'); }
+function recKey(name){ return 'fr_rec_'+name+'_'+(ME?.id||'anon'); }
+function getRecord(name){ try{ return JSON.parse(localStorage.getItem(recKey(name))||'null'); }catch(e){ return null; } }
+function setRecord(name,val){ try{ localStorage.setItem(recKey(name), JSON.stringify(val)); }catch(e){} }
+function refreshRecordChips(){
+  const sr=$('sr-record');
+  if(sr){
+    const t=S.speedTarget||10;
+    const rec=getRecord('speed'+t);
+    sr.textContent = rec ? '🏆 Best: '+fmt(rec)+' for '+t+' reps' : '🏆 No record yet';
+  }
+  const hr=$('horde-record');
+  if(hr){
+    const rec=getRecord('horde');
+    hr.textContent = rec ? '🏆 Best: '+rec+' wave'+(rec===1?'':'s') : '🏆 No record yet';
+  }
+}
 function loadStats(){
   try{ return JSON.parse(localStorage.getItem(statsKey())||'{}'); }catch(e){ return {}; }
 }
@@ -3099,31 +3193,46 @@ const PRICES={
   IN:{ sym:'₹',  m:299,   y:1899, life:3499, offer:1749 },
   MX:{ sym:'MX$',m:119,   y:749,  life:1399, offer:699 },
 };
-function priceSet(){ return PRICES[detectRegion()] || PRICES.US; }
+function priceSet(){
+  const p=PRICES[detectRegion()] || PRICES.US;
+  if(p.w===undefined) p.w = Math.round((p.m/3)*100)/100;   /* weekly ≈ ⅓ monthly, so monthly still reads as the better deal */
+  return p;
+}
 function fmtPrice(v){
   const p=priceSet();
   const n = Number.isInteger(v) ? v : v.toFixed(2);
   return p.suf ? (n+' '+p.sym) : (p.sym+n);
 }
-/* 24h lifetime offer — starts the first time the player sees the paywall */
+/* 24h lifetime offer — starts the first time the player sees the paywall
+   AFTER they've restarted the app at least once (not during their very
+   first session straight out of the tutorial). */
 function offerEndsAt(){
   if(!PROFILE) return Date.now()+864e5;
-  if(!PROFILE.offer_started){ PROFILE.offer_started=Date.now(); saveProfile(); }
-  return Number(PROFILE.offer_started)+864e5;
+  if(!PROFILE.offer_started && IS_RESTART){ PROFILE.offer_started=Date.now(); saveProfile(); }
+  return PROFILE.offer_started ? Number(PROFILE.offer_started)+864e5 : null;
 }
-function offerLeft(){ return Math.max(0, offerEndsAt()-Date.now()); }
+function offerLeft(){ const end=offerEndsAt(); return end===null ? null : Math.max(0, end-Date.now()); }
 let offerTimer=null;
 function startOfferCountdown(){
   clearInterval(offerTimer);
+  const banner=$('offer-banner');
+  const ms0=offerLeft();
+  if(ms0===null){
+    /* first-ever session: no urgency banner yet, just plain pricing */
+    if(banner) banner.style.display='none';
+    return;
+  }
+  if(banner) banner.style.display='block';
   const upd=()=>{
     const ms=offerLeft();
+    if(ms===null) return;
     const hh=String(Math.floor(ms/3600000)).padStart(2,'0');
     const mm=String(Math.floor(ms/60000)%60).padStart(2,'0');
     const ss=String(Math.floor(ms/1000)%60).padStart(2,'0');
     if($('oc-h')) $('oc-h').textContent=hh;
     if($('oc-m')) $('oc-m').textContent=mm;
     if($('oc-s')) $('oc-s').textContent=ss;
-    if(ms<=0){ clearInterval(offerTimer); const b=$('offer-banner'); if(b) b.style.display='none'; }
+    if(ms<=0){ clearInterval(offerTimer); if(banner) banner.style.display='none'; }
   };
   upd(); offerTimer=setInterval(upd,1000);
 }
@@ -3547,6 +3656,7 @@ function onOppRep(n){
 function leaveLobby(){
   try{ RT.ch?.unsubscribe(); }catch(e){}
   RTCLink.stop();
+  stopCams();
   RT.ch=null; RT.code=null; RT.started=false; RT.opp=null;
   if(RT.seekT){ clearTimeout(RT.seekT); RT.seekT=null; }
   RT.seeking=false;
@@ -3734,7 +3844,7 @@ function endDuel(win){
   const eloD=applyElo(win, !!d.live);
   if(win&&PROFILE){ PROFILE.duel_wins=(PROFILE.duel_wins||0)+1; }
   vicCtx={ origin:'arena', headline:win?'VICTORY!':'DEFEAT', stars:win?3:1,
-           reps:d.my, sec:d.sec, coins, win };
+           reps:d.my, sec:d.sec, coins, xp, win };
   S.duel=null; lastLead=0; RT.started=false; resetCombo();
   try{ RT.ch?.unsubscribe(); }catch(e){} RT.ch=null;
   RTCLink.stop();
@@ -3743,7 +3853,7 @@ function endDuel(win){
   showVictory();
   toast((win?'Victory! ':'Nice try! ')+(eloD>=0?'+':'')+eloD+' ELO · now '+myElo());
 }
-function abortDuel(){ killDuel(); RTCLink.stop(); nav('scr-arena'); }
+function abortDuel(){ killDuel(); RTCLink.stop(); stopCams(); nav('scr-arena'); }
 function killDuel(){ if(!S.duel) return; S.duel.running=false; S.duel.timers.forEach(t=>{clearInterval(t);clearTimeout(t);}); S.duel=null; lastLead=0; }
 
 /* ================= LEADERBOARD ================= */
@@ -3868,6 +3978,21 @@ function equip(slot,id,name){
   renderProfile();
 }
 function renderAnalytics(){
+  setHTML('sh-medal', ICO.medal(30,'#7C2D12'));
+  setTxt('sh-name', PROFILE?.username || 'Champion');
+  setTxt('sh-title', (S.user.title||'ROOKIE').toUpperCase());
+  setTxt('sh-lvl', S.user.lvl);
+  setTxt('sh-xptxt', S.user.xp+'/'+xpNeed()+' XP');
+  const shb=$('sh-xpbar'); if(shb) shb.style.width=(S.user.xp/xpNeed()*100)+'%';
+  const gotBadges=BADGES.filter(b=>{ try{ return !!b.has(); }catch(e){ return false; } }).length;
+  setTxt('sh-badges', '🏅 Achievements · '+gotBadges+'/'+BADGES.length);
+  setTxt('sh-streak', S.user.streak);
+  setTxt('sh-totxp', (S.user.totalXp||0).toLocaleString('en-US'));
+  setTxt('sh-totreps', (PROFILE?.total_reps||0).toLocaleString('en-US'));
+  setTxt('sh-pr', S.user.pr||0);
+  setTxt('sh-wins', PROFILE?.duel_wins||0);
+  setTxt('sh-bosses', PROFILE?.bosses||0);
+
   const s=loadStats();
   const w=last7();
   const max=Math.max(...w.data,10);
@@ -4220,7 +4345,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='39.0';
+const BUILD='40.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4466,7 +4591,7 @@ async function loadProfile(){
   const DEFAULTS={ id:ME.id, username:ME.user_metadata?.username || emailName || 'Champion', level:1, xp:0, coins:200,
     streak:1, pr:0, total_reps:0, tutorial_done:false, membership:null,
     elo:1000, bio:'', avatar:'goblin', avatar_url:null, duel_wins:0, bosses:0,
-    difficulty:'easy', story_seen:'', offer_started:null, campaign:null };
+    difficulty:'easy', story_seen:'', offer_started:null, campaign:null, total_xp:0 };
   let data=null;
   try{ ({ data } = await sb.from('profiles').select('*').eq('id',ME.id).maybeSingle()); }
   catch(e){ console.error('[FitRoyale] profile load failed:', e.message||e); }
@@ -4495,13 +4620,13 @@ async function loadProfile(){
   }
   cacheProfileLocally();
   /* apply to game state */
-  S.user.lvl=PROFILE.level||1; S.user.xp=PROFILE.xp||0; S.user.coins=PROFILE.coins||0;
+  S.user.lvl=PROFILE.level||1; S.user.xp=PROFILE.xp||0; S.user.coins=PROFILE.coins||0; S.user.totalXp=PROFILE.total_xp||0;
   S.user.streak=PROFILE.streak||1; S.user.pr=PROFILE.pr||0;
   restoreCampaign(PROFILE.campaign);
 }
 let saveT=null;
 const PROFILE_COLS=['id','username','level','xp','coins','streak','pr','total_reps','tutorial_done',
-  'membership','elo','bio','avatar','avatar_url','duel_wins','bosses','difficulty','story_seen','offer_started','updated_at','campaign'];
+  'membership','elo','bio','avatar','avatar_url','duel_wins','bosses','difficulty','story_seen','offer_started','updated_at','campaign','total_xp'];
 let badCols=new Set();
 let lastSave={ ok:null, msg:'Not saved yet', at:0 };        /* columns the DB rejected — skipped on later saves */
 let warnedSave=false;
@@ -4521,7 +4646,7 @@ function saveProfile(){
   if(!sb||!ME||!PROFILE) return;
   clearTimeout(saveT);
   saveT=setTimeout(async()=>{
-    PROFILE.level=S.user.lvl; PROFILE.xp=S.user.xp; PROFILE.coins=S.user.coins;
+    PROFILE.level=S.user.lvl; PROFILE.xp=S.user.xp; PROFILE.coins=S.user.coins; PROFILE.total_xp=S.user.totalXp||0;
     PROFILE.streak=S.user.streak; PROFILE.pr=S.user.pr;
     PROFILE.total_reps=(PROFILE.total_reps||0);
     cacheProfileLocally();                       /* always keep a local copy */
@@ -4689,24 +4814,30 @@ function detectRegion(){
 function showPaywall(){
   document.body.classList.add('locked');
   const p=priceSet();
+  const offerActive = offerLeft()!==null;
   $('off-was').textContent=fmtPrice(p.life);
   $('off-now').textContent=fmtPrice(p.offer);
-  $('pl-life').textContent=fmtPrice(p.offer);
+  $('pl-life').textContent=fmtPrice(offerActive?p.offer:p.life);
   $('pl-year').textContent=fmtPrice(p.y);
   $('pl-month').textContent=fmtPrice(p.m);
+  $('pl-week').textContent=fmtPrice(p.w);
   const perMonth=(p.y/12);
   $('pl-year-per').textContent='per year · '+fmtPrice(Number(perMonth.toFixed(2)))+'/mo';
   const savePct=Math.round((1-(p.y/12)/p.m)*100);
   $('pl-year-save').textContent = savePct>0 ? ('Save '+savePct+'% vs monthly') : 'Best for regulars';
-  $('pl-life-save').textContent='Save '+Math.round((1-p.offer/p.life)*100)+'% during launch';
+  $('pl-life-save').textContent = offerActive
+    ? 'Save '+Math.round((1-p.offer/p.life)*100)+'% during launch'
+    : 'One payment · yours forever';
   startOfferCountdown();
   goFlow('scr-paywall');
 }
 function choosePlan(kind){
   SFX.click();
   const p=priceSet();
-  const label = kind==='lifetime' ? 'Lifetime — '+fmtPrice(p.offer)
+  const offerActive = offerLeft()!==null;
+  const label = kind==='lifetime' ? 'Lifetime — '+fmtPrice(offerActive?p.offer:p.life)
     : kind==='yearly' ? 'Yearly — '+fmtPrice(p.y)
+    : kind==='weekly' ? 'Weekly — '+fmtPrice(p.w)
     : 'Monthly — '+fmtPrice(p.m);
   showStoryModal('Beta is free', label+'<br><br>Payments aren\'t live yet — every beta tester gets full access at no cost. Your founder status is locked in.', 'CLAIM FREE ACCESS', claimFounder);
 }
@@ -4767,6 +4898,11 @@ function openDevModal(){
 }
 
 /* ================= CAMERA ================= */
+/* was this device ever opened before this exact page load? tells us if this is
+   the player's first-ever session or a later restart — used to decide whether
+   the 24h lifetime offer should be showing yet. */
+const IS_RESTART = !!localStorage.getItem('fr_seen_before');
+try{ localStorage.setItem('fr_seen_before','1'); }catch(e){}
 let cams=[];
 function initCam(vid,fbId){
   const v=$(vid), fb=$(fbId);
