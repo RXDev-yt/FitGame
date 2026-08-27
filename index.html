@@ -605,6 +605,9 @@
     font-size:11.5px; font-weight:900; padding:9px 14px; border-radius:11px; }
   .friends-empty{ text-align:center; padding:26px 16px; }
   .friends-empty p{ font-size:13px; font-weight:800; color:var(--dim); }
+  .link-box{ background:var(--card-dark); border:1.5px solid var(--line); border-radius:12px;
+    padding:11px 13px; margin-top:11px; word-break:break-all; }
+  .link-box span{ font-size:11px; font-weight:800; color:#A9B6CC; font-family:monospace; }
   .qr-wrap{ display:flex; align-items:center; justify-content:center; background:#fff; border-radius:16px;
     padding:16px; margin:14px auto; width:200px; height:200px; }
   .qr-wrap canvas, .qr-wrap img{ width:100%; height:100%; }
@@ -2385,8 +2388,34 @@ function openDrawer(ci,i){
     <div class="drops">${e.drops}</div>
     ${st==='lock'
       ? '<button class="btn b-ghost" disabled>🔒 Clear previous episodes first</button>'
-      : `<button class="btn ${e.boss?'b-red':'b-purple'}" onclick="startEpisode(${ci},${i})">${e.stars>0?'REPLAY':'START'} EPISODE</button>`}`;
+      : `<button class="btn ${e.boss?'b-red':'b-purple'}" onclick="startEpisode(${ci},${i})">${e.stars>0?'REPLAY':'START'} EPISODE</button>
+         <button class="btn b-ghost" style="margin-top:9px" onclick="pickFriendForEpisode(${ci},${i})">👥 PLAY WITH A FRIEND</button>`}`;
   requestAnimationFrame(()=>dr.classList.add('open'));
+}
+async function pickFriendForEpisode(ci,i){
+  if(!sb || !ME){ toast('Connection error'); return; }
+  closeDrawer();
+  openModal('<h3 class="hdr">Loading friends…</h3>');
+  try{
+    const { data, error } = await sb.from('friendships').select('*').eq('user_id', ME.id).order('created_at',{ascending:false});
+    if(error) throw error;
+    if(!data || !data.length){
+      openModal('<h3 class="hdr">No friends yet</h3><p class="dim" style="font-size:12.5px;font-weight:800;margin-top:8px">Add a friend first from the Friends tab, then you can invite them to any episode.</p><button class="btn b-purple" style="margin-top:14px" onclick="closeModal();nav(\'scr-arena\')">GO TO FRIENDS</button><button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CLOSE</button>');
+      return;
+    }
+    const rows=data.map(f=>{
+      const av = f.friend_avatar_url ? '<img src="'+f.friend_avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : mon(f.friend_avatar||'goblin',24);
+      const nameEsc=escapeHtml(f.friend_username||'Friend').replace(/'/g,"\\'");
+      return '<button class="friend-card" style="width:100%;text-align:left" onclick="startCoop(\''+f.friend_id+'\',\''+nameEsc+'\',\''+(f.friend_avatar||'goblin')+'\',\''+(f.friend_avatar_url||'')+'\','+ci+','+i+')">'+
+        '<div class="fav">'+av+'</div>'+
+        '<div class="grow"><b>'+escapeHtml(f.friend_username||'Friend')+'</b></div>'+
+      '</button>';
+    }).join('');
+    openModal('<h3 class="hdr">Play with who?</h3><p class="dim" style="font-size:12px;font-weight:800;margin:6px 0 12px">They\'ll join you for this exact episode.</p>'+rows+'<button class="btn b-ghost" style="margin-top:12px" onclick="closeModal()">CANCEL</button>');
+  }catch(err){
+    console.error('[FitRoyale] friend picker failed', err);
+    openModal('<h3 class="hdr">Couldn\'t load friends</h3><button class="btn b-ghost" style="margin-top:12px" onclick="closeModal()">CLOSE</button>');
+  }
 }
 function closeDrawer(){ $('drawer')?.classList.remove('open'); }
 
@@ -2440,36 +2469,24 @@ async function shareInviteLink(){
 
 function openAddFriend(){
   SFX.click();
+  const link=myInviteLink();
   openModal(
     '<h3 class="hdr">Add a Friend</h3>'+
     '<p class="dim" style="font-size:12.5px;font-weight:800;margin-top:6px">Share your link, or show them your QR code to scan.</p>'+
     '<button class="btn b-purple" style="margin-top:14px" onclick="shareInviteLink()">SHARE MY INVITE LINK</button>'+
-    '<div class="qr-wrap" id="my-qr"></div>'+
+    '<div class="link-box" onclick="copyMyLink()"><span id="my-link-text">'+escapeHtml(link)+'</span></div>'+
+    '<div class="qr-wrap" id="my-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data='+encodeURIComponent(link)+'" alt="Your invite QR code" width="200" height="200" onerror="qrImgFailed()"></div>'+
     '<button class="btn b-gold" onclick="openQrScanner()">SCAN A FRIEND\'S QR CODE</button>'+
     '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CLOSE</button>'
   );
-  renderMyQr();
 }
-let _qrLibP=null;
-function loadQrLib(){
-  if(window.qrcode) return Promise.resolve();
-  if(_qrLibP) return _qrLibP;
-  _qrLibP=loadScript('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js', 8000);
-  return _qrLibP;
-}
-async function renderMyQr(){
+function qrImgFailed(){
   const host=$('my-qr'); if(!host) return;
-  host.innerHTML='<span class="dim" style="font-size:11px;font-weight:800;color:#888">Loading…</span>';
-  try{
-    await loadQrLib();
-    const qr=window.qrcode(0,'M');
-    qr.addData(myInviteLink());
-    qr.make();
-    host.innerHTML=qr.createSvgTag({ cellSize:5, margin:2 });
-  }catch(e){
-    console.error('[FitRoyale] QR generation failed', e);
-    host.innerHTML='<span class="dim" style="font-size:11px;font-weight:800;color:#888">QR unavailable — use the link instead</span>';
-  }
+  host.innerHTML='<span class="dim" style="font-size:11px;font-weight:800;color:#888;padding:20px;display:block;text-align:center">QR image unavailable right now — use the link above instead</span>';
+}
+async function copyMyLink(){
+  try{ await navigator.clipboard.writeText(myInviteLink()); toast('Link copied!'); }
+  catch(e){ toast('Long-press the link above to copy it'); }
 }
 
 let _jsQrP=null;
@@ -2549,12 +2566,14 @@ let COOP=null; /* { ch, friendId, friendName, friendAv, isHost, ready, joinedAt 
 
 function coopChannelName(a,b){ return 'coop-'+[a,b].sort().join('-'); }
 
-function startCoop(friendId,friendName,friendAv,friendAvUrl){
+function startCoop(friendId,friendName,friendAv,friendAvUrl,targetCi,targetI){
   if(!sb || !ME){ toast('Connection error'); return; }
   SFX.click();
   stopCoop();
   const joinedAt=Date.now();
-  COOP={ ch:null, friendId, friendName, friendAv, friendAvUrl, isHost:false, ready:false, joinedAt, partnerHere:false };
+  const hasTarget = Number.isInteger(targetCi) && Number.isInteger(targetI);
+  COOP={ ch:null, friendId, friendName, friendAv, friendAvUrl, isHost:false, ready:false, joinedAt, partnerHere:false,
+         targetCi: hasTarget?targetCi:null, targetI: hasTarget?targetI:null };
   const ch=sb.channel(coopChannelName(ME.id,friendId), { config:{ presence:{ key:ME.id }, broadcast:{ self:false } } });
   COOP.ch=ch;
   ch.on('presence',{event:'sync'},()=>{
@@ -2598,11 +2617,13 @@ let _coopStartLock=false;
 function maybeStartCoopBattle(){
   if(_coopStartLock || !COOP?.isHost) return;
   _coopStartLock=true;
-  const e=currentEp();
+  const ci = COOP.targetCi!==null ? COOP.targetCi : S.cur.c;
+  const i  = COOP.targetI!==null  ? COOP.targetI  : S.cur.e;
+  const e=S.chapters[ci]?.eps[i];
   if(!e){ toast('No episode to play'); stopCoop(); return; }
   const at=Date.now()+2600;
-  COOP.ch.send({ type:'broadcast', event:'coop-start', payload:{ ci:S.cur.c, i:S.cur.e, at } });
-  beginCoopBattle(S.cur.c,S.cur.e,at);
+  COOP.ch.send({ type:'broadcast', event:'coop-start', payload:{ ci, i, at } });
+  beginCoopBattle(ci,i,at);
 }
 function beginCoopBattle(ci,i,at){
   closeModal();
@@ -3940,7 +3961,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='45.0';
+const BUILD='46.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
