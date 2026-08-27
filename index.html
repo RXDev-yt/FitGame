@@ -1850,7 +1850,7 @@
     <div class="ld-tip" id="ld-tip"><span>Getting things ready…</span></div>
     <div class="ld-track"><i id="ld-fill"></i></div>
     <div class="ld-pct" id="ld-pct">0%</div>
-    <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.4">BUILD 38.1</div>
+    <div class="dim" id="ld-build" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.4">BUILD —</div>
   </div>
 </div>
 
@@ -3435,7 +3435,7 @@ function bindRoom(code,isHost){
   $('lp-opp-name').textContent='Waiting…'; $('lp-opp-av').textContent='?';
   $('lp-opp-state').textContent='Not joined';
   $('room-start').style.display='none';
-  $('room-hint').textContent=isHost?'Send the code to your friend — you start the duel once they join.':'Joined! Waiting for the host to start…';
+  $('room-hint').textContent=isHost?'Send the code to your friend — the duel starts the instant they join.':'Joined! Starting as soon as the host is ready…';
   goFlow('scr-room');
 
   const ch=sb.channel('duel-'+code,{ config:{ presence:{ key:myUid() }, broadcast:{ self:false } } });
@@ -3448,12 +3448,16 @@ function bindRoom(code,isHost){
         $('lp-opp-name').textContent=RT.opp.name||'Fighter';
         $('lp-opp-av').innerHTML=avHTML(RT.opp.av,34);
         $('lp-opp-state').innerHTML='<span class="live-dot"></span> Ready · LVL '+(RT.opp.lvl||1);
-        if(RT.host){ $('room-start').style.display='flex'; $('room-hint').textContent='Your opponent is in. Start when you are both ready.'; }
         beep(700,.1);
+        /* instant join: the host auto-starts the moment both players are present —
+           no manual button, no waiting on each other */
+        if(RT.host && !RT.started){
+          $('room-hint').textContent='Opponent found — starting now!';
+          setTimeout(()=>{ if(RT.host && RT.opp && !RT.started) hostStart(); }, 500);
+        }
       } else {
         RT.opp=null; $('lp-opp').classList.remove('in');
         $('lp-opp-name').textContent='Waiting…'; $('lp-opp-state').textContent='Not joined';
-        $('room-start').style.display='none';
       }
     })
    .on('broadcast',{event:'start'},({payload})=>{ beginRealDuel(payload.at); })
@@ -3485,12 +3489,13 @@ function hostStart(){
 }
 function beginRealDuel(at){
   if(RT.started) return; RT.started=true;
-  /* warm the camera immediately so the stage shows video during the countdown */
-  setTimeout(()=>{ if(S.duel && !S.duel.tracking) initCam('d-video','d-fb'); }, 60);
-  /* live opponent video: host kicks off the peer connection once cameras have had
-     a moment to warm up; the joiner responds automatically via the offer handler
-     already wired into the room channel. Fails silently if it can't connect. */
-  setTimeout(()=>{ if(RT.host) RTCLink.start(true); }, 900);
+  /* NOTE: camera is acquired exactly once, by PoseEngine.start() inside
+     startDuelTracking() when the countdown ends — deliberately NOT warmed up
+     here beforehand. A second concurrent getUserMedia() call on the same
+     video element (which an early initCam() warm-up would cause) hangs
+     indefinitely on many devices, especially iOS — that was silently
+     breaking every duel's AI tracking while solo battles (single camera
+     request only) worked fine. */
   S.B_origin='arena';
   S.duel={ opp:RT.opp?.name||'Fighter', oppLvl:RT.opp?.lvl||1, oppElo:RT.opp?.elo||1000, target:20, my:0, op:0, sec:0,
            running:false, timers:[], live:true, myTs:[] };
@@ -3632,8 +3637,10 @@ async function startDuelTracking(d){
     d.tracking=true;
     $('d-hint').textContent='AI is counting your reps';
     $('d-tapzone').style.pointerEvents='none';
+    if(RT.host) RTCLink.start(true);   /* camera is warm now — safe to reuse it for the video call */
   } else {
     initCam('d-video','d-fb');
+    if(RT.host) RTCLink.start(true);   /* falls back to its own request if AI tracking never got a camera */
   }
 }
 function forceDuelTapMode(){
@@ -4104,14 +4111,20 @@ const PoseEngine={
     const side=useL?c.L:c.R;
     const angle=getAngle(lm[side[0]],lm[side[1]],lm[side[2]]);
 
-    /* --- ARMING: forgiving. Any plausible starting position, held briefly. --- */
+    /* --- Real body-orientation check for push-ups: shoulders and hips must be at
+       roughly the SAME height in frame (a lying/plank posture), not one far above
+       the other (standing). This is what actually stops walking/standing from
+       ever registering as reps — the old check only looked at wrist height,
+       which a standing or walking person satisfies easily. */
+    let inPlankPosture=true;
+    if(c.plant){
+      const shMidY=(lm[11].y+lm[12].y)/2, hipMidY=(lm[23].y+lm[24].y)/2;
+      inPlankPosture = Math.abs(shMidY-hipMidY) < 0.24;
+    }
+
+    /* --- ARMING: forgiving on angle/timing, but never skips the posture check. --- */
     if(!t.armed){
-      let looksReady = angle >= (c.armA - 50 + rm.arm);   /* generous */
-      if(c.plant){
-        /* push-ups: just check the hands aren't way above the shoulders (i.e. standing) */
-        const shY=lm[side[0]].y, wrY=lm[side[2]].y;
-        if(wrY < shY - 0.45) looksReady=false;
-      }
+      let looksReady = angle >= (c.armA - 50 + rm.arm) && inPlankPosture;
       if(looksReady){
         if(!t.extSince) t.extSince=now;
         const held=now-t.extSince;
@@ -4121,14 +4134,29 @@ const PoseEngine={
         } else t.onStatus('load','Hold still…');
       } else {
         t.extSince=0;
-        t.onStatus('load', c.plant?'Get into push-up position':'Get to the start position');
+        t.onStatus('load', c.plant && !inPlankPosture ? 'Get down on the floor — I can tell you\'re still standing' :
+          c.plant?'Get into push-up position':'Get to the start position');
       }
-      /* mercy: if we can see you clearly for 6s but never "armed", arm anyway */
-      t.seenSince=t.seenSince||now;
-      if(now-t.seenSince>4000){
-        t.armed=true; t.aMin=angle; t.aMax=angle; t.calib=false;
-        t.onStatus('ai','Tracking you — go!'); beep(700,.1);
+      /* mercy: if we can see you clearly for 4s but never "armed", arm anyway —
+         BUT ONLY once you're actually in a plank posture. Mercy skips waiting
+         for the hold-still timer, never skips verifying you're even down on
+         the floor — that gap was letting simple standing/walking auto-arm. */
+      if(inPlankPosture){
+        t.seenSince=t.seenSince||now;
+        if(now-t.seenSince>4000){
+          t.armed=true; t.aMin=angle; t.aMax=angle; t.calib=false;
+          t.onStatus('ai','Tracking you — go!'); beep(700,.1);
+        }
+      } else {
+        t.seenSince=0;
       }
+      return;
+    }
+
+    /* if a plank-mode player stands back up mid-set, disarm rather than keep counting */
+    if(c.plant && !inPlankPosture){
+      t.armed=false; t.extSince=0; t.seenSince=0; t.calib=false; t.aMin=180; t.aMax=0;
+      t.onStatus('load','Get back down into push-up position');
       return;
     }
 
@@ -4143,14 +4171,14 @@ const PoseEngine={
     const range=t.aMax-t.aMin;
 
     t.onStatus('ai','AI · '+c.joint+' '+Math.round(angle)+'°');
-    const MIN_RANGE = curDiff()==='easy' ? 22 : curDiff()==='normal' ? 30 : curDiff()==='hard' ? 40 : 50;
+    const MIN_RANGE = curDiff()==='easy' ? 15 : curDiff()==='normal' ? 30 : curDiff()==='hard' ? 40 : 50;
     if(range < MIN_RANGE){
       if(!t.calib){ t.onStatus('load','Do one full rep so I can learn your range…'); }
       return;
     }
     if(!t.calib){ t.calib=true; beep(880,.08); t.onStatus('ai','Range set — counting!'); }
 
-    const frac = curDiff()==='easy' ? 0.38 : curDiff()==='normal' ? 0.32 : 0.26;
+    const frac = curDiff()==='easy' ? 0.45 : curDiff()==='normal' ? 0.32 : 0.26;
     const downAt = t.aMin + range*frac;
     const upAt   = t.aMax - range*frac;
 
@@ -4192,7 +4220,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='38.1';
+const BUILD='39.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4619,6 +4647,7 @@ function enterApp(){
   /* belt-and-braces: repaint once more after the DOM settles */
   setTimeout(()=>{ try{ paintAvatars(); renderHome(); }catch(e){console.error(e);} },60);
   setTimeout(()=>toast(greetLine()+', '+(PROFILE?.username||'Champion')+'!'),500);
+  setTimeout(()=>toast('Running Build '+BUILD),2200);
 }
 /* ---- Tutorial: one wave, then unskippable paywall ---- */
 function startTutorial(){
@@ -4810,6 +4839,7 @@ function ldAnimate(){
 function ldTip(text){ const t=$('ld-tip'); if(t) t.innerHTML='<span>'+text+'</span>'; }
 function ldStart(){
   ldVal=0; ldTarget=0;
+  setTxt('ld-build', 'BUILD '+BUILD);
   let i=Math.floor(Math.random()*LD_TIPS.length);
   ldTip(LD_TIPS[i]);
   ldTipTimer=setInterval(()=>{ i=(i+1)%LD_TIPS.length; ldTip(LD_TIPS[i]); },2800);
