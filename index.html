@@ -708,19 +708,15 @@
   .tier-chip span{ font-size:8.5px; font-weight:900; color:var(--dim); }
 
   /* ---------- MEMBERSHIP ---------- */
-  .offer-banner{ background:linear-gradient(135deg,#EF4444,#F59E0B); border-radius:20px; padding:16px;
-    text-align:center; margin-bottom:14px; position:relative; overflow:hidden;
-    box-shadow:0 8px 30px rgba(239,68,68,.4); animation:offerGlow 2.4s ease-in-out infinite; }
-  @keyframes offerGlow{ 50%{ box-shadow:0 8px 44px rgba(245,158,11,.65);} }
-  .offer-banner .tag{ font-size:10px; font-weight:900; letter-spacing:.2em; color:rgba(255,255,255,.9); }
-  .offer-banner .big{ font-size:26px; font-weight:900; text-shadow:0 3px 0 rgba(0,0,0,.35); }
-  .offer-banner .was{ text-decoration:line-through; opacity:.75; font-size:14px; font-weight:900; }
-  .offer-cd{ display:inline-flex; gap:5px; margin-top:8px; }
-  .offer-cd b{ background:rgba(0,0,0,.32); padding:5px 9px; border-radius:8px; font-size:15px; font-weight:900;
-    min-width:38px; display:inline-block; }
-  .offer-cd span{ font-size:9px; font-weight:900; opacity:.8; display:block; }
+  .plan-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; align-items:stretch; }
   .plan{ background:var(--card-dark); border:1.5px solid var(--line); border-radius:20px; padding:18px; margin-bottom:12px;
     position:relative; transition:transform .12s, border-color .2s; }
+  .plan.h{ padding:14px 10px; margin-bottom:0; text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .plan.h h4{ font-size:12.5px; }
+  .plan.h .price{ font-size:19px; margin:6px 0 1px; }
+  .plan.h .per{ font-size:9.5px; line-height:1.3; }
+  .plan.h .save{ font-size:9px; margin-top:5px; }
+  .plan.h .pbadge{ top:-9px; right:50%; transform:translateX(50%); white-space:nowrap; font-size:8px; padding:3px 8px; }
   .plan:active{ transform:scale(.985); }
   .plan.best{ border-color:var(--gold); background:rgba(245,158,11,.07); box-shadow:0 0 24px rgba(245,158,11,.18); }
   .plan .pbadge{ position:absolute; top:-9px; right:16px; font-size:9.5px; font-weight:900; letter-spacing:.12em;
@@ -729,6 +725,17 @@
   .plan .price{ font-size:28px; font-weight:900; color:var(--gold); line-height:1.1; margin:4px 0 2px; }
   .plan .per{ font-size:11.5px; font-weight:800; color:var(--dim); }
   .plan .save{ font-size:11px; font-weight:900; color:var(--green); margin-top:4px; }
+
+  .plan.h.picked{ border-color:var(--violet-light); box-shadow:0 0 18px rgba(139,92,246,.4); }
+  .paymethods{ display:flex; flex-direction:column; gap:9px; margin-top:16px; }
+  .paybtn{ display:flex; align-items:center; justify-content:center; gap:9px; width:100%; padding:14px;
+    border-radius:16px; font-size:15px; font-weight:900; border:1.5px solid var(--line);
+    background:var(--card-dark); transition:transform .12s; }
+  .paybtn:active{ transform:scale(.98); }
+  .paybtn.apple{ background:#000; color:#fff; border-color:#000; }
+  .paybtn.google{ background:#fff; color:#1F1F1F; border-color:#DADCE0; }
+  .paybtn.card{ background:var(--violet-light); color:#1B1240; border-color:var(--violet-light); }
+  .paybtn svg{ width:20px; height:20px; flex:none; }
 
   /* ---------- EXTRA MOTION ---------- */
   .xpbar-glow{ animation:xpGlow .8s ease-out; }
@@ -1807,42 +1814,26 @@
       <p class="dim" style="font-weight:800;font-size:12.5px;margin-top:6px">108 episodes · ranked duels · AI tracking</p>
     </div>
 
-    <div class="offer-banner" id="offer-banner">
-      <div class="tag">⚡ 24-HOUR LAUNCH OFFER</div>
-      <div class="big"><span class="was" id="off-was">1799</span> &nbsp;<span id="off-now">899 Kč</span></div>
-      <div class="tag" style="letter-spacing:.14em">LIFETIME — PAY ONCE, KEEP FOREVER</div>
-      <div class="offer-cd">
-        <div><b id="oc-h">23</b><span>HRS</span></div>
-        <div><b id="oc-m">59</b><span>MIN</span></div>
-        <div><b id="oc-s">59</b><span>SEC</span></div>
+    <div class="plan-row">
+      <div class="plan h" onclick="choosePlan('weekly')">
+        <h4>Weekly</h4>
+        <div class="price" id="pl-week">49 Kč</div>
+        <div class="per">per week</div>
       </div>
-    </div>
 
-    <div class="plan best" onclick="choosePlan('lifetime')">
-      <span class="pbadge">BEST VALUE</span>
-      <h4>Lifetime</h4>
-      <div class="price" id="pl-life">899 Kč</div>
-      <div class="per">One payment · yours forever</div>
-      <div class="save" id="pl-life-save">Save 50% during launch</div>
-    </div>
+      <div class="plan h best" onclick="choosePlan('yearly')">
+        <span class="pbadge">BEST VALUE</span>
+        <h4>Yearly</h4>
+        <div class="price" id="pl-year">999 Kč</div>
+        <div class="per" id="pl-year-per">per year</div>
+        <div class="save" id="pl-year-save">Cheaper than monthly</div>
+      </div>
 
-    <div class="plan" onclick="choosePlan('yearly')">
-      <h4>Yearly</h4>
-      <div class="price" id="pl-year">999 Kč</div>
-      <div class="per" id="pl-year-per">per year</div>
-      <div class="save" id="pl-year-save">Cheaper than monthly</div>
-    </div>
-
-    <div class="plan" onclick="choosePlan('monthly')">
-      <h4>Monthly</h4>
-      <div class="price" id="pl-month">149 Kč</div>
-      <div class="per">per month · cancel anytime</div>
-    </div>
-
-    <div class="plan" onclick="choosePlan('weekly')">
-      <h4>Weekly</h4>
-      <div class="price" id="pl-week">49 Kč</div>
-      <div class="per">per week · try it out first</div>
+      <div class="plan h" onclick="choosePlan('monthly')">
+        <h4>Monthly</h4>
+        <div class="price" id="pl-month">149 Kč</div>
+        <div class="per">per month</div>
+      </div>
     </div>
 
     <div class="pay-feat" style="margin-top:18px">
@@ -1852,7 +1843,22 @@
       <div><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#10B981" stroke-width="2.6" stroke-linecap="round"><path d="M4 12l5 5 11-11"/></svg> Founder badge on your profile</div>
     </div>
 
-    <button class="btn b-gold" style="font-size:16px;padding:17px;margin-top:6px" onclick="claimFounder()">
+    <div class="paymethods" id="paymethods" style="display:none">
+      <button class="paybtn apple" onclick="payWith('apple_pay')">
+        <svg viewBox="0 0 24 24" fill="#fff"><path d="M16.5 3c.1 1-.3 2-1 2.7-.7.8-1.8 1.4-2.9 1.3-.1-1 .4-2 1-2.7.7-.8 1.9-1.4 2.9-1.3zM20.9 17.2c-.4 1-.9 1.9-1.5 2.7-.9 1.2-1.8 2.5-3.2 2.5-1.4 0-1.8-.8-3.4-.8-1.6 0-2.1.8-3.4.8-1.3 0-2.3-1.3-3.2-2.5-1.8-2.5-3.2-7.1-1.3-10.2.9-1.5 2.6-2.5 4.4-2.6 1.3 0 2.5.9 3.4.9.8 0 2.3-1.1 3.9-.9.7 0 2.6.3 3.8 2-.1.1-2.3 1.3-2.2 3.9 0 3 2.7 4.1 2.7 4.2z"/></svg>
+        Pay with Apple Pay
+      </button>
+      <button class="paybtn google" onclick="payWith('google_pay')">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M12 11v2.7h4.5c-.2 1.1-.9 2-1.9 2.7v2.2h3c1.8-1.6 2.8-4 2.8-6.8 0-.6-.1-1.3-.2-1.9H12z"/><path fill="#34A853" d="M12 21c2.4 0 4.5-.8 6-2.2l-3-2.2c-.8.5-1.8.9-3 .9-2.3 0-4.3-1.6-5-3.7H4v2.3C5.5 19 8.5 21 12 21z"/><path fill="#FBBC05" d="M7 13.8c-.2-.5-.3-1.1-.3-1.8s.1-1.2.3-1.8V7.9H4c-.6 1.2-1 2.6-1 4.1s.4 2.9 1 4.1l3-2.3z"/><path fill="#EA4335" d="M12 6.5c1.3 0 2.5.5 3.4 1.3l2.6-2.6C16.5 3.6 14.4 3 12 3 8.5 3 5.5 5 4 7.9l3 2.3c.7-2.1 2.7-3.7 5-3.7z"/></svg>
+        Pay with Google Pay
+      </button>
+      <button class="paybtn card" onclick="payWith('card')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1B1240" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>
+        Pay with Card
+      </button>
+    </div>
+
+    <button class="btn b-gold" style="font-size:16px;padding:17px;margin-top:14px" onclick="claimFounder()">
       START FREE — FOUNDER BETA
     </button>
     <p class="dim" style="font-size:10.5px;font-weight:800;margin-top:12px;text-align:center">
@@ -3203,39 +3209,6 @@ function fmtPrice(v){
   const n = Number.isInteger(v) ? v : v.toFixed(2);
   return p.suf ? (n+' '+p.sym) : (p.sym+n);
 }
-/* 24h lifetime offer — starts the first time the player sees the paywall
-   AFTER they've restarted the app at least once (not during their very
-   first session straight out of the tutorial). */
-function offerEndsAt(){
-  if(!PROFILE) return Date.now()+864e5;
-  if(!PROFILE.offer_started && IS_RESTART){ PROFILE.offer_started=Date.now(); saveProfile(); }
-  return PROFILE.offer_started ? Number(PROFILE.offer_started)+864e5 : null;
-}
-function offerLeft(){ const end=offerEndsAt(); return end===null ? null : Math.max(0, end-Date.now()); }
-let offerTimer=null;
-function startOfferCountdown(){
-  clearInterval(offerTimer);
-  const banner=$('offer-banner');
-  const ms0=offerLeft();
-  if(ms0===null){
-    /* first-ever session: no urgency banner yet, just plain pricing */
-    if(banner) banner.style.display='none';
-    return;
-  }
-  if(banner) banner.style.display='block';
-  const upd=()=>{
-    const ms=offerLeft();
-    if(ms===null) return;
-    const hh=String(Math.floor(ms/3600000)).padStart(2,'0');
-    const mm=String(Math.floor(ms/60000)%60).padStart(2,'0');
-    const ss=String(Math.floor(ms/1000)%60).padStart(2,'0');
-    if($('oc-h')) $('oc-h').textContent=hh;
-    if($('oc-m')) $('oc-m').textContent=mm;
-    if($('oc-s')) $('oc-s').textContent=ss;
-    if(ms<=0){ clearInterval(offerTimer); if(banner) banner.style.display='none'; }
-  };
-  upd(); offerTimer=setInterval(upd,1000);
-}
 
 /* ================= STORY ================= */
 const STORY={
@@ -4345,7 +4318,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='40.0';
+const BUILD='41.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4814,32 +4787,53 @@ function detectRegion(){
 function showPaywall(){
   document.body.classList.add('locked');
   const p=priceSet();
-  const offerActive = offerLeft()!==null;
-  $('off-was').textContent=fmtPrice(p.life);
-  $('off-now').textContent=fmtPrice(p.offer);
-  $('pl-life').textContent=fmtPrice(offerActive?p.offer:p.life);
   $('pl-year').textContent=fmtPrice(p.y);
   $('pl-month').textContent=fmtPrice(p.m);
   $('pl-week').textContent=fmtPrice(p.w);
   const perMonth=(p.y/12);
   $('pl-year-per').textContent='per year · '+fmtPrice(Number(perMonth.toFixed(2)))+'/mo';
   const savePct=Math.round((1-(p.y/12)/p.m)*100);
-  $('pl-year-save').textContent = savePct>0 ? ('Save '+savePct+'% vs monthly') : 'Best for regulars';
-  $('pl-life-save').textContent = offerActive
-    ? 'Save '+Math.round((1-p.offer/p.life)*100)+'% during launch'
-    : 'One payment · yours forever';
-  startOfferCountdown();
+  $('pl-year-save').textContent = savePct>0 ? ('Save '+savePct+'% vs monthly') : 'Best value';
+  selectedPlan='yearly';
+  document.querySelectorAll('.plan.h').forEach(el=>el.classList.remove('picked'));
+  const yc=$('pl-year')?.closest('.plan.h'); if(yc) yc.classList.add('picked');
+  $('paymethods').style.display='flex';
   goFlow('scr-paywall');
 }
+let selectedPlan='yearly';
 function choosePlan(kind){
   SFX.click();
-  const p=priceSet();
-  const offerActive = offerLeft()!==null;
-  const label = kind==='lifetime' ? 'Lifetime — '+fmtPrice(offerActive?p.offer:p.life)
-    : kind==='yearly' ? 'Yearly — '+fmtPrice(p.y)
-    : kind==='weekly' ? 'Weekly — '+fmtPrice(p.w)
-    : 'Monthly — '+fmtPrice(p.m);
-  showStoryModal('Beta is free', label+'<br><br>Payments aren\'t live yet — every beta tester gets full access at no cost. Your founder status is locked in.', 'CLAIM FREE ACCESS', claimFounder);
+  selectedPlan=kind;
+  document.querySelectorAll('.plan.h').forEach(el=>el.classList.remove('picked'));
+  event?.currentTarget?.classList.add('picked');
+  $('paymethods').style.display='flex';
+  $('paymethods').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+async function payWith(method){
+  SFX.click();
+  const btn=event?.currentTarget;
+  const origText=btn?.innerHTML;
+  if(btn) btn.innerHTML='Connecting…';
+  try{
+    const res=await fetch('/api/create-checkout',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ plan:selectedPlan, method, uid:ME?.id, email:ME?.email })
+    });
+    if(!res.ok) throw new Error('checkout endpoint not ready');
+    const data=await res.json();
+    if(data?.url){ window.location.href=data.url; return; }
+    throw new Error('no checkout url returned');
+  }catch(e){
+    /* Stripe isn't connected yet on this deployment — fall back to free beta
+       access rather than leaving the tester stuck on a dead button. */
+    console.warn('[FitRoyale] real checkout unavailable, using beta fallback:', e.message);
+    if(btn) btn.innerHTML=origText;
+    const p=priceSet();
+    const label = selectedPlan==='yearly'?'Yearly — '+fmtPrice(p.y)
+      : selectedPlan==='weekly'?'Weekly — '+fmtPrice(p.w)
+      : 'Monthly — '+fmtPrice(p.m);
+    showStoryModal('Beta is free', label+'<br><br>Payments aren\'t connected on this build yet — every beta tester gets full access at no cost. Your founder status is locked in.', 'CLAIM FREE ACCESS', claimFounder);
+  }
 }
 async function claimFounder(){
   if(PROFILE){ PROFILE.tutorial_done=true; PROFILE.membership='founder'; saveProfile(); }
@@ -4993,6 +4987,18 @@ function ldDone(){
 document.body.classList.add('locked');
 async function boot(){
   ldStart();
+  /* Stripe redirects back here after checkout. This client-side check is
+     good enough for beta, but isn't tamper-proof — someone could edit the
+     URL by hand. For a real launch, verify payment via a Stripe webhook
+     that writes membership server-side instead of trusting this redirect. */
+  if(location.search.includes('checkout=success')){
+    history.replaceState(null,'',location.pathname);
+    setTimeout(()=>{
+      if(PROFILE){ PROFILE.membership='active'; saveProfile(); }
+      toast('🎉 Payment received — welcome to the arena!');
+      document.body.classList.remove('locked');
+    }, 1500);
+  }
   /* hard safety net: the loader can NEVER outlive this, whatever goes wrong */
   const failsafe=setTimeout(()=>{
     console.warn('[FitRoyale] boot failsafe fired');
