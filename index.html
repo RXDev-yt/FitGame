@@ -589,12 +589,19 @@
     background:radial-gradient(circle at 35% 30%, #FDE68A, #F59E0B 55%, #B45309);
     display:flex; align-items:center; justify-content:center;
     box-shadow:0 4px 14px rgba(245,158,11,.4), inset 0 -3px 6px rgba(0,0,0,.25); }
-  .coop-strip{ display:flex; align-items:center; gap:8px; background:rgba(139,92,246,.14);
-    border:1px solid rgba(139,92,246,.35); border-radius:12px; padding:7px 11px; margin-top:8px; }
-  .coop-strip .fav{ width:22px; height:22px; border-radius:50%; flex:none; overflow:hidden; background:#1A1440; }
+  .coop-strip{ display:flex; align-items:center; gap:9px; background:rgba(139,92,246,.22);
+    border:1.5px solid rgba(139,92,246,.6); border-radius:14px; padding:9px 13px; margin-top:9px;
+    box-shadow:0 0 16px rgba(139,92,246,.35); animation:coopPulse 2.2s ease-in-out infinite; }
+  @keyframes coopPulse{ 50%{ box-shadow:0 0 26px rgba(139,92,246,.6); border-color:rgba(167,139,250,.9); } }
+  .coop-strip .fav{ width:26px; height:26px; border-radius:50%; flex:none; overflow:hidden; background:#1A1440;
+    border:1.5px solid rgba(167,139,250,.7); }
   .coop-strip .fav img{ width:100%; height:100%; object-fit:cover; }
-  .coop-strip span{ font-size:11.5px; font-weight:800; color:#D8CCFF; }
-  .friend-remove{ margin-left:8px; flex:none; width:30px; height:30px; border-radius:50%;
+  .coop-strip span{ font-size:12.5px; font-weight:900; color:#E9E1FF; }
+  .coop-strip b{ color:#FCD34D; }
+  .coop-live-dot{ width:7px; height:7px; border-radius:50%; background:#10B981; flex:none;
+    box-shadow:0 0 8px rgba(16,185,129,.9); animation:liveDot 1.4s ease-in-out infinite; margin-left:auto; }
+  @keyframes liveDot{ 50%{ opacity:.35; } }
+  .friend-card button.friend-remove{ margin-left:8px; flex:none; width:30px; height:30px; border-radius:50%;
     background:rgba(239,68,68,.12); color:#F87171; display:flex; align-items:center; justify-content:center; }
   .friend-card{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px;
     background:var(--card-dark); border:1.5px solid var(--line); margin-bottom:9px; }
@@ -1232,6 +1239,7 @@
     <div class="coop-strip" id="coop-strip" style="display:none">
       <div class="fav" id="coop-pav"></div>
       <span>Fighting together with <b id="coop-pname">Friend</b></span>
+      <div class="coop-live-dot"></div>
     </div>
     <div class="ex-banner">
       <div class="eb-ico" id="eb-ico"></div>
@@ -1339,6 +1347,7 @@
     <div class="vrow"><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#10B981" stroke-width="2.2"><path d="M12 3a9 9 0 1 0 9 9M12 3v6l4 2"/></svg><span>Form accuracy</span><b class="green" id="v-acc">96%</b></div>
     <div class="vrow"><svg viewBox="0 0 24 24" style="width:18px;height:18px" fill="none" stroke="#FCD34D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.7 6.1 6.6.6-5 4.4 1.5 6.5L12 16.2 6.2 19.6l1.5-6.5-5-4.4 6.6-.6z"/></svg><span>Coins</span><b class="gold" id="v-coins">+0</b></div>
   </div>
+  <button class="btn b-gold" id="v-coop-next" style="display:none" onclick="playNextTogether()">👥 PLAY NEXT EPISODE TOGETHER</button>
   <button class="btn b-purple" onclick="victoryContinue()">CONTINUE</button>
   <button class="btn b-ghost" style="margin-top:10px" onclick="toast('📸 Workout card copied — ready to share!')">SHARE WORKOUT CARD</button>
 </section>
@@ -2669,6 +2678,9 @@ function startCoop(friendId,friendName,friendAv,friendAvUrl,targetCi,targetI){
   ch.on('broadcast',{event:'coop-start'},({payload})=>{ beginCoopBattle(payload.ci,payload.i,payload.at); });
   ch.on('broadcast',{event:'coop-dmg'},({payload})=>{ applyPartnerDmg(payload.dmg,payload.crit); });
   ch.on('broadcast',{event:'coop-victory'},()=>{ if(S.B && S.B.coop && !S.B._dead) finishBattle(true); });
+  ch.on('broadcast',{event:'coop-rest-sync'},({payload})=>{ if(S.B?.coop) startRest(payload.nextName,payload.nextSprite,payload.endAt); });
+  ch.on('broadcast',{event:'coop-ready-sync'},({payload})=>{ if(S.B?.coop) runCoopReadyCountdown(payload.readyAt); });
+  ch.on('broadcast',{event:'coop-skip-rest'},()=>{ if(S.B?.coop && S.B.resting) S.B.restEndAt=Date.now(); });
   ch.on('broadcast',{event:'coop-leave'},()=>{
     if(S.B?.coop){ toast(COOP.friendName+' left the fight'); }
     else toast(COOP.friendName+' isn\'t ready right now');
@@ -2804,22 +2816,45 @@ async function startBattleTracking(){
 const REST_SECS={ easy:30, normal:25, hard:20, nightmare:15 };
 /* creature damage per strike + how often it swings (ms) */
 const ENEMY_ATK={ easy:{d:5,ms:9000}, normal:{d:8,ms:7000}, hard:{d:12,ms:5500}, nightmare:{d:18,ms:4200} };
-function startRest(nextName,nextSprite){
+function coopAwareStartRest(nextName,nextSprite){
+  const B=S.B;
+  if(B?.coop && COOP?.ch){
+    const totalSecs = REST_SECS[curDiff()] ?? 25;
+    if(COOP.isHost){
+      const endAt=Date.now()+totalSecs*1000;
+      try{ COOP.ch.send({ type:'broadcast', event:'coop-rest-sync', payload:{ endAt, nextName, nextSprite } }); }catch(e){}
+      startRest(nextName,nextSprite,endAt);
+    } else {
+      /* guest: show the gate right away with a placeholder; the real
+         synced countdown arrives via the host's broadcast in a moment */
+      B.resting=true;
+      $('rest-cd').textContent='··';
+      $('rest-next').textContent=nextName||'Next creature';
+      $('rest-ring').innerHTML=mon(nextSprite||'goblin',52);
+      $('restgate').classList.add('on');
+    }
+  } else {
+    startRest(nextName,nextSprite);
+  }
+}
+function startRest(nextName,nextSprite,forcedEndAt){
   const B=S.B; if(!B) return;
   B.resting=true;
-  let left=REST_SECS[curDiff()] ?? 25;
-  $('rest-cd').textContent=left;
+  const totalSecs = REST_SECS[curDiff()] ?? 25;
+  B.restEndAt = forcedEndAt || (Date.now()+totalSecs*1000);
+  $('rest-cd').textContent=Math.ceil((B.restEndAt-Date.now())/1000);
   $('rest-next').textContent=nextName||'Next creature';
   $('rest-ring').innerHTML=mon(nextSprite||'goblin',52);
   $('restgate').classList.add('on');
   SFX.ready();
+  let lastBeepAt=0;
   const t=setInterval(()=>{
     if(!S.B||!S.B.resting){ clearInterval(t); return; }
-    left--;
-    $('rest-cd').textContent=Math.max(0,left);
-    if(left<=3 && left>0) beep(520,.07);
+    const left=Math.max(0,Math.ceil((S.B.restEndAt-Date.now())/1000));
+    $('rest-cd').textContent=left;
+    if(left<=3 && left>0 && left!==lastBeepAt){ beep(520,.07); lastBeepAt=left; }
     if(left<=0){ clearInterval(t); endRest(); }
-  },1000);
+  },250);
   B.restTimer=t; B.timers.push(t);
   bindHoldSkip();
 }
@@ -2830,11 +2865,37 @@ function endRest(){
   B.php=Math.min(100,B.php+25);          /* rest restores some stamina */
   B.lastRepAt=performance.now(); B._warned=false;
   syncStamina();
-  $('restgate').classList.remove('on');
   $('skip-fill').style.width='0%';
+  if(B.coop && COOP?.ch){
+    /* synchronized 3-second "get ready" beat so both players start the
+       next wave together — host picks the moment, both count down to it */
+    if(COOP.isHost){
+      const readyAt=Date.now()+3000;
+      COOP.ch.send({ type:'broadcast', event:'coop-ready-sync', payload:{ readyAt } });
+      runCoopReadyCountdown(readyAt);
+    }
+    /* guest: wait for the host's coop-ready-sync broadcast (listener in startCoop) */
+  } else {
+    finishRestTransition();
+  }
+}
+function runCoopReadyCountdown(readyAt){
+  const B=S.B; if(!B) return;
+  const tick=()=>{
+    if(!S.B){ return; }
+    const left=Math.ceil((readyAt-Date.now())/1000);
+    if(left<=0){ finishRestTransition(); return; }
+    $('rest-cd').textContent=left;
+    $('rest-next').textContent='Get ready!';
+    setTimeout(tick,200);
+  };
+  tick();
+}
+function finishRestTransition(){
+  $('restgate').classList.remove('on');
   /* re-arm the pose gate so the next wave starts on your terms */
   if(PoseEngine.target){ PoseEngine.target.armed=false; PoseEngine.target.extSince=0; PoseEngine.target.phase='READY'; }
-  B.gate=true;
+  if(S.B) S.B.gate=true;
   showGate(true,'Next wave','Get back into position — the next creature is coming.');
   SFX.kill();
 }
@@ -2852,7 +2913,9 @@ function bindHoldSkip(){
     holdTimer=setInterval(()=>{
       const p=Math.min(100,(performance.now()-holdStart)/HOLD_MS*100);
       fill.style.width=p+'%';
-      if(p>=100){ clearInterval(holdTimer); fill.style.width='0%'; burstAt(btn,'#F59E0B',12); endRest(); }
+      if(p>=100){ clearInterval(holdTimer); fill.style.width='0%'; burstAt(btn,'#F59E0B',12);
+        if(S.B?.coop && COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-skip-rest', payload:{} }); }catch(e){} }
+        endRest(); }
     },30);
   };
   const cancel=()=>{ clearInterval(holdTimer); fill.style.width='0%'; };
@@ -3075,11 +3138,11 @@ function battleRep(){
       SFX.kill(); quake(); flashScreen(); shockwave($('c-hud')); burstAt($('c-hud'),null,26);
       if(B.infinite){
         B.waveIdx++; B.waves.push(nextHordeWave(B.waveIdx)); B.eEnergy=B.waves[B.waveIdx].hp;
-        syncCreatureHUD(true); startRest(B.waves[B.waveIdx].name,B.waves[B.waveIdx].sprite); return;
+        syncCreatureHUD(true); coopAwareStartRest(B.waves[B.waveIdx].name,B.waves[B.waveIdx].sprite); return;
       }
       else if(B.waveIdx<B.waves.length-1){
         B.waveIdx++; B.eEnergy=B.waves[B.waveIdx].hp;
-        syncCreatureHUD(true); startRest(B.waves[B.waveIdx].name,B.waves[B.waveIdx].sprite); return;
+        syncCreatureHUD(true); coopAwareStartRest(B.waves[B.waveIdx].name,B.waves[B.waveIdx].sprite); return;
       }
       else {
         if(B.coop && COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-victory', payload:{} }); }catch(e){} }
@@ -3197,6 +3260,8 @@ function showVictory(){
   $('v-head').textContent=v.headline;
   $('v-head').classList.toggle('lose',!v.win);
   $('v-stars').style.display=v.stars?'block':'none';
+  const nextBtn=$('v-coop-next');
+  if(nextBtn) nextBtn.style.display=(COOP?.ch && COOP?.partnerHere) ? 'block' : 'none';
   $('v-reps').textContent=v.reps;
   $('v-time').textContent=fmt(v.sec);
   $('v-acc').textContent=ri(90,99)+'%';
@@ -3220,6 +3285,14 @@ function showVictory(){
   }
   if(v.win){ confetti(); burstAt(null,null,24); if(v.stars>=3){ setTimeout(()=>{flashScreen(); shockwave(null);},400); } }
   pendingLvlUps=0;
+}
+function playNextTogether(){
+  if(!COOP?.ch || !COOP?.partnerHere){ toast('Your friend isn\'t connected anymore'); victoryContinue(); return; }
+  vicCtx=null;
+  _coopStartLock=false;
+  COOP.targetCi=null; COOP.targetI=null;   /* a one-time specific-episode invite only applies to the first round */
+  if(COOP.isHost) maybeStartCoopBattle();
+  else openCoopWaitModal();   /* guest just waits — host will broadcast the next episode's start */
 }
 function victoryContinue(){
   const o=vicCtx?.origin||'home'; vicCtx=null;
@@ -4022,7 +4095,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='49.1';
+const BUILD='50.1';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
