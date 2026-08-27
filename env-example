@@ -1,5 +1,0 @@
-STRIPE_SECRET_KEY=sk_live_or_sk_test_here
-STRIPE_PRICE_WEEKLY=price_xxx
-STRIPE_PRICE_MONTHLY=price_xxx
-STRIPE_PRICE_YEARLY=price_xxx
-APP_URL=https://your-domain.vercel.app
