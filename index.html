@@ -2468,9 +2468,20 @@ async function shareInviteLink(){
   catch(e){ toast('Your code: '+code); }
 }
 
-function openAddFriend(){
+async function openAddFriend(){
   SFX.click();
-  const code=PROFILE?.friend_code || '…';
+  openModal('<h3 class="hdr">Add a Friend</h3><p class="dim" style="font-size:12px;font-weight:800;margin-top:10px">Loading your code…</p>');
+  if(!PROFILE?.friend_code) await refreshMyFriendCode();
+  const code=PROFILE?.friend_code;
+  if(!code){
+    openModal(
+      '<h3 class="hdr">Your code isn\'t set up yet</h3>'+
+      '<p class="dim" style="font-size:12.5px;font-weight:800;margin-top:8px">This usually means the latest database setup hasn\'t been run yet. Once that\'s done, reopen this screen.</p>'+
+      '<button class="btn b-purple" style="margin-top:14px" onclick="openAddFriend()">TRY AGAIN</button>'+
+      '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CLOSE</button>'
+    );
+    return;
+  }
   const link=myInviteLink();
   openModal(
     '<h3 class="hdr">Add a Friend</h3>'+
@@ -2486,6 +2497,14 @@ function openAddFriend(){
     '<button class="btn b-gold" style="margin-top:12px" onclick="openQrScanner()">SCAN A QR CODE INSTEAD</button>'+
     '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CLOSE</button>'
   );
+}
+async function refreshMyFriendCode(){
+  if(!sb || !ME) return;
+  try{
+    const { data, error } = await sb.from('profiles').select('friend_code').eq('id',ME.id).maybeSingle();
+    if(error) throw error;
+    if(data?.friend_code && PROFILE) PROFILE.friend_code=data.friend_code;
+  }catch(e){ console.error('[FitRoyale] refreshMyFriendCode failed', e); }
 }
 async function submitFriendCode(){
   const v=($('code-in')?.value||'').trim().toUpperCase();
@@ -3972,7 +3991,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='47.0';
+const BUILD='48.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4402,6 +4421,7 @@ function enterApp(){
   setTimeout(()=>toast(greetLine()+', '+(PROFILE?.username||'Champion')+'!'),500);
   setTimeout(()=>toast('Running Build '+BUILD),2200);
   refreshRealPlayers();
+  if(!PROFILE?.friend_code) refreshMyFriendCode();
   if(pendingAddFriend){
     const code=pendingAddFriend; pendingAddFriend=null;
     setTimeout(()=>confirmAddFriendByCode(code), 1400);
