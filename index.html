@@ -594,6 +594,8 @@
   .coop-strip .fav{ width:22px; height:22px; border-radius:50%; flex:none; overflow:hidden; background:#1A1440; }
   .coop-strip .fav img{ width:100%; height:100%; object-fit:cover; }
   .coop-strip span{ font-size:11.5px; font-weight:800; color:#D8CCFF; }
+  .friend-remove{ margin-left:8px; flex:none; width:30px; height:30px; border-radius:50%;
+    background:rgba(239,68,68,.12); color:#F87171; display:flex; align-items:center; justify-content:center; }
   .friend-card{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px;
     background:var(--card-dark); border:1.5px solid var(--line); margin-bottom:9px; }
   .friend-card .fav{ width:44px; height:44px; border-radius:50%; flex:none; overflow:hidden;
@@ -605,6 +607,8 @@
     font-size:11.5px; font-weight:900; padding:9px 14px; border-radius:11px; }
   .friends-empty{ text-align:center; padding:26px 16px; }
   .friends-empty p{ font-size:13px; font-weight:800; color:var(--dim); }
+  .modal-pin-bottom{ position:sticky; bottom:-28px; margin:16px -22px -28px; padding:14px 22px 28px;
+    background:var(--card-solid); z-index:2; }
   .my-code{ text-align:center; font-size:34px; font-weight:900; letter-spacing:.18em; color:var(--gold);
     background:var(--card-dark); border:1.5px dashed rgba(245,158,11,.5); border-radius:16px;
     padding:16px 10px; margin:12px 0; text-shadow:0 0 18px rgba(245,158,11,.4); }
@@ -2440,10 +2444,14 @@ async function renderArena(){
     }
     list.innerHTML=data.map(f=>{
       const av = f.friend_avatar_url ? '<img src="'+f.friend_avatar_url+'">' : mon(f.friend_avatar||'goblin',26);
+      const nameEsc=escapeHtml(f.friend_username||'Friend').replace(/'/g,"\\'");
       return '<div class="friend-card">'+
         '<div class="fav">'+av+'</div>'+
         '<div class="grow"><b>'+escapeHtml(f.friend_username||'Friend')+'</b><span>Level '+(f.friend_level||1)+'</span></div>'+
-        '<button onclick="startCoop(\''+f.friend_id+'\',\''+escapeHtml(f.friend_username||'Friend').replace(/'/g,"\\'")+'\',\''+(f.friend_avatar||'goblin')+'\',\''+(f.friend_avatar_url||'')+'\')">PLAY TOGETHER</button>'+
+        '<button onclick="startCoop(\''+f.friend_id+'\',\''+nameEsc+'\',\''+(f.friend_avatar||'goblin')+'\',\''+(f.friend_avatar_url||'')+'\')">PLAY TOGETHER</button>'+
+        '<button class="friend-remove" onclick="confirmRemoveFriend(\''+f.friend_id+'\',\''+nameEsc+'\')" aria-label="Remove friend">'+
+          '<svg viewBox="0 0 24 24" style="width:15px;height:15px" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>'+
+        '</button>'+
       '</div>';
     }).join('');
   }catch(err){
@@ -2465,6 +2473,27 @@ async function healOneSidedFriendships(){
       await sb.rpc('complete_mutual_friend',{ other_id:id });
     }
   }catch(e){ console.error('[FitRoyale] healOneSidedFriendships failed', e); }
+}
+function confirmRemoveFriend(friendId,name){
+  SFX.click();
+  openModal(
+    '<h3 class="hdr">Remove '+name+'?</h3>'+
+    '<p class="dim" style="font-size:12.5px;font-weight:800;margin-top:8px">They\'ll be removed from your friends list. You can add them again later with their code.</p>'+
+    '<button class="btn b-ghost" style="margin-top:14px;background:var(--red);color:#fff" onclick="removeFriend(\''+friendId+'\')">REMOVE</button>'+
+    '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CANCEL</button>'
+  );
+}
+async function removeFriend(friendId){
+  if(!sb || !ME) return;
+  try{
+    const { error } = await sb.from('friendships').delete().eq('user_id', ME.id).eq('friend_id', friendId);
+    if(error) throw error;
+    closeModal(); toast('Friend removed');
+    renderArena();
+  }catch(err){
+    console.error('[FitRoyale] removeFriend failed', err);
+    toast('Could not remove — try again');
+  }
 }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 
@@ -2501,17 +2530,12 @@ async function openAddFriend(){
   const link=myInviteLink();
   openModal(
     '<h3 class="hdr">Add a Friend</h3>'+
-    '<p class="dim" style="font-size:12px;font-weight:800;margin-top:6px">Your code — give this to a friend</p>'+
-    '<div class="my-code" onclick="copyMyCode()">'+code+'</div>'+
+    '<p class="dim" style="font-size:12px;font-weight:800;margin-top:6px">Show this to a friend, or share your link</p>'+
+    '<div class="my-code">'+code+'</div>'+
     '<div class="qr-wrap" id="my-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data='+encodeURIComponent(link)+'" alt="Your invite QR code" width="200" height="200" onerror="qrImgFailed()"></div>'+
-    '<button class="btn b-ghost b-sm" onclick="shareInviteLink()">SHARE MY CODE</button>'+
-    '<div class="sect-head" style="margin:18px 0 8px"><b>GOT A CODE?</b><span class="ln"></span></div>'+
-    '<div style="display:flex;gap:8px">'+
-      '<input id="code-in" maxlength="5" placeholder="ABCDE" class="code-input" oninput="this.value=this.value.toUpperCase()">'+
-      '<button class="btn b-purple b-sm" style="flex:none" onclick="submitFriendCode()">ADD</button>'+
-    '</div>'+
-    '<button class="btn b-gold" style="margin-top:12px" onclick="openQrScanner()">SCAN A QR CODE INSTEAD</button>'+
-    '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CLOSE</button>'
+    '<button class="btn b-purple" onclick="shareInviteLink()">SHARE MY LINK</button>'+
+    '<button class="btn b-gold" style="margin-top:9px" onclick="openQrScanner()">SCAN A QR CODE</button>'+
+    '<div class="modal-pin-bottom"><button class="btn b-ghost" onclick="closeModal()">CLOSE</button></div>'
   );
 }
 async function refreshMyFriendCode(){
@@ -2521,11 +2545,6 @@ async function refreshMyFriendCode(){
     if(error) throw error;
     if(data?.friend_code && PROFILE) PROFILE.friend_code=data.friend_code;
   }catch(e){ console.error('[FitRoyale] refreshMyFriendCode failed', e); }
-}
-async function submitFriendCode(){
-  const v=($('code-in')?.value||'').trim().toUpperCase();
-  if(v.length!==5){ toast('Codes are 5 characters'); return; }
-  await addFriendByCode(v);
 }
 async function addFriendByCode(code){
   if(!sb || !ME) return;
@@ -2543,10 +2562,6 @@ async function addFriendByCode(code){
     else if(msg.includes('CANNOT_ADD_SELF')) toast('That\'s your own code!');
     else toast('Could not add friend — try again');
   }
-}
-function copyMyCode(){
-  const code=PROFILE?.friend_code; if(!code) return;
-  navigator.clipboard?.writeText(code).then(()=>toast('Code copied!')).catch(()=>toast('Your code: '+code));
 }
 function qrImgFailed(){
   const host=$('my-qr'); if(!host) return;
@@ -4007,7 +4022,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='49.0';
+const BUILD='49.1';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
