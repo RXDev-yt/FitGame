@@ -111,9 +111,8 @@
 
   /* ---- CAMPAIGN MAP ---- */
   .chap-head{ background:linear-gradient(135deg,#233355,#1E293B); }
-  #map-wrap{ position:relative; margin-top:6px; }
+  #map-wrap{ position:relative; margin-top:6px; min-height:200px; }
   #map-svg{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
-  #map-wrap{ position:relative; }
   #map-wrap::before{ content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
     background:
       radial-gradient(360px 200px at 12% 6%, rgba(139,92,246,.14), transparent 62%),
@@ -530,18 +529,24 @@
   .big-card.purple .bc-ico{ background:rgba(139,92,246,.2); }
 
   /* ---------- KID-CLEAR HOME ---------- */
-  .hello-card{ display:flex; align-items:center; gap:13px; padding:14px;
+  .hello-card{ padding:12px 14px;
     background:linear-gradient(135deg,#3A2A7A,#221A55); border-radius:22px;
     border:1.5px solid rgba(245,158,11,.35); }
-  .hello-av{ width:56px; height:56px; border-radius:50%; overflow:hidden; flex:none;
+  .hello-top{ display:flex; align-items:center; gap:12px; }
+  .hello-av{ width:50px; height:50px; border-radius:50%; overflow:hidden; flex:none;
     border:3px solid var(--gold); background:#1A1440; display:flex; align-items:center; justify-content:center; }
   .hello-av img{ width:100%; height:100%; object-fit:cover; }
-  .hello-txt b{ font-size:19px; font-weight:900; display:block; line-height:1.15; }
-  .hello-txt span{ font-size:12.5px; font-weight:800; color:var(--dim); }
+  .hello-txt b{ font-size:18px; font-weight:900; display:block; line-height:1.15; }
+  .hello-txt span{ font-size:12px; font-weight:800; color:var(--dim); }
   .hello-lvl{ margin-left:auto; text-align:center; flex:none; background:rgba(0,0,0,.3);
-    border-radius:14px; padding:8px 12px; }
-  .hello-lvl b{ display:block; font-size:20px; font-weight:900; color:var(--gold); line-height:1; }
+    border-radius:12px; padding:6px 11px; }
+  .hello-lvl b{ display:block; font-size:18px; font-weight:900; color:var(--gold); line-height:1; }
   .hello-lvl span{ font-size:8px; font-weight:900; letter-spacing:.14em; color:var(--dim); }
+  .hello-xp{ display:flex; align-items:center; gap:8px; margin-top:9px; }
+  .hello-xp .bar{ flex:1; height:6px; border-radius:99px; background:rgba(0,0,0,.32); overflow:hidden; }
+  .hello-xp .bar i{ display:block; height:100%; border-radius:99px;
+    background:linear-gradient(90deg,var(--violet-light),var(--gold)); }
+  .hello-xp span{ font-size:10px; font-weight:900; color:var(--dim); flex:none; }
 
   .big-play{ display:block; width:100%; margin-top:10px; padding:15px 16px; border-radius:22px;
     background:linear-gradient(135deg,#FBBF24,#F59E0B); color:#241703; text-align:left;
@@ -1059,17 +1064,18 @@
 <!-- ============ 1. HOME / QUEST DASHBOARD ============ -->
 <section class="screen active" id="scr-home">
   <div class="hello-card">
-    <div class="hello-av" id="crest-av"></div>
-    <div class="hello-txt" style="min-width:0">
-      <b id="home-uname">Champion</b>
-      <span id="hello-sub">Ready to play?</span>
+    <div class="hello-top">
+      <div class="hello-av" id="crest-av"></div>
+      <div class="hello-txt" style="min-width:0">
+        <b id="home-uname">Champion</b>
+        <span id="hello-sub">Ready to play?</span>
+      </div>
+      <div class="hello-lvl"><b id="h-lvl">1</b><span>LEVEL</span></div>
     </div>
-    <div class="hello-lvl"><b id="h-lvl">1</b><span>LEVEL</span></div>
-  </div>
-
-  <div class="crest-xp" style="margin-top:12px">
-    <div class="t"><span>XP</span><span><span id="h-xp">0</span> / <span id="h-xpn">50</span></span></div>
-    <div class="bar"><i id="h-xpbar" style="width:0%"></i></div>
+    <div class="hello-xp">
+      <div class="bar"><i id="h-xpbar" style="width:0%"></i></div>
+      <span><span id="h-xp">0</span>/<span id="h-xpn">50</span> XP</span>
+    </div>
   </div>
 
   <button class="big-play" onclick="playCurrentEpisode()">
@@ -1099,22 +1105,14 @@
     </button>
   </div>
 
-  <div class="today-strip">
-    <div><b id="qs-reps">0</b><span>REPS TODAY</span></div>
-    <div><b id="h-streak">1</b><span>DAY STREAK</span></div>
-    <div><b id="h-coins">0</b><span>COINS</span></div>
-  </div>
-
-  <div class="sect-head"><b>TODAY'S QUESTS</b><span class="ln"></span></div>
-  <div id="quest-list"></div>
-
-
   <div style="display:none">
     <span id="qs-time"></span><span id="qs-cal"></span><span id="crest-reps"></span>
     <span id="crest-tier"></span><span id="ps-flame"></span><span id="ps-coin"></span>
     <span id="db-sprite"></span><span id="db-name"></span><span id="db-hp"></span>
     <span id="db-bar"></span><span id="db-target"></span><span id="db-coinchip"></span>
     <span id="hero-chap"></span><span id="hero-meta"></span><span id="ep-hero"></span>
+    <span id="qs-reps"></span><span id="h-streak"></span><span id="h-coins"></span>
+    <div id="quest-list"></div>
   </div>
 </section>
 
@@ -1852,7 +1850,7 @@
     <div class="ld-tip" id="ld-tip"><span>Getting things ready…</span></div>
     <div class="ld-track"><i id="ld-fill"></i></div>
     <div class="ld-pct" id="ld-pct">0%</div>
-    <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.4">BUILD 38.0</div>
+    <div class="dim" style="font-size:9px;font-weight:900;letter-spacing:.14em;opacity:.4">BUILD 38.1</div>
   </div>
 </div>
 
@@ -2267,60 +2265,72 @@ function switchChap(dir){
   if(n<0||n>=S.chapters.length) return;
   S.viewC=n; renderMap();
 }
-function renderMap(_retry){
-  const ch=S.chapters[S.viewC], unlocked=chapUnlocked(S.viewC);
-  if(!ch){ console.error('[FitRoyale] renderMap: no chapter at', S.viewC); return; }
-  const wrapEl=$('map-wrap');
-  if(wrapEl && wrapEl.clientWidth===0 && !_retry){
-    /* container isn't measurable yet (mid-transition) — try again next frame instead of
-       silently rendering nothing */
-    requestAnimationFrame(()=>renderMap(true));
-    return;
+function renderMap(_attempt){
+  _attempt=_attempt||0;
+  try{
+    const ch=S.chapters[S.viewC], unlocked=chapUnlocked(S.viewC);
+    if(!ch) throw new Error('no chapter at viewC='+S.viewC);
+    const wrapEl=$('map-wrap');
+    if(!wrapEl) throw new Error('map-wrap missing from DOM');
+    if(wrapEl.clientWidth===0 && _attempt<6){
+      /* container isn't measurable yet (mid-transition) — retry a few times with
+         growing delay instead of silently giving up after one try */
+      setTimeout(()=>renderMap(_attempt+1), 60*(_attempt+1));
+      return;
+    }
+    if(unlocked) setTimeout(()=>maybeChapterStory(S.viewC),250);
+    if(S.viewC===S.cur.c) setTimeout(()=>{
+      const n=$('map-nodes')?.children[S.cur.e];
+      if(n) n.scrollIntoView({behavior:'smooth',block:'center'});
+    },140);
+    const done=ch.eps.filter(e=>epStatus(e)==='done').length;
+    setTxt('ch-name', ch.name);
+    setTxt('ch-num', 'CHAPTER '+(S.viewC+1)+' / '+S.chapters.length);
+    const allEps=S.chapters.reduce((a,c)=>a+c.eps.length,0);
+    const allDone=S.chapters.reduce((a,c)=>a+c.eps.filter(e=>e.stars>0).length,0);
+    setTxt('ch-global', allDone+' / '+allEps+' episodes cleared');
+    const chDone=ch.eps.filter(e=>epStatus(e)==='done').length;
+    if($('ch-bar')) $('ch-bar').style.width=(chDone/ch.eps.length*100)+'%';
+    setHTML('ch-icon', mon(ch.icon,40));
+    setTxt('ch-prog', unlocked?Math.min(done+1,18):0);
+    setTxt('ch-stars', ch.eps.reduce((a,e)=>a+e.stars,0));
+    if($('ch-prev')) $('ch-prev').disabled=S.viewC===0;
+    if($('ch-next')) $('ch-next').disabled=S.viewC===S.chapters.length-1;
+    if($('ch-lock')) $('ch-lock').style.display=unlocked?'none':'block';
+    if($('boss-jump')) $('boss-jump').style.display=unlocked?'flex':'none';
+    const wrap=$('map-nodes'), svg=$('map-svg');
+    if(!wrap||!svg) throw new Error('map-nodes/map-svg missing from DOM');
+    const W=wrapEl.clientWidth||360;
+    const H=18*94+40; wrapEl.style.height=H+'px';
+    svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+    wrap.innerHTML='';
+    const pts=[];
+    ch.eps.forEach((e,i)=>{
+      const x=W/2+Math.sin(i*.85)*(W*.27)-31, y=14+i*94;
+      pts.push([x+31,y+31]);
+      const st=unlocked?epStatus(e):'lock';
+      const n=document.createElement('button');
+      n.className='node '+st+(e.boss?' boss':'');
+      n.style.left=x+'px'; n.style.top=y+'px';
+      n.innerHTML=`<span class="num">${i+1}</span>
+        <span class="em">${st==='lock'?'<svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>':mon(e.sprite,34)}</span>
+        ${e.stars>0?`<span class="st">${'★'.repeat(e.stars)}</span>`:st==='act'?'<span class="st">GO!</span>':''}`;
+      n.onclick=()=>openDrawer(S.viewC,i);
+      wrap.appendChild(n);
+    });
+    let d='M'+pts[0][0]+' '+pts[0][1];
+    for(let i=1;i<pts.length;i++){
+      const [x1,y1]=pts[i-1],[x2,y2]=pts[i];
+      d+=` C ${x1} ${y1+45}, ${x2} ${y2-45}, ${x2} ${y2}`;
+    }
+    svg.innerHTML=`<path d="${d}" fill="none" stroke="rgba(245,158,11,.45)" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/>`;
+  }catch(err){
+    console.error('[FitRoyale] renderMap failed', err);
+    const wrap=$('map-nodes');
+    if(wrap) wrap.innerHTML='<div style="text-align:center;padding:30px 12px;position:relative;z-index:2">'+
+      '<p class="dim" style="font-size:13px;font-weight:800;margin-bottom:12px">The map didn&#39;t load.</p>'+
+      '<button class="btn b-purple" style="max-width:220px;margin:0 auto" onclick="renderMap()">TRY AGAIN</button></div>';
   }
-  if(unlocked) setTimeout(()=>maybeChapterStory(S.viewC),250);
-  if(S.viewC===S.cur.c) setTimeout(()=>{
-    const n=$('map-nodes')?.children[S.cur.e];
-    if(n) n.scrollIntoView({behavior:'smooth',block:'center'});
-  },140);
-  const done=ch.eps.filter(e=>epStatus(e)==='done').length;
-  $('ch-name').textContent=ch.name;
-  $('ch-num').textContent='CHAPTER '+(S.viewC+1)+' / '+S.chapters.length;
-  const allEps=S.chapters.reduce((a,c)=>a+c.eps.length,0);
-  const allDone=S.chapters.reduce((a,c)=>a+c.eps.filter(e=>e.stars>0).length,0);
-  if($('ch-global')) $('ch-global').textContent=allDone+' / '+allEps+' episodes cleared';
-  const chDone=ch.eps.filter(e=>epStatus(e)==='done').length;
-  if($('ch-bar')) $('ch-bar').style.width=(chDone/ch.eps.length*100)+'%';
-  $('ch-icon').innerHTML=mon(ch.icon,40);
-  $('ch-prog').textContent=unlocked?Math.min(done+1,18):0;
-  $('ch-stars').textContent=ch.eps.reduce((a,e)=>a+e.stars,0);
-  $('ch-prev').disabled=S.viewC===0;
-  $('ch-next').disabled=S.viewC===S.chapters.length-1;
-  $('ch-lock').style.display=unlocked?'none':'block';
-  if($('boss-jump')) $('boss-jump').style.display=unlocked?'flex':'none';
-  const wrap=$('map-nodes'), svg=$('map-svg'), W=$('map-wrap').clientWidth||360;
-  const H=18*94+40; $('map-wrap').style.height=H+'px';
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  wrap.innerHTML='';
-  const pts=[];
-  ch.eps.forEach((e,i)=>{
-    const x=W/2+Math.sin(i*.85)*(W*.27)-31, y=14+i*94;
-    pts.push([x+31,y+31]);
-    const st=unlocked?epStatus(e):'lock';
-    const n=document.createElement('button');
-    n.className='node '+st+(e.boss?' boss':'');
-    n.style.left=x+'px'; n.style.top=y+'px';
-    n.innerHTML=`<span class="num">${i+1}</span>
-      <span class="em">${st==='lock'?'<svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>':mon(e.sprite,34)}</span>
-      ${e.stars>0?`<span class="st">${'★'.repeat(e.stars)}</span>`:st==='act'?'<span class="st">GO!</span>':''}`;
-    n.onclick=()=>openDrawer(S.viewC,i);
-    wrap.appendChild(n);
-  });
-  let d='M'+pts[0][0]+' '+pts[0][1];
-  for(let i=1;i<pts.length;i++){
-    const [x1,y1]=pts[i-1],[x2,y2]=pts[i];
-    d+=` C ${x1} ${y1+45}, ${x2} ${y2-45}, ${x2} ${y2}`;
-  }
-  svg.innerHTML=`<path d="${d}" fill="none" stroke="rgba(245,158,11,.45)" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"/>`;
 }
 function editName(){
   SFX.click();
@@ -4182,7 +4192,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='38.0';
+const BUILD='38.1';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
