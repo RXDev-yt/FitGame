@@ -605,6 +605,12 @@
     font-size:11.5px; font-weight:900; padding:9px 14px; border-radius:11px; }
   .friends-empty{ text-align:center; padding:26px 16px; }
   .friends-empty p{ font-size:13px; font-weight:800; color:var(--dim); }
+  .my-code{ text-align:center; font-size:34px; font-weight:900; letter-spacing:.18em; color:var(--gold);
+    background:var(--card-dark); border:1.5px dashed rgba(245,158,11,.5); border-radius:16px;
+    padding:16px 10px; margin:12px 0; text-shadow:0 0 18px rgba(245,158,11,.4); }
+  .code-input{ flex:1; background:var(--card-dark); border:1.5px solid var(--line); border-radius:12px;
+    padding:12px; font-size:18px; font-weight:900; letter-spacing:.16em; text-align:center;
+    text-transform:uppercase; color:#fff; }
   .link-box{ background:var(--card-dark); border:1.5px solid var(--line); border-radius:12px;
     padding:11px 13px; margin-top:11px; word-break:break-all; }
   .link-box span{ font-size:11px; font-weight:800; color:#A9B6CC; font-family:monospace; }
@@ -2448,46 +2454,70 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','
 
 function myInviteLink(){
   const base = location.origin + location.pathname;
-  const params = new URLSearchParams({
-    addfriend: ME?.id||'',
-    n: PROFILE?.username || 'Champion',
-    a: PROFILE?.avatar || 'goblin',
-    au: PROFILE?.avatar_url || '',
-    l: S.user.lvl || 1,
-  });
-  return base + '?' + params.toString();
+  return base + '?code=' + (PROFILE?.friend_code || '');
 }
 async function shareInviteLink(){
+  const code=PROFILE?.friend_code;
+  if(!code){ toast('Still setting up your code — try again in a moment'); return; }
   const link=myInviteLink();
   if(navigator.share){
-    try{ await navigator.share({ title:'Join me on Fit Royale', text:'Add me as a friend on Fit Royale!', url:link }); return; }
+    try{ await navigator.share({ title:'Join me on Fit Royale', text:'My Fit Royale friend code: '+code, url:link }); return; }
     catch(e){ /* user cancelled share sheet — fall through to copy */ }
   }
-  try{ await navigator.clipboard.writeText(link); toast('Invite link copied — send it to a friend!'); }
-  catch(e){ toast('Your link: '+link); }
+  try{ await navigator.clipboard.writeText(code); toast('Your code ('+code+') copied — send it to a friend!'); }
+  catch(e){ toast('Your code: '+code); }
 }
 
 function openAddFriend(){
   SFX.click();
+  const code=PROFILE?.friend_code || '…';
   const link=myInviteLink();
   openModal(
     '<h3 class="hdr">Add a Friend</h3>'+
-    '<p class="dim" style="font-size:12.5px;font-weight:800;margin-top:6px">Share your link, or show them your QR code to scan.</p>'+
-    '<button class="btn b-purple" style="margin-top:14px" onclick="shareInviteLink()">SHARE MY INVITE LINK</button>'+
-    '<div class="link-box" onclick="copyMyLink()"><span id="my-link-text">'+escapeHtml(link)+'</span></div>'+
+    '<p class="dim" style="font-size:12px;font-weight:800;margin-top:6px">Your code — give this to a friend</p>'+
+    '<div class="my-code" onclick="copyMyCode()">'+code+'</div>'+
     '<div class="qr-wrap" id="my-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data='+encodeURIComponent(link)+'" alt="Your invite QR code" width="200" height="200" onerror="qrImgFailed()"></div>'+
-    '<button class="btn b-gold" onclick="openQrScanner()">SCAN A FRIEND\'S QR CODE</button>'+
+    '<button class="btn b-ghost b-sm" onclick="shareInviteLink()">SHARE MY CODE</button>'+
+    '<div class="sect-head" style="margin:18px 0 8px"><b>GOT A CODE?</b><span class="ln"></span></div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<input id="code-in" maxlength="5" placeholder="ABCDE" class="code-input" oninput="this.value=this.value.toUpperCase()">'+
+      '<button class="btn b-purple b-sm" style="flex:none" onclick="submitFriendCode()">ADD</button>'+
+    '</div>'+
+    '<button class="btn b-gold" style="margin-top:12px" onclick="openQrScanner()">SCAN A QR CODE INSTEAD</button>'+
     '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CLOSE</button>'
   );
 }
+async function submitFriendCode(){
+  const v=($('code-in')?.value||'').trim().toUpperCase();
+  if(v.length!==5){ toast('Codes are 5 characters'); return; }
+  await addFriendByCode(v);
+}
+async function addFriendByCode(code){
+  if(!sb || !ME) return;
+  try{
+    const { data, error } = await sb.rpc('add_friend_by_code',{ p_code: code });
+    if(error) throw error;
+    const row=Array.isArray(data)?data[0]:data;
+    closeModal(); SFX.ready(); confetti();
+    toast('Added '+(row?.username||'your friend')+' — you\'re both connected now!');
+    renderArena();
+  }catch(err){
+    console.error('[FitRoyale] add friend by code failed', err);
+    const msg=String(err?.message||'');
+    if(msg.includes('FRIEND_CODE_NOT_FOUND')) toast('No player found with that code');
+    else if(msg.includes('CANNOT_ADD_SELF')) toast('That\'s your own code!');
+    else toast('Could not add friend — try again');
+  }
+}
+function copyMyCode(){
+  const code=PROFILE?.friend_code; if(!code) return;
+  navigator.clipboard?.writeText(code).then(()=>toast('Code copied!')).catch(()=>toast('Your code: '+code));
+}
 function qrImgFailed(){
   const host=$('my-qr'); if(!host) return;
-  host.innerHTML='<span class="dim" style="font-size:11px;font-weight:800;color:#888;padding:20px;display:block;text-align:center">QR image unavailable right now — use the link above instead</span>';
+  host.innerHTML='<span class="dim" style="font-size:11px;font-weight:800;color:#888;padding:20px;display:block;text-align:center">QR image unavailable right now — use your code above instead</span>';
 }
-async function copyMyLink(){
-  try{ await navigator.clipboard.writeText(myInviteLink()); toast('Link copied!'); }
-  catch(e){ toast('Long-press the link above to copy it'); }
-}
+
 
 let _jsQrP=null;
 function loadJsQr(){
@@ -2537,27 +2567,23 @@ function stopQrScan(){
 }
 function handleScannedLink(text){
   stopQrScan();
+  let code=null;
   try{
     const url=new URL(text);
-    const p=url.searchParams;
-    if(!p.get('addfriend')){ toast('That QR code isn\'t a Fit Royale invite'); closeModal(); return; }
-    closeModal();
-    confirmAddFriend(p.get('addfriend'), p.get('n'), p.get('a'), p.get('au'), p.get('l'));
+    code=url.searchParams.get('code');
   }catch(e){
-    toast('Couldn\'t read that QR code');
-    closeModal();
+    /* not a URL — maybe they scanned a QR that's just the raw code text */
+    if(/^[A-Z0-9]{5}$/i.test(text.trim())) code=text.trim();
   }
+  if(!code){ toast('That QR code isn\'t a Fit Royale invite'); closeModal(); return; }
+  closeModal();
+  confirmAddFriendByCode(code.toUpperCase());
 }
-async function confirmAddFriend(uid,name,avatar,avatarUrl,level){
-  if(!uid || uid===ME?.id) return;
-  const av = avatarUrl ? '<img src="'+avatarUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : mon(avatar||'goblin',40);
+function confirmAddFriendByCode(code){
   openModal(
     '<h3 class="hdr">Add friend?</h3>'+
-    '<div style="display:flex;align-items:center;gap:12px;margin:16px 0">'+
-      '<div style="width:52px;height:52px;flex:none">'+av+'</div>'+
-      '<div><b style="font-size:16px;display:block">'+escapeHtml(name||'A player')+'</b><span class="dim" style="font-size:12px;font-weight:800">Level '+(level||1)+'</span></div>'+
-    '</div>'+
-    '<button class="btn b-purple" onclick="doAddFriend(\''+uid+'\',\''+escapeHtml(name||'Friend').replace(/'/g,"\\'")+'\',\''+(avatar||'goblin')+'\',\''+(avatarUrl||'')+'\','+(level||1)+')">ADD FRIEND</button>'+
+    '<p class="dim" style="font-size:13px;font-weight:800;margin:12px 0">Add the player with code <b style="color:var(--gold)">'+escapeHtml(code)+'</b>?</p>'+
+    '<button class="btn b-purple" onclick="addFriendByCode(\''+code+'\')">ADD FRIEND</button>'+
     '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">NOT NOW</button>'
   );
 }
@@ -2652,22 +2678,7 @@ function stopCoop(){
   const strip=$('coop-strip'); if(strip) strip.style.display='none';
 }
 
-async function doAddFriend(uid,name,avatar,avatarUrl,level){
-  if(!sb || !ME) return;
-  try{
-    const { error } = await sb.from('friendships').upsert({
-      user_id: ME.id, friend_id: uid, friend_username: name,
-      friend_avatar: avatar, friend_avatar_url: avatarUrl||null, friend_level: level||1,
-    }, { onConflict:'user_id,friend_id' });
-    if(error) throw error;
-    closeModal(); SFX.ready(); confetti();
-    toast('Added '+name+' as a friend!');
-    renderArena();
-  }catch(e){
-    console.error('[FitRoyale] add friend failed', e);
-    toast('Could not add friend — try again');
-  }
-}
+
 
 function renderWorkout(){ if($('pr-show')) $('pr-show').textContent=S.user.pr;
   refreshRecordChips(); }
@@ -3961,7 +3972,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='46.0';
+const BUILD='47.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4391,9 +4402,9 @@ function enterApp(){
   setTimeout(()=>toast(greetLine()+', '+(PROFILE?.username||'Champion')+'!'),500);
   setTimeout(()=>toast('Running Build '+BUILD),2200);
   refreshRealPlayers();
-  if(pendingAddFriend?.uid){
-    const pf=pendingAddFriend; pendingAddFriend=null;
-    setTimeout(()=>confirmAddFriend(pf.uid,pf.n,pf.a,pf.au,pf.l), 1400);
+  if(pendingAddFriend){
+    const code=pendingAddFriend; pendingAddFriend=null;
+    setTimeout(()=>confirmAddFriendByCode(code), 1400);
   }
 }
 /* ---- Tutorial: one wave, then unskippable paywall ---- */
@@ -4638,9 +4649,9 @@ async function boot(){
   ldStart();
   /* someone opened a friend-invite link — capture it now and clean the URL,
      act on it once they're actually logged in (see enterApp) */
-  if(location.search.includes('addfriend=')){
+  if(location.search.includes('code=')){
     const p=new URLSearchParams(location.search);
-    pendingAddFriend={ uid:p.get('addfriend'), n:p.get('n'), a:p.get('a'), au:p.get('au'), l:p.get('l') };
+    pendingAddFriend=p.get('code');
     history.replaceState(null,'',location.pathname);
   }
   /* Stripe redirects back here after checkout. This client-side check is
