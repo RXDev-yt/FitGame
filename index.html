@@ -178,6 +178,22 @@
   .hp-line{ margin-top:9px; }
   .hp-line .t{ display:flex; justify-content:space-between; font-size:10.5px; font-weight:900; margin-bottom:4px; }
 
+  .split-row{ display:block; }
+  .split-row.dual{ display:flex; gap:8px; }
+  .split-row.dual .viewport{ flex:1; min-width:0; margin-bottom:12px; }
+  .partner-vp{ background:#0C0F1E; display:flex; align-items:center; justify-content:center; }
+  .partner-vp video{ width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .3s; transform:scaleX(-1); }
+  .partner-vp.live video{ opacity:1; }
+  .partner-vp.live .partner-vp-fallback{ display:none; }
+  .partner-vp-fallback{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .partner-vp-fallback .fav{ width:52px; height:52px; border-radius:50%; overflow:hidden; background:#1A1440;
+    border:2px solid rgba(167,139,250,.5); }
+  .partner-vp-fallback .fav img{ width:100%; height:100%; object-fit:cover; }
+  .partner-vp-fallback span{ font-size:11.5px; font-weight:800; color:var(--dim); }
+  .pvp-live-badge{ position:absolute; top:9px; left:9px; font-size:9px; font-weight:900;
+    letter-spacing:.08em; color:var(--green); background:rgba(0,0,0,.5); padding:3px 7px; border-radius:6px;
+    opacity:0; transition:opacity .3s; }
+  .partner-vp.live .pvp-live-badge{ opacity:1; }
   .viewport{ position:relative; border-radius:20px; overflow:hidden; background:#000; aspect-ratio:3/4.1; border:1px solid var(--line); margin-bottom:12px; }
   .viewport video{ width:100%; height:100%; object-fit:cover; }
   .viewport video, .duel-half.me video, .pose-canvas{ transform:scaleX(-1); } /* mirror self-view; canvas flips with it so skeleton stays aligned */
@@ -601,8 +617,20 @@
   .coop-live-dot{ width:7px; height:7px; border-radius:50%; background:#10B981; flex:none;
     box-shadow:0 0 8px rgba(16,185,129,.9); animation:liveDot 1.4s ease-in-out infinite; margin-left:auto; }
   @keyframes liveDot{ 50%{ opacity:.35; } }
-  .friend-card button.friend-remove{ margin-left:8px; flex:none; width:30px; height:30px; border-radius:50%;
-    background:rgba(239,68,68,.12); color:#F87171; display:flex; align-items:center; justify-content:center; }
+  .party-card{ display:flex; align-items:center; gap:11px; padding:13px 14px; border-radius:18px;
+    background:linear-gradient(135deg,rgba(139,92,246,.22),rgba(245,158,11,.14));
+    border:1.5px solid rgba(167,139,250,.5); margin-bottom:16px;
+    box-shadow:0 0 20px rgba(139,92,246,.25); }
+  .party-card .fav{ width:42px; height:42px; border-radius:50%; flex:none; overflow:hidden;
+    background:#1A1440; border:2px solid rgba(167,139,250,.6); }
+  .party-card .fav img{ width:100%; height:100%; object-fit:cover; }
+  .party-card b{ font-size:14px; font-weight:900; display:block; color:#FCD34D; }
+  .party-card span{ font-size:12.5px; font-weight:800; color:#E9E1FF; }
+  .party-leave{ flex:none; width:32px; height:32px; border-radius:50%; color:#B9C2E0;
+    display:flex; align-items:center; justify-content:center; }
+  .friend-card button.friend-remove{ margin-left:8px; flex:none; width:40px; height:40px; border-radius:50%;
+    background:rgba(239,68,68,.16); color:#F87171; display:flex; align-items:center; justify-content:center;
+    border:1.5px solid rgba(239,68,68,.35); }
   .friend-card{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px;
     background:var(--card-dark); border:1.5px solid var(--line); margin-bottom:9px; }
   .friend-card .fav{ width:44px; height:44px; border-radius:50%; flex:none; overflow:hidden;
@@ -1151,6 +1179,12 @@
     <div class="bp-mon" id="hero-mon"></div>
   </button>
 
+  <div class="party-card" id="home-party-card" style="display:none">
+    <div class="fav" id="home-party-av"></div>
+    <div class="grow"><b>Your Party</b><span id="home-party-name">Friend</span></div>
+    <button class="btn b-gold b-sm" style="flex:none" onclick="rejoinParty()">REJOIN</button>
+  </div>
+
   <div class="tiles">
     <button class="tile map" onclick="goToMapSmooth()">
       <div class="ti"><svg viewBox="0 0 24 24" style="width:22px;height:22px" fill="none" stroke="#A78BFA" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20 3 17V4l6 3 6-3 6 3v13l-6-3-6 3zM9 7v13M15 4v13"/></svg></div>
@@ -1222,6 +1256,15 @@
     </div>
   </button>
 
+  <div class="party-card" id="party-card" style="display:none">
+    <div class="fav" id="party-av"></div>
+    <div class="grow"><b>Your Party</b><span id="party-name">Friend</span></div>
+    <button class="btn b-gold b-sm" style="flex:none" onclick="rejoinParty()">REJOIN</button>
+    <button class="party-leave" onclick="forgetParty()" aria-label="Leave party">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
   <div class="sect-head"><b>YOUR FRIENDS</b><span class="ln"></span></div>
   <div id="friends-list"></div>
 </section>
@@ -1255,6 +1298,7 @@
     </div>
   </div>
 
+  <div class="split-row" id="split-row">
   <div class="viewport" id="b-vp">
     <video id="b-video" autoplay playsinline muted disablepictureinpicture controlslist="nodownload noplaybackrate nofullscreen"></video>
     <canvas class="pose-canvas" id="b-canvas"></canvas>
@@ -1309,6 +1353,15 @@
         </div>
       </div>
     </div>
+  </div>
+  <div class="viewport partner-vp" id="partner-vp" style="display:none">
+    <video id="partner-video" autoplay playsinline muted disablepictureinpicture></video>
+    <div class="partner-vp-fallback" id="partner-vp-fallback">
+      <div class="fav" id="pvp-av"></div>
+      <span id="pvp-name">Friend</span>
+    </div>
+    <span class="pvp-live-badge" id="pvp-badge">● LIVE</span>
+  </div>
   </div>
 
   <div class="bottom-hud">
@@ -2147,6 +2200,7 @@ function goToMapSmooth(){
   },320);
 }
 function renderHome(){
+  renderPartyCard();
   if($('ps-flame') && !$('ps-flame').dataset.ico){
     $('ps-flame').insertAdjacentHTML('afterbegin',ICO.flame(14)); $('ps-flame').dataset.ico=1;
     $('ps-coin').insertAdjacentHTML('afterbegin',ICO.coin(14)); $('ps-coin').dataset.ico=1; }
@@ -2442,6 +2496,7 @@ function closeDrawer(){ $('drawer')?.classList.remove('open'); }
 /* ================= FRIENDS ================= */
 async function renderArena(){
   const list=$('friends-list'); if(!list) return;
+  renderPartyCard();
   if(!sb || !ME){ list.innerHTML=''; return; }
   try{
     await healOneSidedFriendships();
@@ -2459,7 +2514,7 @@ async function renderArena(){
         '<div class="grow"><b>'+escapeHtml(f.friend_username||'Friend')+'</b><span>Level '+(f.friend_level||1)+'</span></div>'+
         '<button onclick="startCoop(\''+f.friend_id+'\',\''+nameEsc+'\',\''+(f.friend_avatar||'goblin')+'\',\''+(f.friend_avatar_url||'')+'\')">PLAY TOGETHER</button>'+
         '<button class="friend-remove" onclick="confirmRemoveFriend(\''+f.friend_id+'\',\''+nameEsc+'\')" aria-label="Remove friend">'+
-          '<svg viewBox="0 0 24 24" style="width:15px;height:15px" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>'+
+          '<svg viewBox="0 0 24 24" style="width:19px;height:19px" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>'+
         '</button>'+
       '</div>';
     }).join('');
@@ -2646,6 +2701,100 @@ function confirmAddFriendByCode(code){
     '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">NOT NOW</button>'
   );
 }
+/* ================= PARTY MEMORY (rejoin without re-inviting) ================= */
+function partyKey(){ return 'fr_party_'+(ME?.id||'anon'); }
+function rememberParty(friendId,friendName,friendAv,friendAvUrl){
+  try{ localStorage.setItem(partyKey(), JSON.stringify({ friendId,friendName,friendAv,friendAvUrl,at:Date.now() })); }catch(e){}
+}
+function loadParty(){
+  try{ return JSON.parse(localStorage.getItem(partyKey())||'null'); }catch(e){ return null; }
+}
+function forgetParty(){
+  try{ localStorage.removeItem(partyKey()); }catch(e){}
+  const card=$('party-card'); if(card) card.style.display='none';
+}
+function renderPartyCard(){
+  const p=loadParty();
+  const card=$('party-card');
+  if(card){
+    if(!p){ card.style.display='none'; }
+    else{
+      card.style.display='flex';
+      setHTML('party-av', p.friendAvUrl ? '<img src="'+p.friendAvUrl+'">' : mon(p.friendAv||'goblin',30));
+      setTxt('party-name', p.friendName);
+    }
+  }
+  const hCard=$('home-party-card');
+  if(hCard){
+    if(!p){ hCard.style.display='none'; }
+    else{
+      hCard.style.display='flex';
+      setHTML('home-party-av', p.friendAvUrl ? '<img src="'+p.friendAvUrl+'">' : mon(p.friendAv||'goblin',30));
+      setTxt('home-party-name', p.friendName);
+    }
+  }
+}
+function rejoinParty(){
+  const p=loadParty(); if(!p){ toast('No party to rejoin'); return; }
+  startCoop(p.friendId,p.friendName,p.friendAv,p.friendAvUrl);
+}
+/* ================= SPLIT-SCREEN PARTNER VIDEO (WebRTC over the coop channel) =================
+   Reuses the camera PoseEngine already has — never requests a second camera stream.
+   Fails silently to the avatar fallback if the connection can't establish (strict NAT etc). */
+const RTCLink={
+  pc:null,
+  async ensureLocalStream(){
+    if(PoseEngine.stream && PoseEngine.stream.getVideoTracks().length) return PoseEngine.stream;
+    if(cams[0] && cams[0].getVideoTracks().length) return cams[0];
+    return null;
+  },
+  async start(isHost){
+    if(!COOP?.ch || this.pc) return;
+    const stream=await this.ensureLocalStream();
+    if(!stream) return;
+    try{
+      const pc=new RTCPeerConnection({ iceServers:[{urls:'stun:stun.l.google.com:19302'}] });
+      this.pc=pc;
+      stream.getVideoTracks().forEach(t=>pc.addTrack(t,stream));
+      pc.ontrack=(e)=>{
+        const v=$('partner-video');
+        if(v){ v.srcObject=e.streams[0]; $('partner-vp')?.classList.add('live'); }
+      };
+      pc.onicecandidate=(e)=>{
+        if(e.candidate && COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-rtc-ice', payload:{ candidate:e.candidate } }); }catch(err){} }
+      };
+      pc.onconnectionstatechange=()=>{
+        if(['failed','closed','disconnected'].includes(pc.connectionState)){
+          $('partner-vp')?.classList.remove('live');
+        }
+      };
+      if(isHost){
+        const offer=await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        COOP.ch.send({ type:'broadcast', event:'coop-rtc-offer', payload:{ sdp:offer } });
+      }
+    }catch(e){ console.warn('[FitRoyale] split-screen video unavailable', e); this.stop(); }
+  },
+  async onOffer(sdp){
+    if(!this.pc) await this.start(false);
+    if(!this.pc) return;
+    try{
+      await this.pc.setRemoteDescription(sdp);
+      const answer=await this.pc.createAnswer();
+      await this.pc.setLocalDescription(answer);
+      COOP.ch.send({ type:'broadcast', event:'coop-rtc-answer', payload:{ sdp:answer } });
+    }catch(e){ console.warn('[FitRoyale] offer handling failed', e); }
+  },
+  async onAnswer(sdp){ if(this.pc){ try{ await this.pc.setRemoteDescription(sdp); }catch(e){} } },
+  async onIce(candidate){ if(this.pc){ try{ await this.pc.addIceCandidate(candidate); }catch(e){} } },
+  stop(){
+    if(this.pc){ try{ this.pc.close(); }catch(e){} this.pc=null; }
+    const v=$('partner-video'); if(v) v.srcObject=null;
+    $('partner-vp')?.classList.remove('live');
+    const sr=$('split-row'); if(sr) sr.classList.remove('dual');
+    const pv=$('partner-vp'); if(pv) pv.style.display='none';
+  },
+};
 /* ================= CO-OP (shared fight with a friend) ================= */
 let COOP=null; /* { ch, friendId, friendName, friendAv, isHost, ready, joinedAt } */
 
@@ -2655,6 +2804,7 @@ function startCoop(friendId,friendName,friendAv,friendAvUrl,targetCi,targetI){
   if(!sb || !ME){ toast('Connection error'); return; }
   SFX.click();
   stopCoop();
+  rememberParty(friendId,friendName,friendAv,friendAvUrl);
   const joinedAt=Date.now();
   const hasTarget = Number.isInteger(targetCi) && Number.isInteger(targetI);
   COOP={ ch:null, friendId, friendName, friendAv, friendAvUrl, isHost:false, ready:false, joinedAt, partnerHere:false,
@@ -2681,6 +2831,9 @@ function startCoop(friendId,friendName,friendAv,friendAvUrl,targetCi,targetI){
   ch.on('broadcast',{event:'coop-rest-sync'},({payload})=>{ if(S.B?.coop) startRest(payload.nextName,payload.nextSprite,payload.endAt); });
   ch.on('broadcast',{event:'coop-ready-sync'},({payload})=>{ if(S.B?.coop) runCoopReadyCountdown(payload.readyAt); });
   ch.on('broadcast',{event:'coop-skip-rest'},()=>{ if(S.B?.coop && S.B.resting) S.B.restEndAt=Date.now(); });
+  ch.on('broadcast',{event:'coop-rtc-offer'},({payload})=>{ RTCLink.onOffer(payload.sdp); });
+  ch.on('broadcast',{event:'coop-rtc-answer'},({payload})=>{ RTCLink.onAnswer(payload.sdp); });
+  ch.on('broadcast',{event:'coop-rtc-ice'},({payload})=>{ RTCLink.onIce(payload.candidate); });
   ch.on('broadcast',{event:'coop-leave'},()=>{
     if(S.B?.coop){ toast(COOP.friendName+' left the fight'); }
     else toast(COOP.friendName+' isn\'t ready right now');
@@ -2738,6 +2891,7 @@ function stopCoop(){
   if(COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-leave', payload:{} }); }catch(e){} try{ COOP.ch.unsubscribe(); }catch(e){} }
   COOP=null; _coopStartLock=false;
   const strip=$('coop-strip'); if(strip) strip.style.display='none';
+  RTCLink.stop();
 }
 
 
@@ -2803,6 +2957,13 @@ async function startBattleTracking(){
     $('rep-mode-lbl').textContent='AUTO-TRACKING ✓';
     $('b-auto').style.display='none';                    /* demo button not needed */
     $('b-fb').style.display='none';
+    if(myB.coop && COOP?.ch){
+      $('partner-vp').style.display='flex';
+      $('split-row').classList.add('dual');
+      setHTML('pvp-av', COOP.friendAvUrl ? '<img src="'+COOP.friendAvUrl+'">' : mon(COOP.friendAv||'goblin',26));
+      setTxt('pvp-name', COOP.friendName);
+      if(COOP.isHost) RTCLink.start(true);
+    }
   } else {
     /* pose unavailable → plain camera preview + tap mode + decorative skeleton */
     initCam('b-video','b-fb');
@@ -4046,14 +4207,16 @@ const PoseEngine={
     const range=t.aMax-t.aMin;
 
     t.onStatus('ai','AI · '+c.joint+' '+Math.round(angle)+'°');
-    const MIN_RANGE = curDiff()==='easy' ? 15 : curDiff()==='normal' ? 30 : curDiff()==='hard' ? 40 : 50;
+    const MIN_RANGE = c.joint==='Hip' ? 20 : 26;
     if(range < MIN_RANGE){
       if(!t.calib){ t.onStatus('load','Do one full rep so I can learn your range…'); }
       return;
     }
     if(!t.calib){ t.calib=true; beep(880,.08); t.onStatus('ai','Range set — counting!'); }
 
-    const frac = curDiff()==='easy' ? 0.45 : curDiff()==='normal' ? 0.32 : 0.26;
+    /* sit-ups get a much more forgiving depth requirement — roughly half-way
+       counts, since a full crunch-to-knees rep was proving too hard for most people */
+    const frac = c.joint==='Hip' ? 0.50 : 0.40;
     const downAt = t.aMin + range*frac;
     const upAt   = t.aMax - range*frac;
 
@@ -4095,7 +4258,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='50.1';
+const BUILD='51.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
