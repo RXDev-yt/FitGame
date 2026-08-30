@@ -178,22 +178,6 @@
   .hp-line{ margin-top:9px; }
   .hp-line .t{ display:flex; justify-content:space-between; font-size:10.5px; font-weight:900; margin-bottom:4px; }
 
-  .split-row{ display:block; }
-  .split-row.dual{ display:flex; gap:8px; }
-  .split-row.dual .viewport{ flex:1; min-width:0; margin-bottom:12px; }
-  .partner-vp{ background:#0C0F1E; display:flex; align-items:center; justify-content:center; }
-  .partner-vp video{ width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .3s; transform:scaleX(-1); }
-  .partner-vp.live video{ opacity:1; }
-  .partner-vp.live .partner-vp-fallback{ display:none; }
-  .partner-vp-fallback{ display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .partner-vp-fallback .fav{ width:52px; height:52px; border-radius:50%; overflow:hidden; background:#1A1440;
-    border:2px solid rgba(167,139,250,.5); }
-  .partner-vp-fallback .fav img{ width:100%; height:100%; object-fit:cover; }
-  .partner-vp-fallback span{ font-size:11.5px; font-weight:800; color:var(--dim); }
-  .pvp-live-badge{ position:absolute; top:9px; left:9px; font-size:9px; font-weight:900;
-    letter-spacing:.08em; color:var(--green); background:rgba(0,0,0,.5); padding:3px 7px; border-radius:6px;
-    opacity:0; transition:opacity .3s; }
-  .partner-vp.live .pvp-live-badge{ opacity:1; }
   .viewport{ position:relative; border-radius:20px; overflow:hidden; background:#000; aspect-ratio:3/4.1; border:1px solid var(--line); margin-bottom:12px; }
   .viewport video{ width:100%; height:100%; object-fit:cover; }
   .viewport video, .duel-half.me video, .pose-canvas{ transform:scaleX(-1); } /* mirror self-view; canvas flips with it so skeleton stays aligned */
@@ -1298,7 +1282,6 @@
     </div>
   </div>
 
-  <div class="split-row" id="split-row">
   <div class="viewport" id="b-vp">
     <video id="b-video" autoplay playsinline muted disablepictureinpicture controlslist="nodownload noplaybackrate nofullscreen"></video>
     <canvas class="pose-canvas" id="b-canvas"></canvas>
@@ -1353,15 +1336,6 @@
         </div>
       </div>
     </div>
-  </div>
-  <div class="viewport partner-vp" id="partner-vp" style="display:none">
-    <video id="partner-video" autoplay playsinline muted disablepictureinpicture></video>
-    <div class="partner-vp-fallback" id="partner-vp-fallback">
-      <div class="fav" id="pvp-av"></div>
-      <span id="pvp-name">Friend</span>
-    </div>
-    <span class="pvp-live-badge" id="pvp-badge">● LIVE</span>
-  </div>
   </div>
 
   <div class="bottom-hud">
@@ -2738,63 +2712,6 @@ function rejoinParty(){
   const p=loadParty(); if(!p){ toast('No party to rejoin'); return; }
   startCoop(p.friendId,p.friendName,p.friendAv,p.friendAvUrl);
 }
-/* ================= SPLIT-SCREEN PARTNER VIDEO (WebRTC over the coop channel) =================
-   Reuses the camera PoseEngine already has — never requests a second camera stream.
-   Fails silently to the avatar fallback if the connection can't establish (strict NAT etc). */
-const RTCLink={
-  pc:null,
-  async ensureLocalStream(){
-    if(PoseEngine.stream && PoseEngine.stream.getVideoTracks().length) return PoseEngine.stream;
-    if(cams[0] && cams[0].getVideoTracks().length) return cams[0];
-    return null;
-  },
-  async start(isHost){
-    if(!COOP?.ch || this.pc) return;
-    const stream=await this.ensureLocalStream();
-    if(!stream) return;
-    try{
-      const pc=new RTCPeerConnection({ iceServers:[{urls:'stun:stun.l.google.com:19302'}] });
-      this.pc=pc;
-      stream.getVideoTracks().forEach(t=>pc.addTrack(t,stream));
-      pc.ontrack=(e)=>{
-        const v=$('partner-video');
-        if(v){ v.srcObject=e.streams[0]; $('partner-vp')?.classList.add('live'); }
-      };
-      pc.onicecandidate=(e)=>{
-        if(e.candidate && COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-rtc-ice', payload:{ candidate:e.candidate } }); }catch(err){} }
-      };
-      pc.onconnectionstatechange=()=>{
-        if(['failed','closed','disconnected'].includes(pc.connectionState)){
-          $('partner-vp')?.classList.remove('live');
-        }
-      };
-      if(isHost){
-        const offer=await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        COOP.ch.send({ type:'broadcast', event:'coop-rtc-offer', payload:{ sdp:offer } });
-      }
-    }catch(e){ console.warn('[FitRoyale] split-screen video unavailable', e); this.stop(); }
-  },
-  async onOffer(sdp){
-    if(!this.pc) await this.start(false);
-    if(!this.pc) return;
-    try{
-      await this.pc.setRemoteDescription(sdp);
-      const answer=await this.pc.createAnswer();
-      await this.pc.setLocalDescription(answer);
-      COOP.ch.send({ type:'broadcast', event:'coop-rtc-answer', payload:{ sdp:answer } });
-    }catch(e){ console.warn('[FitRoyale] offer handling failed', e); }
-  },
-  async onAnswer(sdp){ if(this.pc){ try{ await this.pc.setRemoteDescription(sdp); }catch(e){} } },
-  async onIce(candidate){ if(this.pc){ try{ await this.pc.addIceCandidate(candidate); }catch(e){} } },
-  stop(){
-    if(this.pc){ try{ this.pc.close(); }catch(e){} this.pc=null; }
-    const v=$('partner-video'); if(v) v.srcObject=null;
-    $('partner-vp')?.classList.remove('live');
-    const sr=$('split-row'); if(sr) sr.classList.remove('dual');
-    const pv=$('partner-vp'); if(pv) pv.style.display='none';
-  },
-};
 /* ================= CO-OP (shared fight with a friend) ================= */
 let COOP=null; /* { ch, friendId, friendName, friendAv, isHost, ready, joinedAt } */
 
@@ -2831,9 +2748,6 @@ function startCoop(friendId,friendName,friendAv,friendAvUrl,targetCi,targetI){
   ch.on('broadcast',{event:'coop-rest-sync'},({payload})=>{ if(S.B?.coop) startRest(payload.nextName,payload.nextSprite,payload.endAt); });
   ch.on('broadcast',{event:'coop-ready-sync'},({payload})=>{ if(S.B?.coop) runCoopReadyCountdown(payload.readyAt); });
   ch.on('broadcast',{event:'coop-skip-rest'},()=>{ if(S.B?.coop && S.B.resting) S.B.restEndAt=Date.now(); });
-  ch.on('broadcast',{event:'coop-rtc-offer'},({payload})=>{ RTCLink.onOffer(payload.sdp); });
-  ch.on('broadcast',{event:'coop-rtc-answer'},({payload})=>{ RTCLink.onAnswer(payload.sdp); });
-  ch.on('broadcast',{event:'coop-rtc-ice'},({payload})=>{ RTCLink.onIce(payload.candidate); });
   ch.on('broadcast',{event:'coop-leave'},()=>{
     if(S.B?.coop){ toast(COOP.friendName+' left the fight'); }
     else toast(COOP.friendName+' isn\'t ready right now');
@@ -2891,7 +2805,6 @@ function stopCoop(){
   if(COOP?.ch){ try{ COOP.ch.send({ type:'broadcast', event:'coop-leave', payload:{} }); }catch(e){} try{ COOP.ch.unsubscribe(); }catch(e){} }
   COOP=null; _coopStartLock=false;
   const strip=$('coop-strip'); if(strip) strip.style.display='none';
-  RTCLink.stop();
 }
 
 
@@ -2957,13 +2870,6 @@ async function startBattleTracking(){
     $('rep-mode-lbl').textContent='AUTO-TRACKING ✓';
     $('b-auto').style.display='none';                    /* demo button not needed */
     $('b-fb').style.display='none';
-    if(myB.coop && COOP?.ch){
-      $('partner-vp').style.display='flex';
-      $('split-row').classList.add('dual');
-      setHTML('pvp-av', COOP.friendAvUrl ? '<img src="'+COOP.friendAvUrl+'">' : mon(COOP.friendAv||'goblin',26));
-      setTxt('pvp-name', COOP.friendName);
-      if(COOP.isHost) RTCLink.start(true);
-    }
   } else {
     /* pose unavailable → plain camera preview + tap mode + decorative skeleton */
     initCam('b-video','b-fb');
@@ -3340,6 +3246,9 @@ function killBattle(){ if(!S.B) return; stopPrepTimer(); $('restgate')?.classLis
 /* launchers */
 function startEpisode(ci,i){
   closeDrawer(); S.B_origin='campaign';
+  maybeEpisodeStory(ci,i,()=>reallyStartEpisode(ci,i));
+}
+function reallyStartEpisode(ci,i){
   const e=S.chapters[ci].eps[i];
   const waves=[];
   const dm=D().hp;
@@ -3617,6 +3526,48 @@ function showStoryModal(title,body,btn,cb){
   $('story-ok').onclick=()=>{ closeModal(); SFX.click(); if(cb) cb(); };
 }
 /* fires once per chapter, the first time you open it */
+/* Short story beat shown once before each episode. Hand-writing 108 unique
+   blurbs isn't realistic, so this generates contextual text from the real
+   episode data (creature, chapter, boss status, position) — deterministic
+   per episode, so it never feels random or repeats mid-playthrough. */
+const EP_OPENERS=[
+  '{creature} steps out to block your way.',
+  'You spot {creature} waiting up ahead.',
+  '{creature} looks ready for a match.',
+  'A rustle nearby — it is {creature}.',
+  '{creature} squares up, ready to go.',
+  'One more challenger: {creature}.',
+];
+const EP_MIDCLOSERS=[
+  'Beat them and keep moving through {chapter}.',
+  'Clear this and you are one step closer.',
+  'Win here and the path opens up.',
+  'Every rep counts — let\'s go.',
+];
+function episodeStoryLine(ci,i,e,chapterName){
+  const seedI = (ci*18+i);
+  if(e.boss){
+    return { title:'Big Match!', text:'The strongest fighter in <b>'+chapterName+'</b> — <b>'+e.name+'</b> — is waiting. Win this and the chapter is yours!' };
+  }
+  if(i===0){
+    return { title:chapterName, text:'You have arrived in <b>'+chapterName+'</b>. First up: <b>'+e.name+'</b>.' };
+  }
+  const opener=EP_OPENERS[seedI % EP_OPENERS.length].replace('{creature}','<b>'+e.name+'</b>').replace('{chapter}',chapterName);
+  const closer=EP_MIDCLOSERS[(seedI+2) % EP_MIDCLOSERS.length].replace('{chapter}',chapterName);
+  return { title:'Episode '+(i+1), text:opener+' '+closer };
+}
+function maybeEpisodeStory(ci,i,cb){
+  if(!PROFILE){ cb(); return; }
+  const seen=(PROFILE.story_seen||'').split(',').filter(Boolean);
+  const key='e'+ci+'-'+i;
+  if(seen.includes(key)){ cb(); return; }
+  seen.push(key);
+  PROFILE.story_seen=seen.join(','); saveProfile();
+  const e=S.chapters[ci]?.eps[i]; const chapterName=S.chapters[ci]?.name||'this chapter';
+  if(!e){ cb(); return; }
+  const line=episodeStoryLine(ci,i,e,chapterName);
+  showStoryModal(line.title, line.text, e.boss?'FIGHT!':'GO', cb);
+}
 function maybeChapterStory(ci){
   if(!PROFILE) return false;
   const seen=(PROFILE.story_seen||'').split(',').filter(Boolean);
@@ -4258,7 +4209,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='51.0';
+const BUILD='52.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
