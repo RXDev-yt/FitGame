@@ -2402,6 +2402,7 @@ function showDiag(){
     row('Skipped columns', badCols.size?[...badCols].join(', '):'none')+
     '</div>'+
     '<button class="btn b-purple" onclick="copyDiag()">COPY THIS INFO</button>'+
+    '<button class="btn b-gold" style="margin-top:9px" onclick="closeModal();showPaywall()">PREVIEW PAYWALL</button>'+
     '<button class="btn b-ghost" style="margin-top:9px" onclick="closeModal()">CLOSE</button>');
 }
 function copyDiag(){
@@ -4236,7 +4237,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='55.0';
+const BUILD='56.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
