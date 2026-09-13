@@ -505,6 +505,8 @@
   .oauth-btn:active{ transform:scale(.97); }
   .oauth-btn.apple{ background:#000; color:#fff; border-color:#000; }
   .oauth-sep{ display:flex; align-items:center; gap:12px; margin:4px 0 14px; }
+  .email-fallback-toggle{ display:block; width:100%; text-align:center; font-size:12px; font-weight:800;
+    color:var(--dim); text-decoration:underline; text-underline-offset:3px; padding:6px; margin-bottom:4px; }
   .oauth-sep i{ flex:1; height:1px; background:var(--line); }
   .oauth-sep span{ font-size:11px; font-weight:900; color:var(--dim); letter-spacing:.1em; }
 
@@ -1528,31 +1530,35 @@
     </div>
     <div class="oauth-sep"><i></i><span>OR</span><i></i></div>
 
-    <div class="auth-tabs">
-      <button class="auth-tab on" id="at-login" onclick="authTab('login')">Log in</button>
-      <button class="auth-tab" id="at-signup" onclick="authTab('signup')">Sign up</button>
-    </div>
-    <div class="field">
-      <label>Email</label>
-      <input id="in-email" type="email" placeholder="you@email.com" autocomplete="email">
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input id="in-pass" type="password" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="stay-row on" id="stay-row" onclick="toggleStay()">
-      <div class="stay-box">
-        <svg viewBox="0 0 24 24" style="width:15px;height:15px" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+    <button class="email-fallback-toggle" id="email-toggle" onclick="toggleEmailFallback()">Having trouble? Use email instead</button>
+
+    <div id="email-fallback" style="display:none">
+      <div class="auth-tabs">
+        <button class="auth-tab on" id="at-login" onclick="authTab('login')">Log in</button>
+        <button class="auth-tab" id="at-signup" onclick="authTab('signup')">Sign up</button>
       </div>
-      <div style="text-align:left">
-        <b>Stay logged in</b>
-        <span id="stay-sub">This device only — skip the login screen next time</span>
+      <div class="field">
+        <label>Email</label>
+        <input id="in-email" type="email" placeholder="you@email.com" autocomplete="email">
       </div>
-    </button>
-    <div class="auth-err" id="auth-err"></div>
-    <button class="btn b-purple" id="auth-go" onclick="doAuth()">LOG IN</button>
-    <p class="fp-link" id="fp-link" onclick="goForgot()">Forgot your password?</p>
-    <p class="dim" style="text-align:center;font-size:11px;font-weight:800;margin-top:10px">Free account · No card needed</p>
+      <div class="field">
+        <label>Password</label>
+        <input id="in-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="stay-row on" id="stay-row" onclick="toggleStay()">
+        <div class="stay-box">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+        </div>
+        <div style="text-align:left">
+          <b>Stay logged in</b>
+          <span id="stay-sub">This device only — skip the login screen next time</span>
+        </div>
+      </button>
+      <div class="auth-err" id="auth-err"></div>
+      <button class="btn b-purple" id="auth-go" onclick="doAuth()">LOG IN</button>
+      <p class="fp-link" id="fp-link" onclick="goForgot()">Forgot your password?</p>
+      <p class="dim" style="text-align:center;font-size:11px;font-weight:800;margin-top:10px">Free account · No card needed</p>
+    </div>
   </div>
 </section>
 
@@ -1570,7 +1576,7 @@
     </div>
     <div class="auth-err" id="fp-err"></div>
     <button class="btn b-purple" id="fp-go" onclick="sendReset()">SEND RESET LINK</button>
-    <button class="btn b-ghost" style="margin-top:10px" onclick="goFlow('scr-auth')">BACK TO LOG IN</button>
+    <button class="btn b-ghost" style="margin-top:10px" onclick="backToLoginWithEmail()">BACK TO LOG IN</button>
   </div>
 </section>
 
@@ -1585,7 +1591,7 @@
     <div class="em-addr" id="rs-email">you@email.com</div>
     <p class="dim" style="font-weight:700;font-size:12.5px;margin-top:12px">Tap the link — it'll bring you back here to set a new password.</p>
     <div class="hint">Don't see it? Check spam/junk. It can take a minute.</div>
-    <button class="btn b-ghost" style="margin-top:22px" onclick="goFlow('scr-auth')">BACK TO LOG IN</button>
+    <button class="btn b-ghost" style="margin-top:22px" onclick="backToLoginWithEmail()">BACK TO LOG IN</button>
     <button class="btn b-purple" style="margin-top:10px" onclick="resendReset()" id="resend-reset-btn">RESEND LINK</button>
   </div>
 </section>
@@ -4209,7 +4215,7 @@ function avgVis(lm,ids){ return ids.reduce((s,i)=>s+(lm[i]?.visibility??0),0)/id
 setTimeout(()=>PoseEngine.load(),1200);
 
 /* ================= SUPABASE AUTH & CLOUD SAVE ================= */
-const BUILD='52.0';
+const BUILD='53.0';
 /* A previously installed service worker (from the old app package) caches index.html
    cache-first and will happily serve week-old code forever. Remove it and wipe caches. */
 (async function purgeStaleCache(){
@@ -4344,6 +4350,19 @@ async function doAuth(){
     }
   }
   finally{ $('auth-go').textContent=authMode==='signup'?'CREATE ACCOUNT':'LOG IN'; }
+}
+function toggleEmailFallback(){
+  SFX.click();
+  const box=$('email-fallback'), toggle=$('email-toggle');
+  const showing = box.style.display!=='none';
+  box.style.display = showing ? 'none' : 'block';
+  if(toggle) toggle.style.display = showing ? 'block' : 'none';
+}
+function backToLoginWithEmail(){
+  goFlow('scr-auth');
+  const box=$('email-fallback'), toggle=$('email-toggle');
+  if(box) box.style.display='block';
+  if(toggle) toggle.style.display='none';
 }
 async function oauth(provider){
   if(!sb){ $('auth-err').textContent='Connection error — try again.'; return; }
